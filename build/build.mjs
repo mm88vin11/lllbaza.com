@@ -68,6 +68,18 @@ let out = page
   .replace('/*__LB_RUNTIME_RESOURCES__*/', () => runtime)
   .replace('/*__LB_MEDIA_RESOURCES__*/', () => mediaLiteral);
 
+// Картинки, которые стоят прямо в разметке (логотипы интро и подвала).
+// В сборке «один файл» они становятся data-URI, в прод-сборке — обычными
+// адресами: тогда документ не тащит на себе 800 КБ base64, а браузер берёт
+// их параллельно и кеширует отдельно.
+out = out.replace(/\/\*__LB_ASSET:([^*]+)__\*\//g, (_, key) => {
+  const ext = key.slice(key.lastIndexOf('.'));
+  const type = MIME[ext];
+  if (!type) throw new Error('неизвестный тип ассета: ' + key);
+  if (!inline) return '/media/' + key;
+  return 'data:' + type + ';base64,' + readFileSync(join(MEDIA_DIR, key)).toString('base64');
+});
+
 // В прод-режиме кадры лежат в /media/, а просит их компонент по чистому
 // ключу. Одна строка базового пути — и оба режима работают одним кодом.
 out = out.replace('/*__LB_MEDIA_BASE__*/', inline ? '' : '/media/');
