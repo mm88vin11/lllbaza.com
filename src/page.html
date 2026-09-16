@@ -523,6 +523,17 @@
   a:hover { color: #f2ebdd; }
   a:focus { outline: none; }
   a:focus-visible { outline: 1px solid rgba(242,235,221,0.8); outline-offset: 3px; }
+  /* Кольцо фокуса сильнее инлайнового outline: none — иначе элементы, которые
+     гасят его ради чистого наведения мышью, пропадают и для клавиатуры.
+     :focus-visible срабатывает только на клавиатурный фокус, поэтому вид при
+     работе мышью не меняется. */
+  a:focus-visible, button:focus-visible, [role="button"]:focus-visible,
+  [role="switch"]:focus-visible, [role="radio"]:focus-visible, [role="tab"]:focus-visible,
+  input:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
+    outline: 2px solid rgba(242,235,221,0.9) !important; outline-offset: 3px; border-radius: inherit; }
+  /* На кремовых плашках белое кольцо не видно — там контрастнее тёмное */
+  #brief [data-cgo]:focus-visible, .lb-first__cta:focus-visible {
+    outline-color: #0a0a0a !important; }
   ::selection { background: #f2ebdd; color: #0a0a0a; }
   input::placeholder { color: rgba(242,235,221,0.52); }
   ::-webkit-scrollbar { width: 0; height: 0; display: none; }
@@ -9869,7 +9880,7 @@ class Component extends DCLogic {
         maxWidth: '48ch', fontSize: narrow ? '13.5px' : '15px', lineHeight: 1.5, fontWeight: 500,
         color: 'rgba(242,235,221,0.52)', textWrap: 'pretty'
       },
-      faqFootText: 'Шестой вопрос всегда свой. Задайте его — отвечаем в рабочие часы в течение часа, вечером и в выходные дольше.',
+      faqFootText: 'Шестой вопрос всегда свой. Задайте его — отвечаем в рабочие часы в течение дня, вечером и в выходные дольше.',
       faqFootCtaStyle: {
         boxSizing: 'border-box', display: 'inline-flex', alignItems: 'center', gap: '10px',
         flex: '0 0 auto', height: '52px', padding: '0 22px', borderRadius: '999px',
