@@ -1,0 +1,36 @@
+# Cloudflare Pages / Netlify — заголовки безопасности.
+# CSP собран под то, что страница реально делает: весь код и стили инлайновые
+# (единый файл), изображения и шрифты — data:, заявка уходит на воркер.
+# 'unsafe-inline' для script-src здесь вынужденный: страница — один файл с
+# инлайновым рантаймом. Убрать его можно только вместе с переездом на сборку
+# с внешними скриптами и хешами — это отдельная задача, см. ОТЧЁТ.md.
+/*
+  Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+  Content-Security-Policy: default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'none'; form-action 'self'; script-src 'self' 'unsafe-inline' https://mc.yandex.ru https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://mc.yandex.ru; font-src 'self' data:; media-src 'self' data: blob:; connect-src 'self' data: https://lead.lllbaza.ru https://www.cbr-xml-daily.ru https://mc.yandex.ru https://www.google-analytics.com; upgrade-insecure-requests
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=(), usb=(), interest-cohort=()
+  X-Frame-Options: DENY
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Resource-Policy: same-origin
+
+# Страница — один большой файл. Держим её в кеше недолго, чтобы правки
+# доезжали до людей, а иконки и картинки — надолго: они меняются редко.
+/
+  Cache-Control: public, max-age=600, stale-while-revalidate=86400
+/index.html
+  Cache-Control: public, max-age=600, stale-while-revalidate=86400
+/og.jpg
+  Cache-Control: public, max-age=2592000
+/favicon.ico
+  Cache-Control: public, max-age=2592000
+/favicon.svg
+  Cache-Control: public, max-age=2592000
+/apple-touch-icon.png
+  Cache-Control: public, max-age=2592000
+/icon-192.png
+  Cache-Control: public, max-age=2592000
+/icon-512.png
+  Cache-Control: public, max-age=2592000
+/icon-maskable-512.png
+  Cache-Control: public, max-age=2592000

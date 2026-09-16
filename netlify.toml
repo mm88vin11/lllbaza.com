@@ -1,0 +1,9 @@
+# Публикуем содержимое dist: index.html из корня плюс статика из public.
+[build]
+  command = "node build/build.mjs && node build/pages.mjs && node build/dist.mjs"
+  publish = "dist"
+
+[[redirects]]
+  from = "/spasibo"
+  to = "/spasibo.html"
+  status = 200

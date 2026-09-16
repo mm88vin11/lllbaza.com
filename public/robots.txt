@@ -1,0 +1,9 @@
+# lllbaza.ru
+User-agent: *
+Allow: /
+Disallow: /spasibo
+
+# Заявки принимает воркер, индексировать там нечего
+Disallow: /lead
+
+Sitemap: https://lllbaza.ru/sitemap.xml

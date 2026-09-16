@@ -1,0 +1,13 @@
+name = "lllbaza-lead"
+main = "worker.js"
+compatibility_date = "2026-09-01"
+
+# Частота приёма заявок считается в KV. Без него воркер работает, но без
+# ограничения — заведите namespace и подставьте id, прежде чем публиковать.
+# [[kv_namespaces]]
+# binding = "LEADS_KV"
+# id = "<id namespace-а из дашборда Cloudflare>"
+
+# TG_TOKEN и TG_CHAT задаются только секретами, в файл их не пишем:
+#   npx wrangler secret put TG_TOKEN
+#   npx wrangler secret put TG_CHAT

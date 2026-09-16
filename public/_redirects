@@ -1,0 +1,8 @@
+# Канонический адрес — https://lllbaza.ru без www. Один вариант в выдаче,
+# один в аналитике, один в ссылках.
+https://www.lllbaza.ru/*   https://lllbaza.ru/:splat   301!
+http://lllbaza.ru/*        https://lllbaza.ru/:splat    301!
+http://www.lllbaza.ru/*    https://lllbaza.ru/:splat    301!
+
+# «Спасибо» — настоящая страница на своём адресе
+/spasibo   /spasibo.html   200
