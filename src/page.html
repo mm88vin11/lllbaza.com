@@ -1566,12 +1566,6 @@
             <button type="button" data-press="1" onClick="{{ cDraftDrop }}" style="{{ cDraftDropStyle }}">{{ cT.draftDrop }}</button>
           </div>
         </sc-if>
-        <sc-if value="{{ cFromLink }}">
-          <div style="{{ cDraftStyle }}">
-            <span style="{{ cDraftDotStyle }}"></span>
-            <span style="{{ cDraftBtnStyle }}">Открыли сборку по ссылке — можно менять что угодно.</span>
-          </div>
-        </sc-if>
 
         <!-- ── СТЕНД СБОРКИ + ЦЕНА ────────────────────────────────── -->
         <div data-reveal="1" data-rd="90" data-rdist="26" style="{{ cHeroStyle }}">
@@ -1638,7 +1632,7 @@
             <div style="{{ cComboStyle }}"><span style="{{ cComboDotStyle }}"></span><span style="{{ cComboTextStyle }}">{{ cComboText }}</span></div>
           </div>
 
-          <!-- ─ 2. Комплектация ─────────────────────────────────── -->
+          <!-- ─ 2. Сборка ─────────────────────────────────── -->
           <div ref="{{ cS2Ref }}" style="{{ cS2Style }}">
             <div style="{{ cTabsWrapStyle }}">
               <div data-hscroll="1" style="{{ cTabsStyle }}">
@@ -1853,41 +1847,46 @@
           <a href="https://www.tiktok.com/@lllbaza" target="_blank" rel="noopener" data-sw="light" data-press="1" style="{{ footSocCard }}" style-hover="border-color: rgba(242,235,221,0.52);"><span style="{{ footSocCardTop }}"><span style="{{ footSocIco }}"><svg sc-camel-view-box="-2.802 -2.108 29.136 29.136" width="19" height="19" fill="currentColor" aria-hidden="true" style="display: block; flex: 0 0 auto;"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"></path></svg></span><span>TikTok</span><span style="{{ footSocArrow }}"><svg data-ar="out" sc-camel-view-box="0 0 24 24" width="16" height="16" style="flex: 0 0 auto;" aria-hidden="true"><path d="M7 17L17 7M9 7h8v8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></span></span><span style="{{ footSocNote }}">Работа изнутри, юмор и то, ради чего к нам приходят.</span></a>
         </div>
 
-        <!-- ── ПРАВОВАЯ ПОЛКА ────────────────────────────────────────────
-             Три ровные колонки вместо колодца ссылок вдоль левого края:
-             кто мы, что читать и на чём всё держится. Ссылки стоят сеткой,
-             а не столбиком, поэтому подвал не растягивается на экран. -->
+        <!-- ── ПОДВАЛ: ТРИ РОВНЫЕ КОЛОНКИ ───────────────────────────────
+             Было: «кто работает» с одной строкой, «документы» с пятью и
+             «о чём стоит знать» с тремя абзацами закона. Колонки разной
+             длины, и правый край подвала выглядел рваным.
+             Стало: контакты, разделы и документы — три колонки с
+             одинаковой работой и сопоставимой высотой. Юридические
+             оговорки ушли одной строкой вниз, к копирайту: там им и место. -->
         <div data-reveal="1" data-rd="150" data-rdist="22" style="{{ footLegalStyle }}">
           <div style="{{ footLegalColStyle }}">
-            <span style="{{ footLegalCapStyle }}">кто работает</span>
-            <span style="{{ footReqNameStyle }}">{{ legalName }}</span>
-            <sc-for list="{{ legalReq }}" as="r" hint-placeholder-count="3">
+            <span style="{{ footLegalCapStyle }}">контакты</span>
+            <a href="https://t.me/lllbaza" target="_blank" rel="noopener" data-hov="1" style="{{ footLegalLink }}" style-hover="color: #f2ebdd;">Telegram — @lllbaza</a>
+            <a href="https://vk.com/lllbaza" target="_blank" rel="noopener" data-hov="1" style="{{ footLegalLink }}" style-hover="color: #f2ebdd;">ВКонтакте</a>
+            <a href="https://www.tiktok.com/@lllbaza" target="_blank" rel="noopener" data-hov="1" style="{{ footLegalLink }}" style-hover="color: #f2ebdd;">TikTok</a>
+            <sc-for list="{{ legalReq }}" as="r" hint-placeholder-count="0">
               <span style="{{ footReqRowStyle }}"><span style="{{ footReqKeyStyle }}">{{ r.k }}</span><span style="{{ footReqValStyle }}">{{ r.v }}</span></span>
             </sc-for>
           </div>
 
           <div style="{{ footLegalColStyle }}">
-            <span style="{{ footLegalCapStyle }}">документы</span>
-            <div style="{{ footLegalGridStyle }}">
-              <a href="#legal-privacy" sc-camel-on-click="{{ openPrivacy }}" data-hov="1" style="{{ footLegalLink }}" style-hover="color: #f2ebdd;">Политика конфиденциальности</a>
-              <a href="#legal-consent" sc-camel-on-click="{{ openConsent }}" data-hov="1" style="{{ footLegalLink }}" style-hover="color: #f2ebdd;">Согласие на обработку данных</a>
-              <a href="#legal-cookies" sc-camel-on-click="{{ openCookies }}" data-hov="1" style="{{ footLegalLink }}" style-hover="color: #f2ebdd;">Политика в отношении cookie</a>
-              <a href="#legal-terms" sc-camel-on-click="{{ openTerms }}" data-hov="1" style="{{ footLegalLink }}" style-hover="color: #f2ebdd;">Пользовательское соглашение</a>
-              <button type="button" data-press="1" data-hov="1" sc-camel-on-click="{{ reopenCookies }}" style="{{ footLegalBtn }}" style-hover="color: #f2ebdd;">Настройки cookie</button>
-            </div>
+            <span style="{{ footLegalCapStyle }}">разделы</span>
+            <a href="#about" sc-camel-on-click="{{ navGo }}" data-k="about" data-hov="1" style="{{ footLegalLink }}" style-hover="color: #f2ebdd;">О нас</a>
+            <a href="#services" sc-camel-on-click="{{ navGo }}" data-k="services" data-hov="1" style="{{ footLegalLink }}" style-hover="color: #f2ebdd;">Услуги</a>
+            <a href="#pricing" sc-camel-on-click="{{ navGo }}" data-k="pricing" data-hov="1" style="{{ footLegalLink }}" style-hover="color: #f2ebdd;">Цены</a>
+            <a href="#projects" sc-camel-on-click="{{ navGo }}" data-k="projects" data-hov="1" style="{{ footLegalLink }}" style-hover="color: #f2ebdd;">Проекты</a>
+            <a href="#brief" sc-camel-on-click="{{ navGo }}" data-k="contacts" data-hov="1" style="{{ footLegalLink }}" style-hover="color: #f2ebdd;">Конфигуратор</a>
           </div>
 
           <div style="{{ footLegalColStyle }}">
-            <span style="{{ footLegalCapStyle }}">о чём стоит знать</span>
-            <sc-for list="{{ legalNotes }}" as="n" hint-placeholder-count="3">
-              <span style="{{ footNoteRowStyle }}"><span style="{{ footNoteDotStyle }}"></span><span>{{ n }}</span></span>
-            </sc-for>
+            <span style="{{ footLegalCapStyle }}">документы</span>
+            <a href="#legal-privacy" sc-camel-on-click="{{ openPrivacy }}" data-hov="1" style="{{ footLegalLink }}" style-hover="color: #f2ebdd;">Политика конфиденциальности</a>
+            <a href="#legal-consent" sc-camel-on-click="{{ openConsent }}" data-hov="1" style="{{ footLegalLink }}" style-hover="color: #f2ebdd;">Согласие на обработку данных</a>
+            <a href="#legal-cookies" sc-camel-on-click="{{ openCookies }}" data-hov="1" style="{{ footLegalLink }}" style-hover="color: #f2ebdd;">Политика в отношении cookie</a>
+            <a href="#legal-terms" sc-camel-on-click="{{ openTerms }}" data-hov="1" style="{{ footLegalLink }}" style-hover="color: #f2ebdd;">Пользовательское соглашение</a>
+            <button type="button" data-press="1" data-hov="1" sc-camel-on-click="{{ reopenCookies }}" style="{{ footLegalBtn }}" style-hover="color: #f2ebdd;">Настройки cookie</button>
           </div>
         </div>
 
         <div data-reveal="1" data-rd="190" data-rdist="14" style="{{ footBottomStyle }}">
           <span style="{{ footCopyStyle }}">{{ legalCopy }}</span>
-          <span style="{{ footMadeStyle }}">Сделано в БАЗЕ · {{ legalYear }}</span>
+          <span style="{{ footMadeStyle }}">{{ legalMade }}</span>
         </div>
       </div>
 
@@ -2228,12 +2227,13 @@ class Component extends DCLogic {
     addr: '',       // ← адрес для юридически значимых сообщений
     email: '',      // ← почта для запросов по персональным данным
     get req() {
+      // Telegram стоит отдельной ссылкой в колонке контактов — здесь он
+      // был бы вторым такой же строкой.
       return [
         { k: 'ИНН', v: this.inn },
         { k: 'ОГРНИП', v: this.ogrnip },
         { k: 'Адрес', v: this.addr },
-        { k: 'Почта', v: this.email },
-        { k: 'Telegram', v: this.tg }
+        { k: 'Почта', v: this.email }
       ].filter((r) => r.v);
     },
     notes: [
@@ -5689,11 +5689,17 @@ class Component extends DCLogic {
       // Дорога прочерчивается ровно настолько, насколько блок вошёл в кадр:
       // движение привязано к руке человека, а не к таймеру.
       const mt = gy(this.mapEl);
-      const f = Math.max(0, Math.min(1, (window.innerHeight * 0.72 - mt) / Math.max(1, this.mapEl.__gh * 0.6)));
-      const fs = f.toFixed(3);
+      const raw = Math.max(0, Math.min(1, (window.innerHeight * 0.72 - mt) / Math.max(1, this.mapEl.__gh * 0.6)));
+      // Прокрутка колесом идёт скачками по 100–300 px, и дорога прочерчивалась
+      // такими же скачками. Ведём её к цели с затуханием: рука дёргает, линия
+      // едет ровно.
+      if (this.roadP == null) this.roadP = raw;
+      this.roadP += (raw - this.roadP) * (1 - Math.exp(-Math.min(0.05, dt) / 0.12));
+      if (Math.abs(raw - this.roadP) < 0.002) this.roadP = raw;
+      const fs = this.roadP.toFixed(3);
       if (fs !== this.lastMap) {
         this.lastMap = fs;
-        this.mapRoadEl.style.strokeDashoffset = (1 - f).toFixed(3);
+        this.mapRoadEl.style.strokeDashoffset = (1 - this.roadP).toFixed(3);
       }
     }
     // карта клиентов: точки зажигаются по мере прокрутки блока
@@ -6691,7 +6697,7 @@ class Component extends DCLogic {
     leadNarrow: 'Отмечаете, что нужно, — внизу всегда видно вашу сборку: вилку, срок и состав. Тап по полосе разворачивает подробности. Точную цифру называем после разбора, и дальше она не меняется.',
     preCap: 'начните с того, что болит',
     preNote: 'Один клик соберёт черновик — дальше докрутите под себя.',
-    steps: ['Что собираем', 'Комплектация', 'Режим работы', 'Заявка'],
+    steps: ['Что собираем', 'Сборка', 'Режим работы', 'Заявка'],
     stepHints: ['можно несколько', 'по каждому направлению', 'срок, поддержка, старт', 'куда прислать расчёт'],
     empty: 'Пока пусто',
     emptyNote: 'Отметьте направление — сборка начнёт считаться.',
@@ -6713,7 +6719,7 @@ class Component extends DCLogic {
     resetAll: 'Собрать заново',
     draftBack: 'Вернуться к сборке от {date}',
     draftDrop: 'начать заново',
-    nextTo: ['Дальше — комплектация', 'Дальше — режим работы', 'Дальше — заявка', 'Обсудить проект'],
+    nextTo: ['Дальше — сборка', 'Дальше — режим работы', 'Дальше — заявка', 'Обсудить проект'],
     back: 'Назад',
     needFmt: 'Включили «{a}» — «{b}» без этого не работает.',
     exclFmt: '«{a}» и «{b}» вместе не собираются — оставили последнее.'
@@ -6899,7 +6905,9 @@ class Component extends DCLogic {
         out.lo = Math.ceil(out.floor / 5) * 5;
         if (out.hi < out.lo) out.hi = out.lo;
       }
-      out.wl = Math.max(1, Math.round(out.wl)); out.wh = Math.max(out.wl + 1, Math.round(out.wh));
+      const PACE = 0.62;
+      out.wl = Math.max(1, Math.round(out.wl * PACE));
+      out.wh = Math.max(out.wl + 1, Math.round(out.wh * PACE));
       return out;
     } finally {
       if (over) this.state.cfg = keep;
@@ -6986,7 +6994,7 @@ class Component extends DCLogic {
     this.track('cfg_dir', { dir: k, on: !on, total: d.length });
     this.trackOnce('cfg_started', {});
     // сняли направление — его опции остаются в памяти: человек часто
-    // возвращает то, что снял, и заново собирать комплектацию обидно
+    // возвращает то, что снял, и заново собирать сборку обидно
     this.cfgPatch({ d: d }, { delta: 'dir.' + k });
     // добавили — оно же становится активной вкладкой комплектации
     if (!on) this.setState({ ctab: k });
@@ -7539,11 +7547,15 @@ class Component extends DCLogic {
     const el = this.stgEl;
     if (!el || this.still) return;
     const r = el.getBoundingClientRect();
-    this.stgPx = Math.max(-1, Math.min(1, ((e.clientX - r.left) / r.width - 0.5) * 2));
-    this.stgPy = Math.max(-1, Math.min(1, ((e.clientY - r.top) / r.height - 0.5) * 2));
+    // Запоминаем только цель. К ней верстак едет в stgTick — иначе угол
+    // прыгает за каждым движением мыши, и стенд мелко трясётся.
+    this.stgTx = Math.max(-1, Math.min(1, ((e.clientX - r.left) / r.width - 0.5) * 2));
+    this.stgTy = Math.max(-1, Math.min(1, ((e.clientY - r.top) / r.height - 0.5) * 2));
   }
 
-  stgLeave() { this.stgPx = 0; this.stgPy = 0; }
+  // Курсор ушёл — цель ноль, но возвращается стенд так же плавно, как
+  // наклонялся. Резкий сброс и был тем «дёргается, когда убираешь мышку».
+  stgLeave() { this.stgTx = 0; this.stgTy = 0; }
 
   stgTick(dt) {
     if (!this.stgCtx) return;
@@ -7552,6 +7564,13 @@ class Component extends DCLogic {
     if (!this.state.briefIn && this.stgOnce) return;
     this.stgOnce = 1;
     if (this.tickN % 30 === 7) this.stgSize(false);
+    // наклон догоняет цель — и на входе, и на выходе одинаково мягко
+    if (this.stgPx == null) { this.stgPx = 0; this.stgPy = 0; }
+    const kk = 1 - Math.exp(-Math.min(0.05, dt) / 0.16);
+    const dx = (this.stgTx || 0) - this.stgPx, dy = (this.stgTy || 0) - this.stgPy;
+    if (Math.abs(dx) > 0.0008 || Math.abs(dy) > 0.0008) {
+      this.stgPx += dx * kk; this.stgPy += dy * kk; this.stgDirty = 1;
+    }
     const still = this.still;
     this.stgT += still ? 0 : Math.min(0.05, dt);
 
@@ -7770,18 +7789,6 @@ class Component extends DCLogic {
     g.lineTo(ax + aw / 2 - aw * 0.34, ay + aw * 0.3);
     g.stroke();
     g.restore();
-    // искра бежит по стрелке, пока рецепт собран
-    if (n && !this.still) {
-      const ph = (t * 0.8) % 1;
-      g.save();
-      g.globalAlpha = Math.sin(ph * Math.PI) * 0.9;
-      g.fillStyle = A;
-      g.shadowColor = A; g.shadowBlur = 10 * unit;
-      g.beginPath();
-      g.arc(ax - aw / 2 + aw * ph, ay, 2.4 * unit, 0, Math.PI * 2);
-      g.fill();
-      g.restore();
-    }
 
     // ─ ячейка результата ───────────────────────────────────────────────
     const rx = x0 + gridW + gapArrow, ry = cgy - resW / 2;
@@ -7790,8 +7797,7 @@ class Component extends DCLogic {
 
     if (n) {
       // результат «дышит»: пока он есть, на него смотрят
-      const br = this.still ? 1 : 1 + Math.sin(t * 1.8) * 0.02;
-      const core = resW * 0.34 * br;
+      const core = resW * 0.34;
       const rcx = rx + resW / 2, rcy = ry + resW / 2;
       g.save();
       g.beginPath(); g.arc(rcx, rcy, core, 0, Math.PI * 2);
@@ -7808,19 +7814,8 @@ class Component extends DCLogic {
       g.font = '600 ' + Math.round(core * 0.92) + 'px "Helvetica Neue", Helvetica, Arial, sans-serif';
       g.fillText(String(n), rcx, rcy + core * 0.04);
       g.restore();
-      // орбита вокруг результата — столько точек, сколько модулей
-      if (!this.still) {
-        g.save();
-        g.globalAlpha = 0.5;
-        for (let i = 0; i < n; i++) {
-          const a = t * 0.5 + (i / n) * Math.PI * 2;
-          g.fillStyle = A;
-          g.beginPath();
-          g.arc(rcx + Math.cos(a) * core * 1.55, rcy + Math.sin(a) * core * 1.55, 1.8 * unit, 0, Math.PI * 2);
-          g.fill();
-        }
-        g.restore();
-      }
+      // Вращающихся точек вокруг результата больше нет: они читались как
+      // лишний спецэффект и ничего не сообщали.
     } else {
       g.save();
       g.globalAlpha = 0.4;
@@ -8016,8 +8011,8 @@ class Component extends DCLogic {
         color: cream(0.52), textWrap: 'pretty', maxWidth: '42ch'
       },
       cHeroSub: has
-        ? (e.rows.map((r) => r.name).join(' + ') + ' · команда ' + e.team.length)
-        : 'Отмечаете, что нужно, — вилка, срок и состав команды считаются на глазах.',
+        ? e.rows.map((r) => r.name).join(' + ')
+        : 'Отмечайте, что нужно, — вилка и срок считаются на глазах.',
       cPriceBtnStyle: {
         display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', gap: narrow ? '4px 10px' : '4px 14px',
         marginTop: narrow ? '4px' : '6px', padding: '4px 0', border: 'none', background: 'none',
@@ -8093,14 +8088,13 @@ class Component extends DCLogic {
           transition: 'width 620ms var(--e-expo)'
         });
         const mid = (e.lo + e.hi) / 2;
-        const team = (e.team || []).length;
         return [
+          // Состав команды убран: заказчику важно, что и когда он получит,
+          // а не сколько человек это делают. Осталось две честные шкалы.
           { cap: 'вилка', val: this.cfgMoney(e.lo) + ' — ' + this.cfgMoney(e.hi) + ' ₽',
-            fill: bar(Math.min(1, mid / 3000), 'linear-gradient(90deg, var(--acc-lime), #f2ebdd)') },
+            fill: bar(Math.min(1, mid / 3000), 'rgba(242,235,221,0.72)') },
           { cap: 'срок', val: this.cfgWeeks(e.wl, e.wh),
-            fill: bar(Math.min(1, ((e.wl + e.wh) / 2) / 26), 'linear-gradient(90deg, var(--acc-amber), #f2ebdd)') },
-          { cap: 'команда', val: team ? (team + ' ' + this.cfgTeamWord(team)) : '—',
-            fill: bar(Math.min(1, team / 12), 'linear-gradient(90deg, var(--acc-blue), #f2ebdd)') }
+            fill: bar(Math.min(1, ((e.wl + e.wh) / 2) / 16), 'rgba(242,235,221,0.72)') }
         ];
       })(),
       cPriceChevStyle: { flex: '0 0 auto', alignSelf: 'center', opacity: 0.45 },
@@ -8410,7 +8404,7 @@ class Component extends DCLogic {
         scrollbarWidth: 'none', msOverflowStyle: 'none', WebkitOverflowScrolling: 'touch'
       },
       cOpts: opts,
-      // на широком экране комплектация раскладывается сеткой — ничего не
+      // на широком экране сборка раскладывается сеткой — ничего не
       // прячется за краем; на узком это лента с прилипанием, как в приложении
       cOptRowStyle: wide ? {
         display: 'grid', gap: '10px', minWidth: 0,
@@ -8684,7 +8678,7 @@ class Component extends DCLogic {
     const items = e.rows.map((r) => ({
       name: r.name,
       price: this.cfgMoney(this.cfgRound(r.lo)) + '—' + this.cfgMoney(this.cfgRound(r.hi)),
-      opts: r.picked.length ? r.picked.map((p) => p.label).join(' · ') : 'базовая комплектация',
+      opts: r.picked.length ? r.picked.map((p) => p.label).join(' · ') : 'базовая сборка',
       wrapStyle: { display: 'flex', flexDirection: 'column', gap: '4px', padding: '11px 0', borderTop: '1px solid ' + cream(0.07) },
       headStyle: { display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '12px' },
       nameStyle: { fontSize: '14px', fontWeight: 600, letterSpacing: '-0.02em', color: CREAM },
@@ -8697,7 +8691,10 @@ class Component extends DCLogic {
     const dock = {
       cFacts: facts, cItems: items,
       cDockStyle: {
-        position: 'fixed', left: 0, right: 0, bottom: BARH + 'px', zIndex: 26,
+        position: 'fixed', left: 0, right: 0, zIndex: 26,
+        // отступ от строки показателей: вплотную панель читалась как
+        // обрубленная снизу
+        bottom: (BARH + 10) + 'px',
         pointerEvents: dockShow ? 'auto' : 'none'
       },
       cSpecScrimStyle: {
@@ -8762,8 +8759,10 @@ class Component extends DCLogic {
         position: 'relative', boxSizing: 'border-box', maxWidth: 'var(--maxw)', margin: '0 auto',
         display: 'flex', alignItems: 'center', gap: narrow ? '8px' : '12px',
         padding: narrow ? '10px 12px 12px' : '12px clamp(12px, 3.2vw, 44px) 14px',
-        borderTop: '1px solid ' + cream(0.1),
-        backgroundColor: 'rgba(10,10,10,0.82)',
+        border: '1px solid ' + cream(0.12),
+        borderRadius: narrow ? '20px' : '24px',
+        backgroundColor: 'rgba(10,10,10,0.92)',
+        boxShadow: '0 18px 48px rgba(0,0,0,0.55)',
         backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)',
         transform: dockShow ? 'translateY(0)' : 'translateY(120%)',
         opacity: dockShow ? 1 : 0,
@@ -9209,7 +9208,7 @@ class Component extends DCLogic {
         enter: () => this.hoverKey('gh', k, ''),
         leave: () => this.hoverKey('gh', '', ''),
         card: {
-          display: 'flex', flexDirection: 'column', gap: '14px', boxSizing: 'border-box', height: '100%',
+          display: 'flex', flexDirection: 'column', gap: '12px', boxSizing: 'border-box', height: '100%',
           padding: 'clamp(18px, 1.8vw, 24px)', borderRadius: '22px',
           border: '1px solid ' + (cream ? '#f2ebdd' : (hv ? 'rgba(242,235,221,0.24)' : 'rgba(242,235,221,0.1)')),
           background: cream ? '#f2ebdd' : 'linear-gradient(160deg, #151515, #0d0d0d)',
@@ -9218,9 +9217,16 @@ class Component extends DCLogic {
           transform: hv ? 'translateY(-4px)' : 'translateY(0)',
           transition: 'transform 560ms ' + EZ + ', border-color 420ms ease, box-shadow 520ms ease'
         },
-        ico: { display: 'flex', alignItems: 'center', height: '30px', opacity: hv ? 1 : 0.66, transition: 'opacity 420ms ease' },
-        title: { fontSize: 'clamp(17px, 1.6vw, 21px)', fontWeight: 500, letterSpacing: '-0.024em', lineHeight: 1.12 },
-        text: { fontSize: '13.5px', lineHeight: 1.55, color: cream ? 'rgba(10,10,10,0.6)' : 'rgba(242,235,221,0.6)', textWrap: 'pretty' },
+        ico: { display: 'flex', alignItems: 'center', flex: '0 0 auto', height: '30px', opacity: hv ? 1 : 0.66, transition: 'opacity 420ms ease' },
+        title: {
+          flex: '0 0 auto', minHeight: '2.3em',
+          fontSize: 'clamp(17px, 1.6vw, 21px)', fontWeight: 500,
+          letterSpacing: '-0.024em', lineHeight: 1.12, textWrap: 'balance'
+        },
+        text: {
+          flex: '1 1 auto', fontSize: '13.5px', lineHeight: 1.5,
+          color: cream ? 'rgba(10,10,10,0.6)' : 'rgba(242,235,221,0.6)', textWrap: 'pretty'
+        },
         hv: hv
       };
     };
@@ -10719,7 +10725,7 @@ class Component extends DCLogic {
       // от них оставалось пустое поле в пол-экрана.
       footLegalStyle: {
         display: 'grid',
-        gridTemplateColumns: narrow ? 'minmax(0, 1fr)' : 'minmax(0, 1.05fr) minmax(0, 1fr) minmax(0, 1.15fr)',
+        gridTemplateColumns: narrow ? 'minmax(0, 1fr)' : 'repeat(3, minmax(0, 1fr))',
         gap: narrow ? '26px' : '20px clamp(28px, 4vw, 64px)',
         alignItems: 'start',
         paddingTop: 'clamp(22px, 3vh, 34px)',
@@ -10730,19 +10736,11 @@ class Component extends DCLogic {
         fontSize: '10.5px', fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase',
         color: 'rgba(242,235,221,0.34)', marginBottom: '2px'
       },
-      footReqNameStyle: {
-        fontSize: narrow ? '14px' : '15px', lineHeight: 1.35, fontWeight: 600,
-        letterSpacing: '-0.015em', color: CREAM, textWrap: 'pretty'
-      },
       footReqRowStyle: { display: 'flex', gap: '8px', fontSize: '12.5px', lineHeight: 1.5, minWidth: 0 },
       footReqKeyStyle: { flex: '0 0 auto', color: 'rgba(242,235,221,0.34)' },
       footReqValStyle: { minWidth: 0, color: 'rgba(242,235,221,0.62)', wordBreak: 'break-word' },
       // Ссылки идут в две колонки и держат высоту нажатия 40 px — палец
       // попадает, а подвал остаётся коротким.
-      footLegalGridStyle: {
-        display: 'grid', gap: '2px 18px', width: '100%',
-        gridTemplateColumns: narrow ? 'minmax(0, 1fr)' : 'minmax(0, 1fr)'
-      },
       footLegalLink: {
         display: 'inline-flex', alignItems: 'center', minHeight: '34px',
         fontSize: '13px', fontWeight: 500, color: 'rgba(242,235,221,0.56)',
@@ -10753,14 +10751,6 @@ class Component extends DCLogic {
         border: 'none', background: 'transparent', fontFamily: 'inherit', textAlign: 'left',
         fontSize: '13px', fontWeight: 500, color: 'rgba(242,235,221,0.56)', cursor: 'pointer',
         transition: 'color 250ms ease'
-      },
-      footNoteRowStyle: {
-        display: 'flex', alignItems: 'flex-start', gap: '9px',
-        fontSize: '12.5px', lineHeight: 1.55, color: 'rgba(242,235,221,0.52)', textWrap: 'pretty'
-      },
-      footNoteDotStyle: {
-        flex: '0 0 auto', width: '4px', height: '4px', marginTop: '0.62em',
-        borderRadius: '999px', background: 'rgba(242,235,221,0.3)'
       },
       footBottomStyle: {
         display: 'flex', flexWrap: 'wrap', alignItems: 'baseline',
@@ -10778,9 +10768,13 @@ class Component extends DCLogic {
       },
       legalName: this.LEGAL.name,
       legalReq: this.LEGAL.req,
-      legalNotes: this.LEGAL.notes,
       legalYear: String(this.LEGAL.year),
-      legalCopy: this.LEGAL.copy,
+      legalMade: 'Сделано в БАЗЕ · ' + this.LEGAL.year,
+      // Копирайт и юридическая оговорка идут одной строкой: раньше оговорки
+      // занимали целую колонку подвала, и его правый край выглядел рваным.
+      legalCopy: this.LEGAL.copy
+        + ' Цены и расчёт справочные, публичной офертой не являются (ст. 437 ГК РФ).'
+        + ' Персональные данные обрабатываем по ФЗ № 152-ФЗ.',
       footSocRowStyle: {
         display: 'grid', gap: '10px',
         gridTemplateColumns: narrow ? 'minmax(0, 1fr)' : 'repeat(3, minmax(0, 1fr))'
@@ -11852,7 +11846,7 @@ class Component extends DCLogic {
           outTitleText: out.title, items: out.items,
           stop: {
             display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
-            gap: narrow ? '9px' : '11px', minWidth: 0
+            gap: narrow ? '9px' : '11px', minWidth: 0, height: '100%'
           },
           node: {
             display: 'flex', alignItems: 'center', justifyContent: 'center',
@@ -11868,16 +11862,21 @@ class Component extends DCLogic {
             textTransform: 'uppercase', color: 'rgba(242,235,221,0.42)'
           },
           title: {
+            minHeight: narrow ? '0' : '2.2em',
             fontSize: narrow ? '19px' : 'clamp(19px, 1.9vw, 26px)', fontWeight: 600,
-            letterSpacing: '-0.03em', lineHeight: 1.1, color: CREAM, textWrap: 'pretty'
+            letterSpacing: '-0.03em', lineHeight: 1.1, color: CREAM, textWrap: 'balance'
           },
           line: {
-            maxWidth: '34ch', fontSize: narrow ? '13.5px' : '14px', lineHeight: 1.5,
+            // Три станции стоят в ряд, и карточка «на руках» под каждой
+            // должна начинаться на одной линии. Без фиксированной высоты
+            // описания ряд разъезжается: где-то три строки, где-то четыре.
+            maxWidth: '34ch', minHeight: narrow ? '0' : '4.5em',
+            fontSize: narrow ? '13.5px' : '14px', lineHeight: 1.5,
             fontWeight: 500, color: 'rgba(242,235,221,0.6)', textWrap: 'pretty'
           },
           outCard: {
             display: 'flex', flexDirection: 'column', gap: '8px',
-            boxSizing: 'border-box', width: '100%', marginTop: '4px',
+            boxSizing: 'border-box', width: '100%', marginTop: 'auto',
             padding: narrow ? '13px 14px' : '15px 16px',
             borderRadius: 'var(--r-md)',
             border: '1px solid rgba(242,235,221,0.1)',
