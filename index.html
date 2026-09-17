@@ -591,7 +591,19 @@
   @keyframes lb-sweep { 0% { transform: translateX(-70%); } 100% { transform: translateX(180%); } }
   @keyframes lb-breathe { 0%, 100% { opacity: 0.55; transform: scale(1); } 50% { opacity: 0.95; transform: scale(1.06); } }
   @keyframes lb-in { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
-  @keyframes lb-key-in { 0% { transform: translate3d(0,-9%,0) scale(1.08) rotate(-5deg); opacity: 0; } 22% { opacity: 1; } 100% { transform: translate3d(0,0,0) scale(1) rotate(0deg); opacity: 1; } }
+  @keyframes lb-key-in { 0% { transform: scale(0.92); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+  /* Три слэша — это и есть индикатор загрузки: наливаются снизу вверх
+     по очереди и гаснут, пока сайт качается. Никакой полоски состояния. */
+  @keyframes lb-slash-fill {
+    0%, 6%   { clip-path: inset(100% 0 0 0); }
+    32%, 68% { clip-path: inset(0 0 0 0); }
+    94%,100% { clip-path: inset(100% 0 0 0); }
+  }
+  @keyframes lb-ring-turn { to { transform: rotate(360deg); } }
+  [data-ringspin] { animation: lb-ring-turn 24s linear infinite; }
+  @media (prefers-reduced-motion: reduce) {
+    [data-ringspin] { animation: none; }
+  }
   @keyframes lb-pour-up { from { transform: translate3d(0,100%,0); } to { transform: translate3d(0,0,0); } }
   @keyframes lb-pour-in { from { transform: translate3d(0,-100%,0); } to { transform: translate3d(0,0,0); } }
   @keyframes lb-msg { 0% { opacity: 0; } 100% { opacity: 1; } }
@@ -776,7 +788,7 @@
       <div ref="{{ podRef }}" style="{{ podStyle }}">
         <span ref="{{ podSkinRef }}" style="{{ skinStyle }}"></span>
         <a href="#top" sc-camel-on-click="{{ goTop }}" aria-label="БАЗА" style="{{ logoLinkStyle }}">
-          <img ref="{{ logoRef }}" src="/media/assets/logo-key-tight.webp" width="384" height="384" alt="ЭТО БАЗА" draggable="false" style="{{ headerLogoStyle }}">
+          <img ref="{{ logoRef }}" src="/media/assets/logo-mark.svg" width="200" height="200" alt="ЭТО БАЗА" draggable="false" style="{{ headerLogoStyle }}">
         </a>
         <span style="{{ podDivStyle }}"></span>
         <nav ref="{{ socRef }}" style="{{ socStyle }}" aria-label="Соцсети">
@@ -913,10 +925,24 @@
   <div style="{{ introStyle }}">
     <div style="{{ introLogoStyle }}">
       <div ref="{{ introPartRef }}" style="{{ keyPartStyle }}">
-        <img src="/media/assets/logo-key-lg.webp" alt="" draggable="false" style="{{ ghostStyle }}">
-        <div ref="{{ keyWaterRef }}" style="{{ keyWaterStyle }}">
-          <img ref="{{ keyLitRef }}" src="/media/assets/logo-key-lg.webp" alt="" draggable="false" style="{{ keyLitStyle }}">
-        </div>
+        <svg sc-camel-view-box="0 0 200 200" width="100%" height="100%" aria-label="ЭТО БАЗА — загрузка" role="img" style="display: block; overflow: visible;">
+          <defs>
+            <path id="lb-ring-path" d="M100 11.6A88.4 88.4 0 1 1 99.99 11.6" fill="none"></path>
+          </defs>
+          <g data-ringspin="1" style="transform-origin: 100px 100px;">
+            <circle cx="100" cy="100" r="79.5" fill="none" stroke="rgba(242,235,221,0.16)" stroke-width="1"></circle>
+            <circle cx="100" cy="100" r="98.6" fill="none" stroke="rgba(242,235,221,0.16)" stroke-width="1.4"></circle>
+            <text font-family="'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="7.3" font-weight="700" letter-spacing="1.02" dominant-baseline="central" fill="rgba(242,235,221,0.5)">
+              <textPath href="#lb-ring-path" startOffset="0.6%">ЭТО БАЗА · ЭТО БАЗА · ЭТО БАЗА · ЭТО БАЗА · ЭТО БАЗА · </textPath>
+            </text>
+          </g>
+          <g>
+            <sc-for list="{{ introSlashes }}" as="sl" hint-placeholder-count="3">
+              <path sc-camel-d="{{ sl.d }}" fill="rgba(242,235,221,0.13)"></path>
+              <path sc-camel-d="{{ sl.d }}" fill="#f2ebdd" style="{{ sl.lit }}"></path>
+            </sc-for>
+          </g>
+        </svg>
       </div>
     </div>
 
@@ -1077,8 +1103,8 @@
                     </div>
                     <div style="position: absolute; inset: 0; z-index: 1;">
                       <sc-if value="{{ f.hasVideo }}" hint-placeholder-val="{{ false }}">
-                        <video sc-camel-src="{{ f.video }}" sc-camel-auto-play="{{ true }}" muted loop
-                               sc-camel-plays-inline="{{ true }}" preload="metadata"
+                        <video sc-camel-src="{{ f.video }}" sc-camel-poster="{{ f.poster }}" sc-camel-auto-play="{{ true }}" muted loop
+                               sc-camel-plays-inline="{{ true }}" preload="auto"
                                aria-hidden="true" style="{{ fVideoStyle }}"></video>
                       </sc-if>
                       <sc-if value="{{ f.noVideo }}" hint-placeholder-val="{{ true }}">
@@ -2389,6 +2415,7 @@ class Component extends DCLogic {
   // без звука, по кругу, ровно в тех же свайпах. Вертикальное, 9:16.
   FEEDD = [
     { k: 'a', svc: 'Создание сайтов', slot: 'wk-1', img: 'work/w1.webp',
+      video: 'feed/v1.mp4', poster: 'feed/v1-poster.jpg',
       alt: 'Рабочее место: ноутбук с открытым первым экраном сайта бренда одежды', tag: 'Бренд одежды · сайт',
       title: 'Сайт, который не догнать',
       was: 'сайт не отличался от соседних в выдаче',
@@ -2401,6 +2428,7 @@ class Component extends DCLogic {
       now: 'форма → CRM → менеджер за 3 минуты',
       note: 'Первый месяц дал выручку трёх предыдущих.', rv: 1 },
     { k: 'g', svc: 'Бизнес под ключ', slot: 'wk-3', img: 'work/w3.webp',
+      video: 'feed/v2.mp4', poster: 'feed/v2-poster.jpg',
       alt: 'Планшет на столе с открытой главной страницей рекламного агентства', tag: 'Рекламное агентство · сайт',
       title: 'Ссылку теперь скидывают первыми',
       was: 'на встречах старались быстрее закрыть вкладку',
@@ -2419,6 +2447,7 @@ class Component extends DCLogic {
       now: 'повторных заказов вдвое больше — сами',
       note: 'Без рассылок и напоминаний — люди возвращаются сами.', rv: 4 },
     { k: 'b', svc: 'Брендинг и айдентика', slot: 'wk-6', img: 'work/w6.webp',
+      video: 'feed/v3.mp4', poster: 'feed/v3-poster.jpg',
       alt: 'Фирменные носители: футболка, кружка, кепка и карточки со знаком БАЗЫ', tag: 'Айдентика',
       title: 'Узнают до первого слова', was: '', now: '',
       note: 'Имя, знак, цвет и тон голоса — один язык везде.', rv: -1 },
@@ -4955,10 +4984,9 @@ class Component extends DCLogic {
     if (fit.__h !== hv) { fit.__h = hv; fit.style.height = hv; }
   }
 
-  paintFill() {
-    const wl = this.waveOn ? Math.max(0, Math.min(1, this.fill)) : 0;
-    this.pour(this.keyWaterEl, this.keyLitEl, wl);
-  }
+  // Знак на заставке наливается сам, кадрами CSS: три слэша по очереди.
+  // Отдельный механизм «воды» под это больше не нужен.
+  paintFill() {}
 
   // окно поднимается, буква внутри стоит на месте: только transform, никаких масок
   pour(win, lit, p) {
@@ -8953,14 +8981,6 @@ class Component extends DCLogic {
       opacity: op, pointerEvents: 'none',
       animation: 'lb-wave' + (rev ? '-rev' : '') + ' ' + dur + 's linear infinite'
     });
-    const LIT = {
-      position: 'absolute', left: 0, top: 0, width: '100%', height: '100%',
-      willChange: 'transform', backfaceVisibility: 'hidden', pointerEvents: 'none'
-    };
-    const WATER = {
-      position: 'absolute', left: 0, right: 0, top: 0, bottom: 0, overflow: 'hidden',
-      willChange: 'transform', backfaceVisibility: 'hidden'
-    };
     const mask = (st.revealed || st.landed) ? 'none' : this.maskFor(this.revealP);
     const CREAM = '#f2ebdd';
     const DARK = '#101010';
@@ -9006,7 +9026,7 @@ class Component extends DCLogic {
     const disc = H - 2 * padR;
     const padL = narrow ? 15 : 21;
     const gap = narrow ? 8 : 11;
-    const logoH = narrow ? 34 : 38;
+    const logoH = narrow ? 32 : 36;
     const HE = 'cubic-bezier(.16,.84,.24,1)';
     const hm = this.hm;
     const mid = st.mid;
@@ -9977,7 +9997,7 @@ class Component extends DCLogic {
       headerLogoStyle: {
         display: 'block', height: logoH + 'px', width: 'auto',
         opacity: st.landed ? 1 : 0,
-        filter: menuOn ? 'invert(1) brightness(0.92)' : 'none',
+        filter: menuOn ? 'invert(1)' : 'none',
         transition: 'height 640ms ' + HE + ', filter 420ms ease, opacity 1ms linear'
         , WebkitBackfaceVisibility: 'hidden'
       },
@@ -11574,6 +11594,7 @@ class Component extends DCLogic {
             willChange: on ? 'transform' : 'auto'
           },
           video: it.video ? this.rsrc(it.video) : '',
+          poster: it.poster ? this.rsrc(it.poster) : '',
           hasVideo: !!it.video && on,
           noVideo: !it.video,
           hint: {
@@ -12024,13 +12045,22 @@ class Component extends DCLogic {
         willChange: 'transform', backfaceVisibility: 'hidden',
         animation: 'lb-key-in 760ms cubic-bezier(.17,.88,.22,1) 40ms both'
       },
-      ghostStyle: { position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0.22, pointerEvents: 'none' },
       introPartRef: this._ipR || (this._ipR = (el) => { if (el) this.introPartEl = el; }),
-      keyWaterRef: this._kwR || (this._kwR = (el) => { if (el) this.keyWaterEl = el; }),
-      keyLitRef: this._klR || (this._klR = (el) => { if (el) this.keyLitEl = el; }),
-      // свет заливает клавишу снизу вверх: окно поднимается, знак в нём стоит
-      keyWaterStyle: Object.assign({}, WATER, { transform: 'translate3d(0,100%,0)' }),
-      keyLitStyle: Object.assign({}, LIT, { transform: 'translate3d(0,-100%,0)' }),
+      // Три слэша знака. Геометрия снята с присланного логотипа: ширина
+      // 19.5, шаг 29.7, наклон вправо как на фавиконе сайта.
+      introSlashes: (() => {
+        const W = 19.5, PITCH = 29.7, TOP = 64, BOT = 136, LEAN = (BOT - TOP) * 0.1125;
+        return [-PITCH, 0, PITCH].map((off, i) => {
+          const xT = 100 + off + LEAN / 2 - W / 2;
+          return {
+            d: 'M' + xT.toFixed(2) + ' ' + TOP + 'h' + W + 'l' + (-LEAN).toFixed(2) + ' ' + (BOT - TOP) + 'h' + (-W) + 'z',
+            lit: {
+              animation: 'lb-slash-fill 1560ms cubic-bezier(.45,.05,.3,1) ' + (i * 190) + 'ms infinite both',
+              willChange: 'clip-path'
+            }
+          };
+        });
+      })(),
       footCrestStyle: {
         position: 'absolute', left: 0, right: 0, top: '-5px', height: '8px',
         backgroundImage: "url(\"data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 40' preserveAspectRatio='none'%3E%3Cpath d='M0 10 C 30 4 30 4 60 10 C 90 16 90 16 120 10 C 150 4 150 4 180 10 C 210 16 210 16 240 10 L240 40 L0 40 Z' fill='%23f2ebdd'/%3E%3C/svg%3E\")",

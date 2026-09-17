@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="ЭТО БАЗА">
+  <defs>
+    <path id="b-t" d="M100 11.599999999999994A88.4 88.4 0 1 1 99.99 11.599999999999994" fill="none"/>
+  </defs>
+  <circle cx="100" cy="100" r="79.5" fill="none"/>
+  <circle cx="100" cy="100" r="98.6" fill="none" stroke="#f2ebdd" stroke-width="1.6" opacity="0.9"/>
+  <path d="M100 2.799999999999997A97.2 97.2 0 1 0 100 197.2A97.2 97.2 0 1 0 100 2.799999999999997ZM100 21A79 79 0 1 1 100 179A79 79 0 1 1 100 21Z" fill="#f2ebdd" fill-rule="evenodd"/>
+  <text font-family="'Helvetica Neue',Helvetica,Arial,sans-serif" font-size="7.3" font-weight="700" letter-spacing="1.02" dominant-baseline="central" fill="#0a0a0a">
+    <textPath href="#b-t" startOffset="0.6%">ЭТО БАЗА · ЭТО БАЗА · ЭТО БАЗА · ЭТО БАЗА · ЭТО БАЗА · </textPath>
+  </text>
+  <g fill="#f2ebdd"><path d="M64.60 64h19.5l-8.10 72h-19.5z"/><path d="M94.30 64h19.5l-8.10 72h-19.5z"/><path d="M124.00 64h19.5l-8.10 72h-19.5z"/></g>
+</svg>

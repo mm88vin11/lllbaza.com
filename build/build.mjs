@@ -23,7 +23,7 @@ const runtime = readFileSync(join(root, 'src/assets/runtime.json'), 'utf8');
 // Медиа лежит настоящими файлами: так его видно в диффе, оно не раздувается
 // на треть от base64 и его можно открыть глазами, не разбирая JSON.
 const MEDIA_DIR = join(root, 'src/assets/media');
-const MIME = { '.webp': 'image/webp', '.png': 'image/png', '.jpg': 'image/jpeg', '.mp4': 'video/mp4' };
+const MIME = { '.webp': 'image/webp', '.png': 'image/png', '.jpg': 'image/jpeg', '.mp4': 'video/mp4', '.svg': 'image/svg+xml' };
 const listMedia = (dir = MEDIA_DIR, prefix = '') => {
   const out = [];
   for (const name of readdirSync(dir, { withFileTypes: true }).sort((a, b) => a.name.localeCompare(b.name))) {
