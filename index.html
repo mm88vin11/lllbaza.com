@@ -432,8 +432,9 @@
 <meta name="author" content="БАЗА">
 <meta name="format-detection" content="telephone=no">
 <link rel="canonical" href="https://lllbaza.ru/">
-<link rel="icon" href="/favicon.ico" sizes="48x48">
-<link rel="icon" href="/favicon.svg" type="image/svg+xml" sizes="any">
+<link rel="icon" href="/favicon-96.png" type="image/png" sizes="96x96">
+<link rel="icon" href="/favicon-48.png" type="image/png" sizes="48x48">
+<link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
 <link rel="manifest" href="/site.webmanifest">
 <link rel="preconnect" href="https://api.telegram.org" crossorigin>
@@ -590,8 +591,7 @@
   @keyframes lb-sweep { 0% { transform: translateX(-70%); } 100% { transform: translateX(180%); } }
   @keyframes lb-breathe { 0%, 100% { opacity: 0.55; transform: scale(1); } 50% { opacity: 0.95; transform: scale(1.06); } }
   @keyframes lb-in { from { opacity: 0; transform: scale(0.96); } to { opacity: 1; transform: scale(1); } }
-  @keyframes lb-fly-l { 0% { transform: translate3d(-124%,0,0); opacity: 0; } 16% { opacity: 1; } 100% { transform: translate3d(0,0,0); opacity: 1; } }
-  @keyframes lb-fly-r { 0% { transform: translate3d(124%,0,0); opacity: 0; } 16% { opacity: 1; } 100% { transform: translate3d(0,0,0); opacity: 1; } }
+  @keyframes lb-key-in { 0% { transform: translate3d(0,-9%,0) scale(1.08) rotate(-5deg); opacity: 0; } 22% { opacity: 1; } 100% { transform: translate3d(0,0,0) scale(1) rotate(0deg); opacity: 1; } }
   @keyframes lb-pour-up { from { transform: translate3d(0,100%,0); } to { transform: translate3d(0,0,0); } }
   @keyframes lb-pour-in { from { transform: translate3d(0,-100%,0); } to { transform: translate3d(0,0,0); } }
   @keyframes lb-msg { 0% { opacity: 0; } 100% { opacity: 1; } }
@@ -776,7 +776,7 @@
       <div ref="{{ podRef }}" style="{{ podStyle }}">
         <span ref="{{ podSkinRef }}" style="{{ skinStyle }}"></span>
         <a href="#top" sc-camel-on-click="{{ goTop }}" aria-label="БАЗА" style="{{ logoLinkStyle }}">
-          <img ref="{{ logoRef }}" src="/media/assets/logo-lockup.webp" width="942" height="361" alt="БАЗА" draggable="false" style="{{ headerLogoStyle }}">
+          <img ref="{{ logoRef }}" src="/media/assets/logo-key-tight.webp" width="384" height="384" alt="ЭТО БАЗА" draggable="false" style="{{ headerLogoStyle }}">
         </a>
         <span style="{{ podDivStyle }}"></span>
         <nav ref="{{ socRef }}" style="{{ socStyle }}" aria-label="Соцсети">
@@ -912,16 +912,10 @@
 
   <div style="{{ introStyle }}">
     <div style="{{ introLogoStyle }}">
-      <div ref="{{ introPartRef }}" style="{{ etoPartStyle }}">
-        <img src="/media/assets/logo-eto-2x.webp" alt="" draggable="false" style="{{ ghostStyle }}">
-        <div ref="{{ etoWaterRef }}" style="{{ etoWaterStyle }}">
-          <img ref="{{ etoLitRef }}" src="/media/assets/logo-eto-2x.webp" alt="" draggable="false" style="{{ etoLitStyle }}">
-        </div>
-      </div>
-      <div style="{{ bazaPartStyle }}">
-        <img src="/media/assets/logo-baza-2x.webp" alt="" draggable="false" style="{{ ghostStyle }}">
-        <div ref="{{ bazaWaterRef }}" style="{{ bazaWaterStyle }}">
-          <img ref="{{ bazaLitRef }}" src="/media/assets/logo-baza-2x.webp" alt="" draggable="false" style="{{ bazaLitStyle }}">
+      <div ref="{{ introPartRef }}" style="{{ keyPartStyle }}">
+        <img src="/media/assets/logo-key-lg.webp" alt="" draggable="false" style="{{ ghostStyle }}">
+        <div ref="{{ keyWaterRef }}" style="{{ keyWaterStyle }}">
+          <img ref="{{ keyLitRef }}" src="/media/assets/logo-key-lg.webp" alt="" draggable="false" style="{{ keyLitStyle }}">
         </div>
       </div>
     </div>
@@ -4963,10 +4957,7 @@ class Component extends DCLogic {
 
   paintFill() {
     const wl = this.waveOn ? Math.max(0, Math.min(1, this.fill)) : 0;
-    const b = Math.max(0, Math.min(1, wl / 0.4537));
-    const e = Math.max(0, Math.min(1, (wl - 0.4537) / 0.5463));
-    this.pour(this.bazaWaterEl, this.bazaLitEl, b);
-    this.pour(this.etoWaterEl, this.etoLitEl, e);
+    this.pour(this.keyWaterEl, this.keyLitEl, wl);
   }
 
   // окно поднимается, буква внутри стоит на месте: только transform, никаких масок
@@ -5055,11 +5046,10 @@ class Component extends DCLogic {
         .then((d) => { this.mURL[u] = d; this.forceUpdate(); },
               () => { this.mURL[u] = url; this.forceUpdate(); });
     };
-    Promise.all([take('assets/logo-eto-2x.webp'), take('assets/logo-baza-2x.webp')])
-      .then(() => take('assets/logo.webp'));
+    take('assets/logo-key-lg.webp').then(() => take('assets/logo.webp'));
     setTimeout(() => {
       let d = 0;
-      for (const u of ['assets/logo-eto-2x.webp', 'assets/logo-baza-2x.webp', 'assets/logo.webp']) {
+      for (const u of ['assets/logo-key-lg.webp', 'assets/logo.webp']) {
         if (!this.mURL[u]) { this.mURL[u] = this.rsrc(u); d = 1; }
       }
       if (d) this.forceUpdate();
@@ -8927,7 +8917,9 @@ class Component extends DCLogic {
     const narrow = st.narrow;
     const hover = st.hover;
     const vw = window.innerWidth, vh = window.innerHeight;
-    const bigW = Math.min(vw * 0.5, 460);
+    // знак квадратный: ширину считаем и от высоты окна тоже, иначе на
+    // низком ноутбуке клавиша упирается в края
+    const bigW = Math.min(vw * 0.46, vh * 0.42, 340);
     this.introLogoW = bigW;
     const flip = this.flip || { cx: vw / 2, cy: vh / 2, lw: 110, lh: 44 };
     const dx = flip.cx - vw / 2;
@@ -8944,7 +8936,6 @@ class Component extends DCLogic {
       color: on ? '#0a0a0a' : 'rgba(242,235,221,0.6)',
       transition: 'background 240ms ease, color 240ms ease, border-color 240ms ease'
     });
-    const ETO_H = 54.5842, BAZA_H = 45.4158;
     const partMask = (u) => {
       const src = (this.mURL && this.mURL[u]) || this.rsrc(u) || '';
       return {
@@ -9015,7 +9006,7 @@ class Component extends DCLogic {
     const disc = H - 2 * padR;
     const padL = narrow ? 15 : 21;
     const gap = narrow ? 8 : 11;
-    const logoH = narrow ? 19 : 19;
+    const logoH = narrow ? 34 : 38;
     const HE = 'cubic-bezier(.16,.84,.24,1)';
     const hm = this.hm;
     const mid = st.mid;
@@ -9986,7 +9977,7 @@ class Component extends DCLogic {
       headerLogoStyle: {
         display: 'block', height: logoH + 'px', width: 'auto',
         opacity: st.landed ? 1 : 0,
-        filter: menuOn ? 'brightness(0)' : 'none',
+        filter: menuOn ? 'invert(1) brightness(0.92)' : 'none',
         transition: 'height 640ms ' + HE + ', filter 420ms ease, opacity 1ms linear'
         , WebkitBackfaceVisibility: 'hidden'
       },
@@ -12016,7 +12007,7 @@ class Component extends DCLogic {
       },
       introLogoStyle: {
         position: 'fixed', left: '50%', top: '50%',
-        width: bigW + 'px', aspectRatio: '2.6141', zIndex: 34,
+        width: bigW + 'px', aspectRatio: '1', zIndex: 34,
         opacity: st.landed ? 0 : 1,
         visibility: st.landed ? 'hidden' : 'visible',
         transform: st.flying
@@ -12026,27 +12017,20 @@ class Component extends DCLogic {
         transition: (st.flying ? 'transform 760ms cubic-bezier(.62,0,.16,1), ' : '') + 'opacity 380ms ease 160ms, visibility 0s linear 560ms',
         willChange: 'transform', backfaceVisibility: 'hidden'
       },
-      etoPartStyle: {
-        position: 'absolute', left: 0, right: 0, top: 0, height: ETO_H + '%',
+      // Знак — клавиша, поэтому и ведёт себя как клавиша: приходит чуть
+      // приподнятой и с лёгким наклоном, потом садится на место.
+      keyPartStyle: {
+        position: 'absolute', inset: 0,
         willChange: 'transform', backfaceVisibility: 'hidden',
-        animation: 'lb-fly-l 620ms cubic-bezier(.17,.88,.22,1) 40ms both'
-      },
-      bazaPartStyle: {
-        position: 'absolute', left: 0, right: 0, top: ETO_H + '%', height: BAZA_H + '%',
-        willChange: 'transform', backfaceVisibility: 'hidden',
-        animation: 'lb-fly-r 620ms cubic-bezier(.17,.88,.22,1) 100ms both'
+        animation: 'lb-key-in 760ms cubic-bezier(.17,.88,.22,1) 40ms both'
       },
       ghostStyle: { position: 'absolute', inset: 0, width: '100%', height: '100%', opacity: 0.22, pointerEvents: 'none' },
       introPartRef: this._ipR || (this._ipR = (el) => { if (el) this.introPartEl = el; }),
-      etoWaterRef: this._ewR || (this._ewR = (el) => { if (el) this.etoWaterEl = el; }),
-      bazaWaterRef: this._bwR || (this._bwR = (el) => { if (el) this.bazaWaterEl = el; }),
-      etoLitRef: this._elR || (this._elR = (el) => { if (el) this.etoLitEl = el; }),
-      bazaLitRef: this._blR || (this._blR = (el) => { if (el) this.bazaLitEl = el; }),
-      // низ наполняется первым, верх следом — вода поднимается снизу вверх
-      bazaWaterStyle: Object.assign({}, WATER, { transform: 'translate3d(0,100%,0)' }),
-      etoWaterStyle: Object.assign({}, WATER, { transform: 'translate3d(0,100%,0)' }),
-      bazaLitStyle: Object.assign({}, LIT, { transform: 'translate3d(0,-100%,0)' }),
-      etoLitStyle: Object.assign({}, LIT, { transform: 'translate3d(0,-100%,0)' }),
+      keyWaterRef: this._kwR || (this._kwR = (el) => { if (el) this.keyWaterEl = el; }),
+      keyLitRef: this._klR || (this._klR = (el) => { if (el) this.keyLitEl = el; }),
+      // свет заливает клавишу снизу вверх: окно поднимается, знак в нём стоит
+      keyWaterStyle: Object.assign({}, WATER, { transform: 'translate3d(0,100%,0)' }),
+      keyLitStyle: Object.assign({}, LIT, { transform: 'translate3d(0,-100%,0)' }),
       footCrestStyle: {
         position: 'absolute', left: 0, right: 0, top: '-5px', height: '8px',
         backgroundImage: "url(\"data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 40' preserveAspectRatio='none'%3E%3Cpath d='M0 10 C 30 4 30 4 60 10 C 90 16 90 16 120 10 C 150 4 150 4 180 10 C 210 16 210 16 240 10 L240 40 L0 40 Z' fill='%23f2ebdd'/%3E%3C/svg%3E\")",
