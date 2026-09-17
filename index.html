@@ -1468,7 +1468,7 @@
 
         <div style="{{ faqListStyle }}">
           <sc-for list="{{ faqs }}" as="q" hint-placeholder-count="5">
-            <div style="{{ q.item }}">
+            <div data-reveal="1" data-rdist="22" data-rd="{{ q.delay }}" style="{{ q.item }}">
               <button type="button" data-press="1" sc-camel-on-click="{{ q.toggle }}"
                       aria-expanded="{{ q.expanded }}" aria-controls="{{ q.panelId }}"
                       style="{{ q.head }}" style-hover="border-color: rgba(242,235,221,0.52);">
@@ -1485,7 +1485,7 @@
           </sc-for>
         </div>
 
-        <div style="{{ faqFootStyle }}">
+        <div data-reveal="1" data-rdist="18" data-rd="220" style="{{ faqFootStyle }}">
           <span style="{{ faqFootTextStyle }}">{{ faqFootText }}</span>
           <a href="https://t.me/lllbaza" target="_blank" rel="noopener" data-sw="light" data-press="1"
              sc-camel-on-click="{{ tgWrite }}" style="{{ faqFootCtaStyle }}">
@@ -9892,6 +9892,7 @@ class Component extends DCLogic {
         const open = (st.faq || {})[i];
         return {
           q: f[0], a: f[1],
+          delay: String(i * 70),
           panelId: 'faq-panel-' + i,
           expanded: open ? 'true' : 'false',
           hidden: open ? 'false' : 'true',
