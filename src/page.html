@@ -1378,82 +1378,42 @@
       </div>
     </section>
 
+    <!-- ═══ КАРТА МАРШРУТА ═══════════════════════════════════════════
+         Четыре острова из присланной иллюстрации. Каждый идёт со своим
+         пузырём — над островом или под ним, — и текст встаёт с
+         противоположной стороны, чтобы не спорить с картинкой.
+         Пунктир между островами прочерчивается по мере прокрутки, и
+         острова зажигаются по одному: пока не дошёл — не показали. -->
     <section style="width: 100%; padding: 0 var(--gut); max-width: var(--maxw); margin: 0 auto; box-sizing: border-box;">
-      <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 18px;">
+      <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 14px;">
         <h2 data-words="1" style="margin: 0; max-width: 14ch; font-size: clamp(30px, 4.6vw, 68px); line-height: 0.99; letter-spacing: -0.035em; font-weight: 600; text-wrap: balance;">Карта <span data-hl="1" style="font-style: italic; font-weight: 600; letter-spacing: -0.03em; color: #f2ebdd;">маршрута</span></h2>
+        <p data-reveal="1" data-rdist="20" style="{{ routeLeadStyle }}">{{ routeLead }}</p>
       </div>
 
-      <!-- ── МАРШРУТ ──────────────────────────────────────────────────────
-           Было три абзаца вдоль вертикальной черты — читалось как договор.
-           Стало: дорога, которая прочерчивается по мере прокрутки, и три
-           станции на ней. Каждая станция — срок, одна строка и то, что
-           окажется у человека на руках. Путь виден формой, а не текстом. -->
-      <div ref="{{ mapRef }}" style="{{ mapWrapStyle }}">
-        <svg ref="{{ mapPathRef }}" viewBox="0 0 1000 120" preserveAspectRatio="none" aria-hidden="true" style="{{ mapRoadStyle }}">
-          <path d="M12 108 C 100 108, 110 24, 182 24 C 254 24, 265 108, 353 108 C 441 108, 452 24, 523 24 C 594 24, 605 108, 693 108 C 781 108, 792 24, 864 24 L1000 24"
-                fill="none" stroke="rgba(242,235,221,0.12)" stroke-width="2" stroke-linecap="round"></path>
-          <path data-road="1" d="M12 108 C 100 108, 110 24, 182 24 C 254 24, 265 108, 353 108 C 441 108, 452 24, 523 24 C 594 24, 605 108, 693 108 C 781 108, 792 24, 864 24 L1000 24"
-                fill="none" stroke="url(#lb-road)" stroke-width="2.6" stroke-linecap="round"
-                pathLength="1" stroke-dasharray="1" stroke-dashoffset="1"></path>
+      <div ref="{{ mapRef }}" style="{{ routeWrapStyle }}">
+        <svg ref="{{ mapPathRef }}" sc-camel-view-box="0 0 1000 40" preserveAspectRatio="none" aria-hidden="true" style="{{ routeLineStyle }}">
           <defs>
-            <linearGradient id="lb-road" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0" stop-color="#f2ebdd" stop-opacity="0.35"></stop>
-              <stop offset="1" stop-color="#f2ebdd" stop-opacity="0.95"></stop>
-            </linearGradient>
+            <clipPath id="lb-route-clip"><rect data-roadclip="1" x="0" y="0" width="0" height="40"></rect></clipPath>
           </defs>
+          <path d="M6 20H994" fill="none" stroke="rgba(242,235,221,0.13)" stroke-width="3" stroke-linecap="round" stroke-dasharray="1 22"></path>
+          <g clip-path="url(#lb-route-clip)">
+            <path data-road="1" d="M6 20H994" fill="none" stroke="rgba(242,235,221,0.62)" stroke-width="3.4" stroke-linecap="round" stroke-dasharray="1 22"></path>
+          </g>
         </svg>
 
-        <div style="{{ mapStopsStyle }}">
-          <sc-for list="{{ mapStops }}" as="m" hint-placeholder-count="3">
-            <div data-reveal="1" data-rdist="26" data-rd="{{ m.delay }}" style="{{ m.stop }}">
-              <span style="{{ m.node }}"><span style="{{ m.nodeNum }}">{{ m.num }}</span></span>
-              <span style="{{ m.cap }}">{{ m.capText }}</span>
-              <span style="{{ m.title }}">{{ m.titleText }}</span>
-              <span style="{{ m.line }}">{{ m.lineText }}</span>
-              <div style="{{ m.outCard }}">
-                <span style="{{ m.outCap }}">на руках у вас</span>
-                <span style="{{ m.outTitle }}">{{ m.outTitleText }}</span>
-                <div style="{{ mapOutChipsStyle }}">
-                  <sc-for list="{{ m.items }}" as="x" hint-placeholder-count="3">
-                    <span style="{{ mapOutChipStyle }}">{{ x }}</span>
-                  </sc-for>
-                </div>
+        <div style="{{ routeRowStyle }}">
+          <sc-for list="{{ routeStops }}" as="r" hint-placeholder-count="4">
+            <div data-rstop="1" style="{{ r.stop }}">
+              <div style="{{ r.artWrap }}">
+                <img sc-camel-src="{{ r.img }}" alt="{{ r.alt }}" width="760" height="980" loading="lazy" decoding="async" draggable="false" style="{{ r.art }}">
+              </div>
+              <div style="{{ r.text }}">
+                <span style="{{ r.cap }}">{{ r.capText }}</span>
+                <span style="{{ r.title }}">{{ r.titleText }}</span>
+                <span style="{{ r.hint }}"><span style="{{ r.hintDot }}"></span>{{ r.hintText }}</span>
               </div>
             </div>
           </sc-for>
-        </div>
-      </div>
-
-      <div style="position: relative;">
-        <div style="{{ goalsGridStyle }}">
-            <div data-reveal="1" data-rd="0" data-rdist="30" style="display: flex; flex-direction: column;">
-              <div sc-camel-on-mouse-enter="{{ gl.a.enter }}" sc-camel-on-mouse-leave="{{ gl.a.leave }}" style="{{ gl.a.card }}">
-                <span style="{{ gl.a.art }}"><img src="/*__LB_ASSET:art/time.webp__*/" width="680" height="510" alt="" draggable="false" loading="lazy" decoding="async" style="{{ gl.a.artImg }}"></span>
-                <span style="{{ gl.a.title }}">Освободим время</span>
-                <span style="{{ gl.a.text }}">Рутину забирает система. Вы занимаетесь ростом, а не чатами.</span>
-              </div>
-            </div>
-            <div data-reveal="1" data-rd="90" data-rdist="30" style="display: flex; flex-direction: column;">
-              <div sc-camel-on-mouse-enter="{{ gl.b.enter }}" sc-camel-on-mouse-leave="{{ gl.b.leave }}" style="{{ gl.b.card }}">
-                <span style="{{ gl.b.art }}"><img src="/*__LB_ASSET:art/sell.webp__*/" width="680" height="510" alt="" draggable="false" loading="lazy" decoding="async" style="{{ gl.b.artImg }}"></span>
-                <span style="{{ gl.b.title }}">Увеличим продажи</span>
-                <span style="{{ gl.b.text }}">Ни одна заявка не остывает и не теряется по дороге.</span>
-              </div>
-            </div>
-            <div data-reveal="1" data-rd="180" data-rdist="30" style="display: flex; flex-direction: column;">
-              <div sc-camel-on-mouse-enter="{{ gl.c.enter }}" sc-camel-on-mouse-leave="{{ gl.c.leave }}" style="{{ gl.c.card }}">
-                <span style="{{ gl.c.art }}"><img src="/*__LB_ASSET:art/rest.webp__*/" width="680" height="510" alt="" draggable="false" loading="lazy" decoding="async" style="{{ gl.c.artImg }}"></span>
-                <span style="{{ gl.c.title }}">Настоящий выходной</span>
-                <span style="{{ gl.c.text }}">Уехали — бизнес продолжает работать и продавать без вас.</span>
-              </div>
-            </div>
-            <div data-reveal="1" data-rd="270" data-rdist="30" style="display: flex; flex-direction: column;">
-              <div sc-camel-on-mouse-enter="{{ gl.d.enter }}" sc-camel-on-mouse-leave="{{ gl.d.leave }}" style="{{ gl.d.card }}">
-                <span style="{{ gl.d.art }}"><img src="/*__LB_ASSET:art/ahead.webp__*/" width="680" height="510" alt="" draggable="false" loading="lazy" decoding="async" style="{{ gl.d.artImg }}"></span>
-                <span style="{{ gl.d.title }}">Минус конкуренты</span>
-                <span style="{{ gl.d.text }}">На вашем фоне их сайт выглядит как позапрошлый сезон.</span>
-              </div>
-            </div>
         </div>
       </div>
     </section>
@@ -2150,6 +2110,24 @@ class Component extends DCLogic {
             'Развиваем продукт, а не тикеты',
             'Отвечаем за показатели'],
       cta: 'Обсудить сопровождение' }
+  ];
+
+  // ═══ КАРТА МАРШРУТА ═══════════════════════════════════════════════════
+  // Четыре острова присланной иллюстрации. bubbleUp говорит, с какой
+  // стороны у острова висит пузырь: текст всегда встаёт с другой.
+  ROUTE = [
+    { file: "g1.webp", bubbleUp: true,  cap: "неделя 1",
+      title: "Узнаёте, где теряете",  hint: "Освободим время",
+      alt: "Лупа над треснувшим графиком: разбор, где течёт" },
+    { file: "g2.webp", bubbleUp: false, cap: "недели 2–4",
+      title: "Отчёт на каждом этапе", hint: "Увеличим продажи",
+      alt: "Панель с растущим графиком и списком задач" },
+    { file: "g3.webp", bubbleUp: true,  cap: "запуск",
+      title: "Передаём проект",       hint: "Настоящий выходной",
+      alt: "Ноутбук с готовым сайтом и взлетающая ракета" },
+    { file: "g4.webp", bubbleUp: false, cap: "дальше",
+      title: "Держим и развиваем",    hint: "Минус конкуренты",
+      alt: "Щит с ключом, гарнитура и знак обновления" }
   ];
 
   // Вилка: одна и та же задача, четыре уровня амбиции. Денег здесь нет
@@ -5714,7 +5692,25 @@ class Component extends DCLogic {
       const fs = this.roadP.toFixed(3);
       if (fs !== this.lastMap) {
         this.lastMap = fs;
-        this.mapRoadEl.style.strokeDashoffset = (1 - this.roadP).toFixed(3);
+        const pr = this.roadP;
+        // пунктир прочерчивается окном отсечения: дасхаррай тут мешает,
+        // потому что рисунок точек должен остаться тем же
+        if (this.roadClipEl) this.roadClipEl.setAttribute("width", (pr * 1000).toFixed(1));
+        // острова зажигаются по одному: каждый берёт свою четверть хода
+        if (!this.rStopEls) this.rStopEls = this.mapEl.querySelectorAll("[data-rstop]");
+        const n = this.rStopEls.length;
+        for (let i = 0; i < n; i++) {
+          const el = this.rStopEls[i];
+          const from = i * 0.21;
+          let k = Math.max(0, Math.min(1, (pr - from) / 0.2));
+          k = k * k * (3 - 2 * k);
+          const o = k.toFixed(3);
+          if (el.__o !== o) {
+            el.__o = o;
+            el.style.opacity = o;
+            el.style.transform = "translate3d(0," + ((1 - k) * 26).toFixed(1) + "px,0)";
+          }
+        }
       }
     }
     // карта клиентов: точки зажигаются по мере прокрутки блока
@@ -9218,48 +9214,6 @@ class Component extends DCLogic {
         transition: 'background 520ms ease, color 520ms ease'
       };
     };
-    const goal = (k, cream) => {
-      const hv = st.gh === k;
-      return {
-        enter: () => this.hoverKey('gh', k, ''),
-        leave: () => this.hoverKey('gh', '', ''),
-        card: {
-          display: 'flex', flexDirection: 'column', gap: '12px', boxSizing: 'border-box', height: '100%',
-          padding: 'clamp(18px, 1.8vw, 24px)', borderRadius: '22px',
-          border: '1px solid ' + (cream ? '#f2ebdd' : (hv ? 'rgba(242,235,221,0.24)' : 'rgba(242,235,221,0.1)')),
-          background: cream ? '#f2ebdd' : 'linear-gradient(160deg, #151515, #0d0d0d)',
-          color: cream ? '#0a0a0a' : CREAM,
-          boxShadow: cream ? '0 22px 48px rgba(0,0,0,0.3)' : 'inset 0 1px 0 rgba(242,235,221,0.06), 0 18px 40px rgba(0,0,0,0.26)',
-          transform: hv ? 'translateY(-4px)' : 'translateY(0)',
-          transition: 'transform 560ms ' + EZ + ', border-color 420ms ease, box-shadow 520ms ease'
-        },
-        // Снимок вместо иконки: предметная сцена читается мгновенно и
-        // держит один свет со всем сайтом — чёрный фон, кремовый объект.
-        art: {
-          display: 'block', position: 'relative', flex: '0 0 auto', overflow: 'hidden',
-          width: '100%', aspectRatio: '16 / 10', borderRadius: '14px',
-          background: '#0d0d0d',
-          border: '1px solid ' + (cream ? 'rgba(10,10,10,0.12)' : 'rgba(242,235,221,0.07)')
-        },
-        artImg: {
-          display: 'block', width: '100%', height: '100%', objectFit: 'cover',
-          transform: hv ? 'scale(1.055)' : 'scale(1)',
-          filter: hv ? 'brightness(1.06) contrast(1.02)' : 'brightness(0.94)',
-          transition: 'transform 1100ms ' + EZ + ', filter 620ms ease'
-        },
-        title: {
-          flex: '0 0 auto',
-          fontSize: 'clamp(17px, 1.6vw, 21px)', fontWeight: 500,
-          letterSpacing: '-0.024em', lineHeight: 1.12, textWrap: 'balance'
-        },
-        text: {
-          flex: '1 1 auto', fontSize: '13.5px', lineHeight: 1.5,
-          color: cream ? 'rgba(10,10,10,0.6)' : 'rgba(242,235,221,0.6)', textWrap: 'pretty'
-        },
-        hv: hv
-      };
-    };
-    const glA = goal('a', false), glB = goal('b', false), glC = goal('c', false), glD = goal('d', true);
     const painRow = (k) => {
       const on = st.flip.indexOf(k) >= 0;
       return {
@@ -11830,95 +11784,91 @@ class Component extends DCLogic {
       }) : [],
 
       mapRef: this._mpR || (this._mpR = (el) => { if (el) this.mapEl = el; }),
-      mapPathRef: this._mrR || (this._mrR = (el) => { if (el) this.mapRoadEl = el.querySelector('[data-road]'); }),
-      mapWrapStyle: {
-        position: 'relative', display: 'flex', flexDirection: 'column',
-        marginTop: 'clamp(26px, 3.4vh, 42px)'
+      mapPathRef: this._mrR || (this._mrR = (el) => { if (el) { this.mapRoadEl = el.querySelector('[data-road]'); this.roadClipEl = el.querySelector('[data-roadclip]'); } }),
+      // ─── КАРТА МАРШРУТА ────────────────────────────────────────────
+      // Четыре острова из присланной иллюстрации. Пузырь у первого и
+      // третьего сверху, у второго и четвёртого снизу — значит и текст
+      // встаёт с противоположной стороны, чтобы не спорить с картинкой.
+      routeLeadStyle: {
+        margin: 0, maxWidth: "46ch", fontSize: narrow ? "15px" : "clamp(15px, 1.4vw, 18px)",
+        lineHeight: 1.55, fontWeight: 500, color: "rgba(242,235,221,0.6)", textWrap: "pretty"
       },
-      // Дорога живёт только на широком экране: на телефоне три станции идут
-      // столбиком, и петля через весь экран там лишняя.
-      mapRoadStyle: {
-        display: narrow ? 'none' : 'block',
-        position: 'absolute', left: 0, right: 0, top: 0,
-        width: '100%', height: '128px', pointerEvents: 'none'
+      routeLead: "От первой честной цифры до команды, которая работает без вас.",
+      routeWrapStyle: {
+        position: "relative", marginTop: narrow ? "clamp(22px, 3vh, 34px)" : "clamp(34px, 5vh, 66px)"
       },
-      mapStopsStyle: {
-        position: 'relative', zIndex: 1, display: 'grid',
-        gridTemplateColumns: narrow ? 'minmax(0, 1fr)' : 'repeat(3, minmax(0, 1fr))',
-        gap: narrow ? '18px' : 'clamp(16px, 2vw, 34px)',
-        marginTop: narrow ? '8px' : '98px'
+      // Пунктир идёт ровно по линии подиумов, а не поперёк картинок.
+      routeLineStyle: {
+        display: narrow ? "none" : "block",
+        position: "absolute", left: "7%", right: "7%", top: "47%",
+        width: "86%", height: "40px", marginTop: "-20px",
+        pointerEvents: "none", zIndex: 0
       },
-      mapStops: ['a', 'b', 'c'].map((k, i) => {
-        const out = this.MAPOUT[k];
-        const M = this.MAPSTOP[i];
+      routeRowStyle: {
+        position: "relative", zIndex: 1, display: "grid",
+        gridTemplateColumns: narrow ? "minmax(0, 1fr)" : "repeat(4, minmax(0, 1fr))",
+        gap: narrow ? "clamp(26px, 5vh, 44px)" : "clamp(14px, 1.8vw, 30px)",
+        alignItems: "start"
+      },
+      routeStops: this.ROUTE.map((r, i) => {
+        const up = r.bubbleUp;               // пузырь сверху → текст снизу
         return {
-          num: String(i + 1),
-          delay: String(i * 110),
-          capText: M.cap, titleText: M.title, lineText: M.line,
-          outTitleText: out.title, items: out.items,
+          img: this.rsrc("route/" + r.file),
+          alt: r.alt,
+          capText: r.cap, titleText: r.title, hintText: r.hint,
+          // Стартовое состояние задаём здесь, дальше остров зажигает такт
+          // прокрутки: пока до него не дошли — его не показывают.
+          // Пузырь у первого и третьего висит сверху, у второго и
+          // четвёртого снизу — это уже вшито в картинку. Подпись у всех
+          // идёт под островом, поэтому строка подписей ровная.
           stop: {
-            display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
-            gap: narrow ? '9px' : '11px', minWidth: 0, height: '100%'
+            display: "grid", gridTemplateRows: "auto auto",
+            justifyItems: "center", gap: narrow ? "6px" : "2px", minWidth: 0,
+            opacity: 0, transform: "translate3d(0,26px,0)",
+            willChange: "opacity, transform"
           },
-          node: {
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            flex: '0 0 auto', width: '34px', height: '34px', borderRadius: 'var(--r-pill)',
-            border: '1px solid rgba(242,235,221,0.3)',
-            background: i === 0 ? CREAM : '#121212',
-            color: i === 0 ? '#0a0a0a' : CREAM,
-            boxShadow: '0 8px 22px rgba(0,0,0,0.4)'
+          artWrap: {
+            // подиум у всех четырёх стоит на одной высоте прямо в картинке,
+            // поэтому по вертикали ничего подгонять не нужно
+            width: "100%", display: "flex", justifyContent: "center", minWidth: 0
           },
-          nodeNum: { fontSize: '14px', fontWeight: 600, letterSpacing: '-0.02em' },
+          art: {
+            display: "block", width: "100%", maxWidth: narrow ? "300px" : "none",
+            height: "auto", userSelect: "none", pointerEvents: "none"
+          },
+          text: {
+            display: "flex", flexDirection: "column", alignItems: "center",
+            gap: "6px", textAlign: "center", minWidth: 0, padding: "0 4px",
+            // у второго и четвёртого снизу висит пузырь — подпись отступает
+            marginTop: up ? (narrow ? "-5%" : "-13%") : 0
+          },
           cap: {
-            fontSize: '10.5px', fontWeight: 700, letterSpacing: '0.18em',
-            textTransform: 'uppercase', color: 'rgba(242,235,221,0.42)'
+            fontSize: "10.5px", fontWeight: 700, letterSpacing: "0.17em",
+            textTransform: "uppercase", color: "rgba(242,235,221,0.42)"
           },
           title: {
-            minHeight: narrow ? '0' : '2.2em',
-            fontSize: narrow ? '19px' : 'clamp(19px, 1.9vw, 26px)', fontWeight: 600,
-            letterSpacing: '-0.03em', lineHeight: 1.1, color: CREAM, textWrap: 'balance'
+            fontSize: narrow ? "17px" : "clamp(16px, 1.5vw, 20px)", fontWeight: 600,
+            letterSpacing: "-0.025em", lineHeight: 1.16, color: "#f2ebdd", textWrap: "balance"
           },
-          line: {
-            // Три станции стоят в ряд, и карточка «на руках» под каждой
-            // должна начинаться на одной линии. Без фиксированной высоты
-            // описания ряд разъезжается: где-то три строки, где-то четыре.
-            maxWidth: '34ch', minHeight: narrow ? '0' : '4.5em',
-            fontSize: narrow ? '13.5px' : '14px', lineHeight: 1.5,
-            fontWeight: 500, color: 'rgba(242,235,221,0.6)', textWrap: 'pretty'
+          hint: {
+            display: "inline-flex", alignItems: "center", gap: "7px",
+            padding: "5px 12px 5px 10px", borderRadius: "var(--r-pill)",
+            border: "1px solid rgba(242,235,221,0.14)", background: "rgba(242,235,221,0.04)",
+            fontSize: "11.5px", fontWeight: 600, letterSpacing: "-0.005em",
+            color: "rgba(242,235,221,0.72)", whiteSpace: "nowrap"
           },
-          outCard: {
-            display: 'flex', flexDirection: 'column', gap: '8px',
-            boxSizing: 'border-box', width: '100%', marginTop: 'auto',
-            padding: narrow ? '13px 14px' : '15px 16px',
-            borderRadius: 'var(--r-md)',
-            border: '1px solid rgba(242,235,221,0.1)',
-            background: 'rgba(242,235,221,0.03)'
-          },
-          outCap: {
-            fontSize: '10px', fontWeight: 700, letterSpacing: '0.16em',
-            textTransform: 'uppercase', color: 'rgba(242,235,221,0.34)'
-          },
-          outTitle: {
-            fontSize: narrow ? '14px' : '15px', fontWeight: 600, letterSpacing: '-0.02em',
-            lineHeight: 1.2, color: 'rgba(242,235,221,0.92)', textWrap: 'pretty'
+          hintDot: {
+            flex: "0 0 auto", width: "5px", height: "5px", borderRadius: "var(--r-pill)",
+            background: "var(--acc-lime, #f2ebdd)"
           }
         };
       }),
-      mapOutChipsStyle: { display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '2px' },
-      mapOutChipStyle: {
-        boxSizing: 'border-box', maxWidth: '100%',
-        padding: '5px 10px', borderRadius: 'var(--r-pill)',
-        border: '1px solid rgba(242,235,221,0.1)', background: 'rgba(242,235,221,0.03)',
-        fontSize: '11.5px', lineHeight: 1.3, fontWeight: 500, color: 'rgba(242,235,221,0.6)'
-      },
-      chestRowStyle: { display: 'none' },
       chestChipStyle: {
         display: 'inline-flex', alignItems: 'center', gap: '9px', padding: '9px 18px', borderRadius: '999px',
         border: '1px solid rgba(242,235,221,0.22)', background: 'rgba(242,235,221,0.05)',
         fontSize: '11.5px', fontWeight: 600, letterSpacing: '0.16em', textTransform: 'uppercase',
         color: 'rgba(242,235,221,0.55)'
       },
-      gl: { a: glA, b: glB, c: glC, d: glD },
       signWrapStyle: { display: 'flex', alignItems: 'center', gap: '13px', flex: '0 0 auto' },
       signBarStyle: { position: 'absolute', left: '50%', top: '50%', width: '11px', height: '1px', marginLeft: '-5.5px', marginTop: '-0.5px', background: 'rgba(242,235,221,0.62)' },
       painListStyle: {
@@ -11956,18 +11906,6 @@ class Component extends DCLogic {
         if (Math.abs(d) > 56) this.shift(d < 0 ? 1 : -1);
       },
 
-      goalsGridStyle: {
-        display: 'grid', marginTop: 'clamp(30px, 4.6vh, 60px)',
-        gridTemplateColumns: 'repeat(' + (narrow ? 1 : (st.mid ? 2 : 4)) + ', minmax(0, 1fr))',
-        gap: 'clamp(10px, 1.1vw, 16px)'
-      },
-      branchLineStyle: {
-        display: narrow ? 'none' : 'block',
-        position: 'absolute', top: '0', height: '0',
-        left: 'calc(100% / ' + (st.mid ? 4 : 8) + ')',
-        right: 'calc(100% / ' + (st.mid ? 4 : 8) + ')',
-        borderTop: '1px dashed rgba(242,235,221,0.32)'
-      },
 
       // боль до / после
       painRowStyle: {
