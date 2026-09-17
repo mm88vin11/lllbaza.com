@@ -76,14 +76,14 @@
       radial-gradient(56% 56% at 86% 94%, rgba(242,235,221,0.032), rgba(242,235,221,0) 68%),
       #0a0a0a;
   }
-  .lb-boot__rail { position: relative; width: clamp(140px, 18vw, 240px); height: 2px;
-    border-radius: 2px; background: rgba(242,235,221,0.14); overflow: hidden; }
-  .lb-boot__bar { position: absolute; left: 0; top: 0; bottom: 0; width: 42%;
-    border-radius: 2px; background: rgba(242,235,221,0.82);
-    animation: lb-boot-run 1150ms cubic-bezier(.62,.05,.30,1) infinite; }
-  @keyframes lb-boot-run {
-    0%   { transform: translateX(-108%); }
-    100% { transform: translateX(340%); }
+  /* Дышащее пятно света вместо полосы: оно не обещает процентов, которых
+     мы не знаем, и уходит в ту же заставку, что покажет приложение. */
+  .lb-boot__pulse { width: clamp(120px, 16vw, 200px); height: clamp(120px, 16vw, 200px);
+    border-radius: 50%; background: radial-gradient(circle, rgba(242,235,221,0.14) 0%, rgba(242,235,221,0) 70%);
+    animation: lb-boot-pulse 2200ms cubic-bezier(.42,0,.58,1) infinite; }
+  @keyframes lb-boot-pulse {
+    0%, 100% { transform: scale(0.82); opacity: 0.5; }
+    50%      { transform: scale(1.12); opacity: 1; }
   }
   /* Приложение встало — снимаем экран. Класс вешает рантайм; пока его нет,
      экран остаётся на месте, что и нужно и человеку, и роботу.
@@ -382,9 +382,7 @@
 <div class="lb-first" id="lb-first">
   <!-- Заставка на время загрузки. Повторяет то, что покажет приложение,
        поэтому передача управления не видна: меняется слой, а не картинка. -->
-  <div class="lb-boot" aria-hidden="true">
-    <div class="lb-boot__rail"><span class="lb-boot__bar"></span></div>
-  </div>
+  <div class="lb-boot" aria-hidden="true"><span class="lb-boot__pulse"></span></div>
   <div class="lb-first__top">
     <svg width="34" height="34" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
       <rect width="64" height="64" rx="14" fill="#111"></rect>
@@ -603,8 +601,8 @@
   @keyframes lb-run-rev { from { transform: translate3d(-50%,0,0); } to { transform: translate3d(0,0,0); } }
   @keyframes lb-bob { 0% { transform: translateY(0); } 50% { transform: translateY(-5px); } 100% { transform: translateY(0); } }
   @keyframes lb-slide { from { opacity: 0; transform: translateX(18px); } to { opacity: 1; transform: translateX(0); } }
-  @keyframes lb-drift { 0% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(7vw,5vh,0) scale(1.14); } 100% { transform: translate3d(0,0,0) scale(1); } }
-  @keyframes lb-drift2 { 0% { transform: translate3d(0,0,0) scale(1.08); } 50% { transform: translate3d(-8vw,-6vh,0) scale(1); } 100% { transform: translate3d(0,0,0) scale(1.08); } }
+  @keyframes lb-drift { 0% { transform: translate3d(0,0,0); } 50% { transform: translate3d(6vw,4vh,0); } 100% { transform: translate3d(0,0,0); } }
+  @keyframes lb-drift2 { 0% { transform: translate3d(0,0,0); } 50% { transform: translate3d(-7vw,-5vh,0); } 100% { transform: translate3d(0,0,0); } }
   @keyframes lb-sheen { from { background-position: 0 0; } to { background-position: 0 58.25px; } }
   @keyframes lb-ping { 0% { transform: scale(0.4); opacity: 0.85; } 65% { opacity: 0; } 100% { transform: scale(2.4); opacity: 0; } }
   @keyframes lb-spark { 0% { opacity: 0; transform: rotate(var(--a)) translateX(7px) scaleX(0.3); } 26% { opacity: 1; } 100% { opacity: 0; transform: rotate(var(--a)) translateX(34px) scaleX(1); } }
@@ -621,9 +619,6 @@
   #brief input::placeholder { color: rgba(10,10,10,0.6); font-weight: 400; letter-spacing: -0.01em; }
   [data-mqrow]:hover [data-mqrun] { animation-play-state: paused; }
   @media (prefers-reduced-motion: reduce), (pointer: coarse) {
-    [data-drift] { animation: none !important; }
-    [data-bg2] { display: none !important; }
-    [data-noise] { display: none !important; }
   }
   /* Человек попросил систему не двигать картинку — значит не двигаем ничего,
      что едет само по себе: бегущие строки, пульсации, подсказки. Прокрутку
@@ -632,7 +627,7 @@
     /* сцена сжата до одного экрана — значит и подтягивать контент под неё
        отрицательным отступом больше не нужно, иначе он ляжет поверх кадра */
     [data-main] { margin-top: 0 !important; padding-top: clamp(40px, 7vh, 90px) !important; }
-    [data-mqrun], [data-drift] { animation: none !important; }
+    [data-mqrun] { animation: none !important; }
     * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; }
   }
   body { cursor: auto; }
@@ -643,54 +638,44 @@
   input, textarea, [data-sel] { -webkit-user-select: text; user-select: text; }
   img { -webkit-user-drag: none; -khtml-user-drag: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
   [data-sw] { position: relative; overflow: hidden; isolation: isolate; -webkit-tap-highlight-color: transparent;
-    transition: border-color 420ms var(--e-expo), box-shadow 420ms var(--e-expo), color 260ms ease !important; }
-  /* ── Наведение на кнопку ────────────────────────────────────────────────
-     Заливка расходится кругом из той точки, где курсор вошёл, и собирается
-     обратно в ту, где вышел. Ход — чистый transform: scale по кругу, поэтому
-     кадры не проседают даже на слабой машине, а движение читается как
-     физическое, а не как «полоса проехала слева направо».
-     Диаметр --sw-d считает sweepGeo по диагонали кнопки, точку входа кладёт
-     initHover в --sw-x/--sw-y. Без скриптов остаётся честный запасной круг. */
-  [data-sw]::before { content: ''; position: absolute; z-index: 0; pointer-events: none;
-    left: var(--sw-x, 50%); top: var(--sw-y, 50%);
-    width: var(--sw-d, 320px); height: var(--sw-d, 320px);
-    margin-left: calc(var(--sw-d, 320px) / -2); margin-top: calc(var(--sw-d, 320px) / -2);
-    border-radius: 50%; transform: scale(0); will-change: transform;
-    transition: transform 620ms var(--e-expo); }
-  [data-sw] > * { position: relative; z-index: 1; }
-  [data-sw="dark"]::before { background: #0a0a0a; }
-  [data-sw="light"]::before { background: #f2ebdd; }
-  [data-sw][data-on]::before { transform: scale(1); }
-  /* Уход: круг схлопывается быстрее, чем расходился — иначе кнопка кажется
-     «липкой» и тянется за курсором. */
-  [data-sw]:not([data-on])::before { transition-duration: 460ms; }
-  /* Потомки со своим color не наследуют инверсию — красим и их, иначе
-     подпись остаётся цветом заливки и пропадает. Кружок со стрелкой
-     переопределяется следом, поэтому он остаётся контрастным. */
-  [data-sw="dark"][data-on], [data-sw="dark"][data-on] * { color: #f2ebdd !important; }
-  [data-sw="light"][data-on], [data-sw="light"][data-on] * { color: #0a0a0a !important; }
-  [data-sw="dark"][data-on] [data-swa], [data-sw="dark"][data-on] [data-swa] * { background: #f2ebdd; color: #0a0a0a !important; }
-  [data-sw="light"][data-on] [data-swa], [data-sw="light"][data-on] [data-swa] * { background: #0a0a0a; color: #f2ebdd !important; }
-  [data-swa] { transition: transform 340ms cubic-bezier(.16,.84,.24,1), background 300ms ease, color 300ms ease; }
-  [data-ar], [data-swa], [data-swl] { transition: transform 340ms cubic-bezier(.16,.84,.24,1); }
-  [data-on] [data-ar="1"] { transform: translateX(-4px); }
-  [data-on] [data-ar="out"] { transform: translate(2.5px, -2.5px); }
-  [data-on] [data-ar="up"] { transform: translateY(-3px); }
-  [data-on] [data-ar="back"] { transform: translateX(-4px); }
-  [data-sw][data-on] [data-swa] { transform: translateX(var(--swa, -6px)); }
-  [data-sw][data-on] [data-swl] { transform: translateX(var(--swl, 0px)); }
+    transition: border-color 520ms var(--e-soft), box-shadow 520ms var(--e-soft),
+                background-color 520ms var(--e-soft), color 420ms var(--e-soft) !important; }
 
-  /* ── Перекат подписи ────────────────────────────────────────────────────
-     Буква уезжает вверх, а её копия приходит снизу — с шагом по строке.
-     Структуру собирает rollPrep() один раз, разметку руками писать не нужно.
-     Шаг намеренно мелкий (18 мс): на длинной подписи волна должна читаться
-     как одно движение, а не как пробегающая по буквам рябь. */
-  [data-roll] { display: inline-flex; flex-wrap: nowrap; white-space: pre; }
-  [data-roll-c] { display: inline-block; position: relative; overflow: hidden; vertical-align: top; }
-  [data-roll-c] > span { display: block; transition: transform 520ms var(--e-expo); transition-delay: var(--rd, 0ms); }
-  [data-roll-c] > span:last-child { position: absolute; left: 0; top: 0; transform: translateY(102%); }
-  [data-on] [data-roll-c] > span:first-child { transform: translateY(-102%); }
-  [data-on] [data-roll-c] > span:last-child { transform: translateY(0); }
+  /* ── Наведение на кнопку: кнопка загорается ──────────────────────────────
+     Под курсором зажигается мягкое пятно света — тот же приём, что у клейма
+     в подвале, где логотип проявляется под фонариком. Пятно тянется за рукой
+     с лёгким запозданием (координату сглаживает glowTick), поэтому движение
+     читается как свет, а не как переключение состояния.
+     Никаких резких заливок и мельканий: всё держится на opacity и на
+     положении градиента, а они не заставляют браузер ничего пересчитывать. */
+  [data-sw]::before { content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+    opacity: 0; will-change: opacity;
+    transition: opacity 620ms var(--e-soft);
+    background: radial-gradient(circle var(--sw-r, 160px) at var(--sw-x, 50%) var(--sw-y, 50%),
+      var(--sw-glow, rgba(242,235,221,0.30)) 0%,
+      var(--sw-glow-2, rgba(242,235,221,0.13)) 38%,
+      transparent 72%); }
+  [data-sw] > * { position: relative; z-index: 1; }
+  [data-sw][data-on]::before { opacity: 1; }
+  /* Уход чуть быстрее прихода — иначе свет «залипает» за ушедшей рукой */
+  [data-sw]:not([data-on])::before { transition-duration: 440ms; }
+
+  /* Тёмная кнопка светится кремовым, светлая — тенью. Второй слой света —
+     ореол снаружи: он и делает эффект «загорелась», а не «покрасилась». */
+  [data-lit="on-dark"][data-on] {
+    border-color: rgba(242,235,221,0.46) !important;
+    box-shadow: 0 0 0 1px rgba(242,235,221,0.09), 0 16px 48px rgba(242,235,221,0.13) !important; }
+  [data-lit="on-light"][data-on] {
+    border-color: rgba(10,10,10,0.32) !important;
+    box-shadow: 0 0 0 1px rgba(10,10,10,0.05), 0 18px 46px rgba(0,0,0,0.36) !important; }
+
+  /* Стрелка отъезжает на полкорпуса — единственное движение, которое
+     осталось: оно показывает направление, а не украшает. */
+  [data-ar] { transition: transform 620ms var(--e-soft); }
+  [data-on] [data-ar="1"] { transform: translateX(5px); }
+  [data-on] [data-ar="out"] { transform: translate(3px, -3px); }
+  [data-on] [data-ar="up"] { transform: translateY(-4px); }
+  [data-on] [data-ar="back"] { transform: translateX(-5px); }
 
   /* ── Магнит ─────────────────────────────────────────────────────────────
      Крупные кнопки слегка тянутся к курсору. Смещение считает initHover и
@@ -699,7 +684,7 @@
   [data-mag][data-on] { transition-duration: 220ms; }
   @media (pointer: coarse), (prefers-reduced-motion: reduce) {
     [data-mag] { transform: none !important; }
-    [data-roll-c] > span { transition-delay: 0ms !important; }
+    [data-sw]::before { transition-duration: 1ms !important; }
   }
   #brief input:hover { border-color: rgba(10,10,10,0.6) !important; }
   #brief input:focus { border-color: #0a0a0a !important; background-color: rgba(255,255,255,0.5) !important; box-shadow: 0 0 0 2px rgba(10,10,10,0.07) !important; }
@@ -759,12 +744,28 @@
 </helmet>
 <div style="position: relative; overflow-x: clip; background: #0a0a0a; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #f2ebdd;">
 
-  <div style="position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;">
-    <div aria-hidden="true" data-drift="1" style="position: absolute; left: -18%; top: -18%; width: 136%; height: 136%; opacity: 0.5; animation: lb-drift 96s cubic-bezier(.42,0,.58,1) infinite; will-change: transform; background-color: #0a0a0a; background-image: radial-gradient(46% 38% at 50% 16%, #1f1f1f 0%, rgba(31,31,31,0) 72%), radial-gradient(52% 44% at 56% 52%, #1b1b1b 0%, rgba(27,26,27,0) 76%), radial-gradient(40% 40% at 18% 86%, #070707 0%, rgba(7,7,7,0) 70%);"></div>
-    <div aria-hidden="true" data-drift="1" data-bg2="1" style="position: absolute; left: -22%; top: -22%; width: 144%; height: 144%; opacity: 0.34; animation: lb-drift2 128s cubic-bezier(.42,0,.58,1) infinite; will-change: transform; background-image: radial-gradient(48% 42% at 16% 82%, #0c0c0c 0%, rgba(12,12,12,0) 74%), radial-gradient(44% 40% at 84% 54%, #090909 0%, rgba(9,9,9,0) 72%);"></div>
-    <div style="position: absolute; inset: 0; background: radial-gradient(78% 62% at 50% 34%, rgba(10,10,10,0.22) 0%, rgba(10,10,10,0.62) 62%, rgba(10,10,10,0.86) 100%);"></div>
+  <!-- ── ФОН ─────────────────────────────────────────────────────────────
+       Раньше здесь стояли четыре слоя: две дымки с собственной анимацией,
+       виньетка и шумовая накладка в режиме наложения. Замер показал, что
+       вместе они съедали треть кадра: полноэкранные слои композитор
+       пересобирает на каждой прокрутке, а mix-blend-mode заставляет его
+       пересчитывать и всё, что под ними.
+       Теперь это одно полотно: шум, дымка и виньетка нарисованы одним
+       набором фонов и растрируются один раз. Выглядит так же, стоит почти
+       ничего. Отдельным слоем остаётся только подсветка под курсором —
+       она действительно двигается. -->
+  <div style="position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
+       background-color: #0a0a0a;
+       background-image:
+         url(&quot;data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='200'%20height='200'%3E%3Cfilter%20id='n'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.9'%20numOctaves='3'/%3E%3C/filter%3E%3Crect%20width='200'%20height='200'%20filter='url%28%23n%29'%20opacity='0.32'/%3E%3C/svg%3E&quot;),
+         radial-gradient(78% 62% at 50% 34%, rgba(10,10,10,0.22) 0%, rgba(10,10,10,0.62) 62%, rgba(10,10,10,0.86) 100%),
+         radial-gradient(44% 36% at 50% 16%, #1f1f1f 0%, rgba(31,31,31,0) 70%),
+         radial-gradient(50% 42% at 58% 52%, #1b1b1b 0%, rgba(27,26,27,0) 74%),
+         radial-gradient(42% 38% at 16% 84%, #0d0d0d 0%, rgba(13,13,13,0) 72%),
+         radial-gradient(40% 36% at 86% 58%, #0a0a0a 0%, rgba(10,10,10,0) 70%);
+       background-size: 150px 150px, cover, cover, cover, cover, cover;
+       background-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;">
     <div ref="{{ glowRef }}" style="position: absolute; left: 0; top: 0; width: 74vw; height: 74vw; margin-left: -37vw; margin-top: -37vw; border-radius: 999px; transform: translate3d(-160vw,0,0); will-change: transform; backface-visibility: hidden; opacity: 1; background: radial-gradient(closest-side, rgba(242,235,221,0.052) 0%, rgba(242,235,221,0.049) 9%, rgba(242,235,221,0.043) 18%, rgba(242,235,221,0.036) 27%, rgba(242,235,221,0.028) 36%, rgba(242,235,221,0.021) 45%, rgba(242,235,221,0.0145) 54%, rgba(242,235,221,0.0095) 63%, rgba(242,235,221,0.0056) 72%, rgba(242,235,221,0.0028) 81%, rgba(242,235,221,0.0010) 90%, rgba(242,235,221,0) 100%);"></div>
-    <div style="position: absolute; inset: 0; opacity: 0.085; mix-blend-mode: overlay; background-image: url(&quot;data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='200'%20height='200'%3E%3Cfilter%20id='n'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.92'%20numOctaves='3'/%3E%3C/filter%3E%3Crect%20width='200'%20height='200'%20filter='url%28%23n%29'/%3E%3C/svg%3E&quot;); background-size: 128px 128px;" data-noise="1"></div>
   </div>
 
   <div ref="{{ scrimRef }}" style="{{ topScrimStyle }}" aria-hidden="true"></div>
@@ -802,7 +803,7 @@
       </nav>
 
       <div ref="{{ ctaPodRef }}" style="{{ ctaPodStyle }}">
-        <span ref="{{ ctaSkinRef }}" style="{{ skinStyle }}"></span>
+        <span ref="{{ ctaSkinRef }}" style="{{ ctaSkinStyle }}"></span>
         <a href="#brief" data-press="1" data-mag="1" sc-camel-on-click="{{ goBrief }}" sc-camel-on-mouse-enter="{{ onCtaEnter }}" sc-camel-on-mouse-leave="{{ onCtaLeave }}" ref="{{ ctaRef }}" aria-hidden="{{ ctaHidden }}" style="{{ ctaStyle }}">
           <span style="{{ ctaBedStyle }}"></span>
           <span style="{{ ctaFillStyle }}"></span>
@@ -823,35 +824,35 @@
   </header>
 
   <nav id="site-menu" aria-label="Меню сайта" aria-hidden="{{ menuHidden }}" sc-camel-on-touch-start="{{ menuTouchStart }}" sc-camel-on-touch-move="{{ menuTouchMove }}" sc-camel-on-touch-end="{{ menuTouchEnd }}" style="{{ menuStyle }}">
-    <div style="{{ menuTopStyle }}">
-      <span>меню</span>
-      <span>lllbaza · 2026</span>
-    </div>
-
     <div style="{{ menuListStyle }}">
       <span data-k="about" style="{{ mi.about }}">
+        <span style="{{ menuNumStyle }}">01</span>
         <span style="{{ menuWordStyle }}">О нас</span>
         <span style="{{ menuHereStyle }}">вы здесь</span>
       </span>
       <a data-k="services" style-hover="color: rgba(10,10,10,0.6);" href="#services" sc-camel-on-click="{{ navGo }}" style="{{ mi.services }}">
+        <span style="{{ menuNumStyle }}">02</span>
         <span style="{{ menuWordStyle }}">Услуги</span>
         <span style="{{ menuArrowStyle }}">
           <svg data-ar="1" sc-camel-view-box="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12h13M12.5 6.5l5.5 5.5-5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
         </span>
       </a>
       <a data-k="pricing" style-hover="color: rgba(10,10,10,0.6);" href="#pricing" sc-camel-on-click="{{ navGo }}" style="{{ mi.pricing }}">
+        <span style="{{ menuNumStyle }}">03</span>
         <span style="{{ menuWordStyle }}">Цены</span>
         <span style="{{ menuArrowStyle }}">
           <svg data-ar="1" sc-camel-view-box="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12h13M12.5 6.5l5.5 5.5-5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
         </span>
       </a>
       <a data-k="projects" style-hover="color: rgba(10,10,10,0.6);" href="#projects" sc-camel-on-click="{{ navGo }}" style="{{ mi.projects }}">
+        <span style="{{ menuNumStyle }}">04</span>
         <span style="{{ menuWordStyle }}">Проекты</span>
         <span style="{{ menuArrowStyle }}">
           <svg data-ar="1" sc-camel-view-box="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12h13M12.5 6.5l5.5 5.5-5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
         </span>
       </a>
       <a data-k="contacts" style-hover="color: rgba(10,10,10,0.6);" href="#brief" sc-camel-on-click="{{ navGo }}" style="{{ mi.contacts }}">
+        <span style="{{ menuNumStyle }}">05</span>
         <span style="{{ menuWordStyle }}">Конфигуратор</span>
         <span style="{{ menuArrowStyle }}">
           <svg data-ar="1" sc-camel-view-box="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M5 12h13M12.5 6.5l5.5 5.5-5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
@@ -924,9 +925,7 @@
         </div>
       </div>
     </div>
-    <div style="{{ introMsgStyle }}">
-      <span style="{{ introRailStyle }}"><span ref="{{ introBarRef }}" style="{{ introBarStyle }}"></span></span>
-    </div>
+
   </div>
 
   <main data-main="1" style="position: relative; z-index: 2; background: transparent; display: flex; flex-direction: column; gap: var(--sec-gap); margin-top: -62vh; margin-top: -62svh; padding-top: clamp(24px, 4vh, 52px);">
@@ -992,46 +991,38 @@
         </div>
 
         <div style="{{ symStickyStyle }}">
+          <!-- ── СЧЁТЧИК ПОТЕРЬ ───────────────────────────────────────────
+               Карточка была простынёй: счётчик, потом «N из четырёх», потом
+               те же галочки фишками, потом список «во что это обходится»,
+               потом вывод. Одно и то же повторялось трижды.
+               Осталось: шкала, две цифры в ровной сетке, год и один вывод.
+               Всё на общей сетке — ни одна подпись не висит сама по себе. -->
           <div data-reveal="1" data-rdist="28" style="{{ meterStyle }}">
-            <div style="display: flex; align-items: center; gap: 7px;">
-              <sc-for list="{{ segs }}" as="s" hint-placeholder-count="4">
-                <span style="{{ s.style }}"></span>
-              </sc-for>
-            </div>
-            <!-- ── СЧЁТЧИК ПОТЕРЬ ─────────────────────────────────────
-                 Галочка перестаёт быть галочкой и становится часами и
-                 деньгами. Цифры докручиваются, а не подставляются: видно,
-                 что каждая отметка что-то добавила. -->
-            <div style="{{ lossWrapStyle }}">
-              <div style="{{ lossRowStyle }}">
-                <span style="{{ lossNumStyle }}"><span data-loss="h">0</span><span style="{{ lossUnitStyle }}">ч</span></span>
-                <span style="{{ lossCapStyle }}">часов в месяц уходит на то, что должно работать само</span>
+            <div style="{{ meterTopStyle }}">
+              <div style="display: flex; align-items: center; gap: 6px; flex: 1 1 auto;">
+                <sc-for list="{{ segs }}" as="s" hint-placeholder-count="4">
+                  <span style="{{ s.style }}"></span>
+                </sc-for>
               </div>
-              <div style="{{ lossRowStyle }}">
-                <span style="{{ lossNumStyle }}"><span data-loss="m">0</span><span style="{{ lossUnitStyle }}">₽</span></span>
-                <span style="{{ lossCapStyle }}">в месяц не доходит до кассы</span>
+              <span style="{{ meterCntStyle }}">{{ cnt }}<span style="{{ meterOfStyle }}">/4</span></span>
+            </div>
+
+            <div style="{{ lossWrapStyle }}">
+              <div style="{{ lossGridStyle }}">
+                <div style="{{ lossCellStyle }}">
+                  <span style="{{ lossNumStyle }}"><span data-loss="h">0</span><span style="{{ lossUnitStyle }}">ч</span></span>
+                  <span style="{{ lossCapStyle }}">часов в месяц</span>
+                </div>
+                <div style="{{ lossCellStyle }}">
+                  <span style="{{ lossNumStyle }}"><span data-loss="m">0</span><span style="{{ lossUnitStyle }}">₽</span></span>
+                  <span style="{{ lossCapStyle }}">мимо кассы в месяц</span>
+                </div>
               </div>
               <div style="{{ lossYearStyle }}">
                 <span style="{{ lossYearCapStyle }}">за год</span>
                 <span style="{{ lossYearNumStyle }}"><span data-loss="y">0</span> ₽</span>
               </div>
               <div style="{{ lossBaseStyle }}">{{ lossBase }}</div>
-            </div>
-
-            <div style="display: flex; align-items: baseline; gap: 12px; margin-top: 18px;">
-              <span style="{{ meterNumStyle }}">{{ cnt }}</span>
-              <span style="font-size: 13px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(242,235,221,0.52);">из четырёх</span>
-            </div>
-            <div style="{{ picksWrapStyle }}">
-              <sc-for list="{{ symPicks }}" as="p" hint-placeholder-count="0">
-                <span style="{{ p.style }}">{{ p.label }}</span>
-              </sc-for>
-            </div>
-            <div style="{{ costWrapStyle }}">
-              <div style="{{ costHeadStyle }}">во что это обходится</div>
-              <sc-for list="{{ symCosts }}" as="c" hint-placeholder-count="0">
-                <div style="{{ c.style }}"><span style="{{ c.dot }}"></span><span>{{ c.text }}</span></div>
-              </sc-for>
             </div>
 
             <div style="{{ verdictTextStyle }}">{{ verdict }}</div>
@@ -1043,61 +1034,22 @@
         </div>
       </div>
 
-      <p data-words="1" data-par="0.05" style="margin: clamp(44px, 6vh, 76px) 0 0; max-width: 22ch; font-size: clamp(24px, 3.4vw, 50px); line-height: 1.15; letter-spacing: -0.03em; font-weight: 500; text-wrap: pretty;">Проблема не в вас. Ваш бизнес держится на людях там, где должен держаться на <span data-hl="1" style="font-style: italic; font-weight: 600; letter-spacing: -0.03em; color: #f2ebdd;">технологиях</span></p>
-    </section>
-
-    <section style="width: 100%; padding: 0 var(--gut); max-width: var(--maxw); margin: 0 auto; box-sizing: border-box;">
-      <!-- ── ЧЕТЫРЕ СПОСОБА ───────────────────────────────────────────────
-           Было четыре вкладки, под которыми пряталась простыня из плюсов и
-           минусов: чтобы сравнить, приходилось кликать и запоминать.
-           Стало четыре колонки рядом — рисунок, три шкалы и одна строка.
-           Сравнение делает глаз, а не память. -->
-      <div data-reveal="1" data-rdist="26" style="{{ hireWrapStyle }}">
-        <div style="{{ hireHeadStyle }}">
-          <span style="{{ hireCapStyle }}">кто это делает</span>
-          <span style="{{ hireNoteStyle }}">Одна и та же задача, четыре пути. Длиннее полоса — лучше для вас.</span>
-        </div>
-
-        <div data-hscroll="1" style="{{ hireGridStyle }}">
-          <sc-for list="{{ hireCols }}" as="c" hint-placeholder-count="4">
-            <div style="{{ c.col }}">
-              <div style="{{ c.art }}">
-                <svg viewBox="0 0 96 72" width="100%" height="100%" fill="none" aria-hidden="true" style="display: block;">
-                  <sc-for list="{{ c.shapes }}" as="p" hint-placeholder-count="4">
-                    <path sc-camel-d="{{ p.d }}" fill="{{ p.f }}" stroke="{{ p.s }}" sc-camel-stroke-width="{{ p.w }}" stroke-linecap="round" stroke-linejoin="round"></path>
-                  </sc-for>
-                </svg>
-              </div>
-
-              <div style="{{ c.nameWrap }}">
-                <span style="{{ c.name }}">{{ c.title }}</span>
-                <span style="{{ c.cost }}">{{ c.costText }}</span>
-              </div>
-
-              <div style="{{ hireBarsStyle }}">
-                <sc-for list="{{ c.bars }}" as="b" hint-placeholder-count="3">
-                  <div style="{{ hireBarRowStyle }}">
-                    <span style="{{ hireBarCapStyle }}">{{ b.cap }}</span>
-                    <span style="{{ hireBarRailStyle }}"><span style="{{ b.fill }}"></span></span>
-                  </div>
-                </sc-for>
-              </div>
-
-              <span style="{{ c.line }}">{{ c.lineText }}</span>
-            </div>
-          </sc-for>
-        </div>
-
-        <div style="{{ hireFootStyle }}">
-          <span style="{{ hireFootDotStyle }}"></span>
-          <span>Шкалы — не рейтинг, а форма риска. Фрилансер дешевле всех на входе; вопрос только в том, что будет через год.</span>
-        </div>
+      <!-- ── ГЛАВНОЕ УТВЕРЖДЕНИЕ ──────────────────────────────────────────
+           Фраза, ради которой написан весь блок выше. Раньше она жила в
+           колонке шириной 22 знака у левого края и читалась как подпись.
+           Теперь это отдельная полоса во всю ширину: две строки крупно,
+           слово «технологиях» — единственный акцент. Слова проявляются
+           волной по прокрутке (data-words), поэтому фраза читается в том
+           порядке, в каком написана. -->
+      <div data-reveal="1" data-rdist="0" style="{{ claimBandStyle }}">
+        <p data-words="1" style="{{ claimTextStyle }}">Проблема не в вас.<br>Бизнес держится на людях там, где должен держаться на <span data-hl="1" style="{{ claimAccentStyle }}">технологиях</span></p>
       </div>
     </section>
 
+
     <section id="services" style="{{ fSecStyle }}">
       <div style="{{ fHeadStyle }}">
-        <h2 data-words="char" style="{{ fH2Style }}">Что мы <span data-hl="1" style="font-style: italic; font-weight: 600; letter-spacing: -0.03em; color: #f2ebdd;">делаем</span></h2>
+        <h2 data-words="1" style="{{ fH2Style }}">Что мы <span data-hl="1" style="font-style: italic; font-weight: 600; letter-spacing: -0.03em; color: #f2ebdd;">делаем</span></h2>
         <p style="{{ fLeadStyle }}">{{ fLeadText }}</p>
       </div>
 
@@ -1150,7 +1102,7 @@
                   </div>
                   <div sc-camel-on-double-click="{{ f.dbl }}" sc-camel-on-pointer-down="{{ fDragDown }}" sc-camel-on-pointer-move="{{ fDragMove }}" sc-camel-on-pointer-up="{{ fDragUp }}" sc-camel-on-pointer-cancel="{{ fDragUp }}" style="{{ fHitStyle }}"></div>
                   <span style="{{ f.burst }}">
-                    <svg sc-camel-view-box="0 0 24 24" width="112" height="112" fill="#f2ebdd" aria-hidden="true"><path d="M12 20.4C12 20.4 4 15.2 4 9.7C4 7.1 6.1 5.2 8.6 5.2C10.1 5.2 11.4 6 12 7.1C12.6 6 13.9 5.2 15.4 5.2C17.9 5.2 20 7.1 20 9.7C20 15.2 12 20.4 12 20.4Z"></path></svg>
+                    <svg sc-camel-view-box="0 0 24 24" width="112" height="112" fill="#ff3b40" aria-hidden="true"><path d="M12 20.4C12 20.4 4 15.2 4 9.7C4 7.1 6.1 5.2 8.6 5.2C10.1 5.2 11.4 6 12 7.1C12.6 6 13.9 5.2 15.4 5.2C17.9 5.2 20 7.1 20 9.7C20 15.2 12 20.4 12 20.4Z"></path></svg>
                   </span>
                   <div style="{{ fTopStyle }}">
                     <span style="{{ fAvaStyle }}">Б</span>
@@ -1272,7 +1224,7 @@
                     </div>
                     <p style="{{ fComTextStyle }}">{{ c.text }}</p>
                   </div>
-                  <button type="button" sc-camel-on-click="{{ c.like }}" aria-label="{{ c.likeAria }}" style="{{ fComLikeStyle }}" style-hover="border-color: rgba(242,235,221,0.52);">
+                  <button type="button" sc-camel-on-click="{{ c.like }}" aria-label="{{ c.likeAria }}" style="{{ c.likeStyle }}" style-hover="border-color: rgba(242,235,221,0.52);">
                     <svg sc-camel-view-box="0 0 24 24" width="15" height="15" fill="{{ c.heartFill }}" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M12 20.4C12 20.4 4 15.2 4 9.7C4 7.1 6.1 5.2 8.6 5.2C10.1 5.2 11.4 6 12 7.1C12.6 6 13.9 5.2 15.4 5.2C17.9 5.2 20 7.1 20 9.7C20 15.2 12 20.4 12 20.4Z"></path></svg>
                   </button>
                 </div>
@@ -1289,7 +1241,7 @@
     </section>
 
     <section id="pricing" style="width: 100%; padding: 0 var(--gut); max-width: var(--maxw); margin: 0 auto; box-sizing: border-box;">
-      <h2 data-words="char" style="margin: 0; max-width: 16ch; font-size: clamp(32px, 5.4vw, 84px); line-height: 0.96; letter-spacing: -0.04em; font-weight: 600; text-wrap: balance;">Сколько это <span data-hl="1" style="font-style: italic; font-weight: 600; letter-spacing: -0.03em; color: #f2ebdd;">стоит</span></h2>
+      <h2 data-words="1" style="margin: 0; max-width: 16ch; font-size: clamp(32px, 5.4vw, 84px); line-height: 0.96; letter-spacing: -0.04em; font-weight: 600; text-wrap: balance;">Сколько это <span data-hl="1" style="font-style: italic; font-weight: 600; letter-spacing: -0.03em; color: #f2ebdd;">стоит</span></h2>
       <p data-words="1" data-wd="120" style="margin: 18px 0 0; max-width: 54ch; font-size: clamp(16px, 1.6vw, 20px); line-height: 1.55; font-weight: 500; color: rgba(242,235,221,0.62); text-wrap: pretty;">Цену мы не прячем — но и не вешаем ценник на то, чего ещё не видели. Вместо прайса здесь вилка: она показывает, что меняется от денег. Точную цифру собирает конфигуратор ниже — за минуту и без созвона.</p>
 
       <div data-reveal="1" data-rdist="24" style="{{ scaleWrapStyle }}">
@@ -1321,6 +1273,12 @@
           <input type="range" min="0" max="3" step="1" value="{{ pickVal }}"
                  sc-camel-on-input="{{ onPick }}" sc-camel-on-change="{{ onPick }}"
                  aria-label="Ориентир по бюджету" data-fork="1" style="{{ forkInputStyle }}">
+        </div>
+
+        <div style="{{ forkRailTicksStyle }}">
+          <sc-for list="{{ forkTicks }}" as="t" hint-placeholder-count="4">
+            <span style="{{ t.style }}"></span>
+          </sc-for>
         </div>
 
         <div style="{{ forkStopsStyle }}">
@@ -1402,7 +1360,7 @@
 
     <section style="width: 100%; padding: 0 var(--gut); max-width: var(--maxw); margin: 0 auto; box-sizing: border-box;">
       <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 18px;">
-        <h2 data-words="char" style="margin: 0; max-width: 14ch; font-size: clamp(30px, 4.6vw, 68px); line-height: 0.99; letter-spacing: -0.035em; font-weight: 600; text-wrap: balance;">Карта <span data-hl="1" style="font-style: italic; font-weight: 600; letter-spacing: -0.03em; color: #f2ebdd;">маршрута</span></h2>
+        <h2 data-words="1" style="margin: 0; max-width: 14ch; font-size: clamp(30px, 4.6vw, 68px); line-height: 0.99; letter-spacing: -0.035em; font-weight: 600; text-wrap: balance;">Карта <span data-hl="1" style="font-style: italic; font-weight: 600; letter-spacing: -0.03em; color: #f2ebdd;">маршрута</span></h2>
       </div>
 
       <!-- ── МАРШРУТ ──────────────────────────────────────────────────────
@@ -1505,7 +1463,7 @@
 
     <div style="{{ proofWrapStyle }}">
     <section id="projects" style="width: 100%; padding: 0 var(--gut); max-width: var(--maxw); margin: 0 auto; box-sizing: border-box;">
-      <h2 data-words="char" style="margin: 0; max-width: 20ch; font-size: clamp(32px, 5.4vw, 84px); line-height: 0.96; letter-spacing: -0.04em; font-weight: 600; text-wrap: balance;">Откуда пришли те, кто <span data-hl="1" style="font-style: italic; font-weight: 600; letter-spacing: -0.03em; color: #f2ebdd;">уже решился</span></h2>
+      <h2 data-words="1" style="margin: 0; max-width: 20ch; font-size: clamp(32px, 5.4vw, 84px); line-height: 0.96; letter-spacing: -0.04em; font-weight: 600; text-wrap: balance;">Откуда пришли те, кто <span data-hl="1" style="font-style: italic; font-weight: 600; letter-spacing: -0.03em; color: #f2ebdd;">уже решился</span></h2>
       <p data-words="1" data-wd="120" style="margin: 18px 0 0; max-width: 52ch; font-size: clamp(16px, 1.6vw, 20px); line-height: 1.55; font-weight: 500; color: rgba(242,235,221,0.62); text-wrap: pretty;">От Воронежа до Кремниевой долины — те же проекты, что в ленте выше, только на карте. Наведите или нажмите на город.</p>
 
       <div style="{{ clGridStyle }}">
@@ -1520,6 +1478,7 @@
         </div>
         <div data-reveal="1" data-rd="120" data-rdist="26" style="{{ clMapStyle }}">
           <div ref="{{ mapSvgRef }}" style="{{ clSvgWrapStyle }}"></div>
+          <div aria-hidden="true" style="{{ clFadeStyle }}"></div>
           <sc-for list="{{ pins }}" as="p" hint-placeholder-count="0">
             <span style="{{ p.wrap }}"><span style="{{ p.ring }}"></span><span style="{{ p.dot }}"></span><span style="{{ p.tip }}">{{ p.label }}</span></span>
           </sc-for>
@@ -1539,7 +1498,7 @@
       <div style="{{ twoColStyle }}">
         <div data-reveal="1" data-rdist="30" style="{{ filterCardStyle }}">
           <span style="{{ blockCapStyle }}">фильтр</span>
-          <h3 data-words="char" style="{{ blockH3Style }}">Мы не возьмёмся, если</h3>
+          <h3 data-words="1" style="{{ blockH3Style }}">Мы не возьмёмся, если</h3>
           <div style="{{ noFitGridStyle }}">
             <sc-for list="{{ noFits }}" as="x" hint-placeholder-count="3">
               <div style="{{ x.card }}">
@@ -1561,7 +1520,7 @@
 
         <div data-reveal="1" data-rd="110" data-rdist="30" style="{{ nextCardStyle }}">
           <span style="{{ blockCapStyle }}">после запуска</span>
-          <h3 data-words="char" style="{{ blockH3Style }}">Что обычно происходит дальше</h3>
+          <h3 data-words="1" style="{{ blockH3Style }}">Что обычно происходит дальше</h3>
           <div style="{{ ladderStyle }}">
             <sc-for list="{{ nextSteps }}" as="x" hint-placeholder-count="4">
               <div style="{{ x.step }}">
@@ -1882,7 +1841,7 @@
     <footer style="position: relative; overflow: hidden; border-top: 1px solid rgba(242,235,221,0.09);">
       <div style="position: relative; z-index: 2; display: flex; flex-direction: column; gap: clamp(26px, 4vh, 52px); max-width: var(--maxw); margin: 0 auto; padding: clamp(44px, 6.5vh, 92px) var(--gut) clamp(18px, 2.8vh, 32px); box-sizing: border-box;">
         <div data-reveal="1" data-rdist="30" style="{{ footClaimStyle }}">
-          <h2 data-words="char" style="{{ footClaimTextStyle }}">Возьмём вашу базу <span data-hl="1" style="font-style: italic; font-weight: 600; letter-spacing: -0.03em; color: #f2ebdd;">на себя</span></h2>
+          <h2 data-words="1" style="{{ footClaimTextStyle }}">Возьмём вашу базу <span data-hl="1" style="font-style: italic; font-weight: 600; letter-spacing: -0.03em; color: #f2ebdd;">на себя</span></h2>
           <a href="#top" data-sw="light" data-press="1" sc-camel-on-click="{{ goTop }}" aria-label="Наверх" style="{{ footUpStyle }}" style-hover="border-color: #f2ebdd;">
             <svg data-ar="up" sc-camel-view-box="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 19V6M6.5 11.5L12 6l5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
           </a>
@@ -1935,7 +1894,7 @@
       <div style="position: relative; z-index: 1; max-width: var(--maxw); margin: 0 auto; padding: 0 var(--gut); box-sizing: border-box;">
         <div ref="{{ footLogoRef }}" sc-camel-on-mouse-move="{{ footMove }}" sc-camel-on-mouse-enter="{{ footEnter }}" sc-camel-on-mouse-leave="{{ footLeave }}" sc-camel-on-context-menu="{{ noCopy }}" sc-camel-on-drag-start="{{ noCopy }}" style="{{ footLogoWrapStyle }}">
           <div style="{{ footLogoInnerStyle }}">
-            <img ref="{{ footImgRef }}" src="/media/assets/logo.webp" alt="ЭТО БАЗА" draggable="false" style="{{ footLogoImgStyle }}">
+            <img ref="{{ footImgRef }}" src="/media/assets/logo-baza-2x.webp" alt="БАЗА" draggable="false" style="{{ footLogoImgStyle }}">
             <div style="{{ footMaskStyle }}">
               <div ref="{{ footTorchRef }}" style="{{ footTorchStyle }}"></div>
             </div>
@@ -2040,8 +1999,16 @@
       <svg sc-camel-view-box="0 0 24 24" width="14" height="14" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path></svg>
     </button>
     <div style="{{ metricsCardTitleStyle }}">Как считаем рост показателей</div>
-    <div style="{{ metricsCardTextStyle }}">Средние метрики за первые три месяца после запуска — против того же периода до него. Берём проекты с полным пакетом работ и считаем по аналитике клиента, а не по ощущениям.</div>
-    <a href="#brief" sc-camel-on-click="{{ goBrief }}" style="{{ metricsMoreStyle }}" style-hover="color: #f2ebdd;">Подробнее<svg data-ar="1" sc-camel-view-box="0 0 24 24" width="13" height="13" style="flex: 0 0 auto;" aria-hidden="true"><path d="M5 12h13M12.5 6.5l5.5 5.5-5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg></a>
+    <div style="{{ metricsCardTextStyle }}">Первые три месяца после запуска против тех же трёх месяцев до него. По аналитике клиента, не по ощущениям.</div>
+    <div style="{{ metricsFactsStyle }}">
+      <sc-for list="{{ metricsFacts }}" as="f" hint-placeholder-count="3">
+        <div style="{{ metricsFactRowStyle }}">
+          <span style="{{ metricsFactKeyStyle }}">{{ f.k }}</span>
+          <span style="{{ metricsFactValStyle }}">{{ f.v }}</span>
+        </div>
+      </sc-for>
+    </div>
+    <div style="{{ metricsCardFootStyle }}">Это среднее по нашим проектам, а не обещание. У вас будет своя цифра — её считаем на разборе.</div>
   </div>
 
   <div style="{{ tipFloatStyle }}">
@@ -2182,37 +2149,16 @@ class Component extends DCLogic {
       cap: 'старт вилки', term: 'три дня',
       cut: 'Самая честная экономия: вы ещё ничего не строите и не платите за догадки.' },
     { k: 'site', short: 'нормально', name: 'Сделать так, чтобы работало',
-      cap: 'нижняя половина', term: '3–5 недель',
+      cap: 'нижняя половина', term: '2–3 недели',
       cut: 'Экономим на съёмке, уникальных механиках и анимации: берём то, что уже доказало себя.' },
     { k: 'system', short: 'сильно', name: 'Сделать сильно',
-      cap: 'верхняя половина', term: '2–4 месяца',
+      cap: 'верхняя половина', term: '4–7 недель',
       cut: 'Доплачиваете за то, что систему собирают под вас, а не подгоняют готовый шаблон.' },
     { k: 'full', short: 'как у топов', name: 'Сделать как у топов',
-      cap: 'верх вилки', term: 'от 6 месяцев',
+      cap: 'верх вилки', term: 'от 2 месяцев',
       cut: 'Здесь живут своя съёмка, свой код, тесты и команда, которая остаётся после запуска.' }
   ];
 
-  // Четыре способа закрыть одну задачу. Сравниваем не ценниками, а тем, чем
-  // за каждый способ расплачиваются на самом деле; минусы у себя названы так
-  // же прямо, как у остальных, иначе это не сравнение, а реклама.
-  HIRE = [
-    { k: 'staff', name: 'Свой отдел', cost: 'Зарплата senior', unit: 'плюс налоги, отпуск и три месяца на найм',
-      line: 'Один senior в штате со всеми налогами и расходами. Дизайн, код, аналитика и поддержка — на нём одном.',
-      pros: ['Человек занят только вами', 'Знает продукт изнутри'],
-      cons: ['Найти такого — два-три месяца', 'Отпуск или увольнение останавливают всё', 'Одному не закрыть дизайн, код и аналитику разом'] },
-    { k: 'agency', name: 'Агентство', cost: 'Счёт за часы', unit: 'а не за то, что изменилось',
-      line: 'Людей много, но между вами и работой стоит менеджер, а счёт приходит за отработанные часы.',
-      pros: ['Команда на потоке', 'Есть кому передать задачу'],
-      cons: ['Платите за часы, а не за результат', 'Общаетесь с менеджером, а не с теми, кто делает', 'Отчёт по задачам, а не по деньгам'] },
-    { k: 'solo', name: 'Фрилансер', cost: 'Самый дешёвый вход', unit: 'и самая дорогая поддержка потом',
-      line: 'Дешевле всех на старте. Дороже всех через полгода, когда сайт надо менять, а автора уже не найти.',
-      pros: ['Быстрый старт', 'Самая низкая цена входа'],
-      cons: ['Через месяц после сдачи перестаёт отвечать', 'Код читает только он', 'Поддержки нет — только новый подрядчик'] },
-    { k: 'baza', name: 'БАЗА', cost: 'По объёму задачи', unit: 'вход — через разбор, цифра — в конфигураторе',
-      line: 'Начинаем с разбора за три дня: сначала считаем, где течёт, и только потом беремся за работу.',
-      pros: ['Команда без зарплат, налогов и найма', 'Остаёмся после запуска, а не пропадаем', 'Отвечаем за цифры, а не за закрытые задачи'],
-      cons: ['Не возьмёмся «просто сверстать по макету»', 'Сначала разбор — сразу в разработку не пойдём'] }
-  ];
 
   // ═══ КАЛЬКУЛЯТОР ══════════════════════════════════════════════════════
   // Вилка по каждому направлению в тысячах ₽ и срок в неделях. lo — то же
@@ -2354,73 +2300,8 @@ class Component extends DCLogic {
     d: 'Ваш отпуск стоит ровно столько, сколько компания зарабатывает за неделю.'
   };
 
-  // ═══════════════════════════════════════════════════════════════════════
-  //  ЦЕНА КАЖДОЙ ГАЛОЧКИ
-  //  h — часы в месяц, m — тысячи рублей в месяц. Это оценка по средним
-  //  цифрам, а не расчёт по конкретному бизнесу: на сайте так и написано,
-  //  вместе с допущениями, из которых она получена. Врать тут нельзя —
-  //  человек всё равно сверит с собой, и если цифра «с потолка», он
-  //  перестанет верить и всему остальному.
-  // ═══════════════════════════════════════════════════════════════════════
-  // Одна строка вместо списка плюсов и минусов: то, что человек всё равно
-  // запомнит, если запомнит хоть что-то.
-  HIRESHORT = {
-    staff:  'Пока ищете и учите — квартал прошёл, а сайта нет.',
-    agency: 'Счёт растёт за часы, отчёт приходит по задачам, а не по деньгам.',
-    solo:   'Дешевле всех сегодня. Через полгода автора уже не найти.',
-    baza:   'Начинаем с разбора, остаёмся после запуска, отвечаем за цифры.'
-  };
 
-  // Шкалы: больше — лучше для заказчика. Значения сопоставимы между собой,
-  // и ни один вариант не выигрывает все три — так и есть на самом деле.
-  HIREBARS = [
-    { cap: 'вход дешевле',  v: { staff: 0.10, agency: 0.35, solo: 0.95, baza: 0.55 } },
-    { cap: 'быстрее старт', v: { staff: 0.15, agency: 0.55, solo: 0.82, baza: 0.75 } },
-    { cap: 'живо через год', v: { staff: 0.50, agency: 0.55, solo: 0.15, baza: 0.95 } }
-  ];
 
-  // Рисунки в координатах 96×72. Не иконки, а маленькие сцены: один
-  // человек под грузом, очередь через стойку, пустой стул, собранная
-  // система. Смысл считывается раньше подписи.
-  HIREART = (() => {
-    const C = 'rgba(242,235,221,0.86)';
-    const D = 'rgba(242,235,221,0.3)';
-    const N = 'none';
-    return {
-      // один человек, на котором стоит вся стопка задач
-      staff: [
-        { d: 'M32 10h32v8H32zM28 20h40v8H28zM34 30h28v8H34z', f: N, s: D, w: '2' },
-        { d: 'M48 52a7 7 0 100-14 7 7 0 000 14z', f: N, s: C, w: '2' },
-        { d: 'M36 66c0-7 5.4-11 12-11s12 4 12 11', f: N, s: C, w: '2' }
-      ],
-      // стойка: вы с одной стороны, работа с другой, между вами менеджер
-      agency: [
-        { d: 'M10 40h76', f: N, s: C, w: '2' },
-        { d: 'M22 30a5 5 0 100-10 5 5 0 000 10z', f: N, s: C, w: '2' },
-        { d: 'M14 40c0-5 3.6-9 8-9s8 4 8 9', f: N, s: C, w: '2' },
-        { d: 'M48 26a5 5 0 100-10 5 5 0 000 10z', f: N, s: D, w: '2' },
-        { d: 'M40 40c0-5 3.6-9 8-9s8 4 8 9', f: N, s: D, w: '2' },
-        { d: 'M74 30a5 5 0 100-10 5 5 0 000 10z', f: N, s: D, w: '2' },
-        { d: 'M66 40c0-5 3.6-9 8-9s8 4 8 9', f: N, s: D, w: '2' },
-        { d: 'M18 50h24M18 58h16', f: N, s: D, w: '2' },
-        { d: 'M56 50h24M56 58h12', f: N, s: D, w: '2' }
-      ],
-      // стул, с которого встали и ушли
-      solo: [
-        { d: 'M28 24h18v22H28z', f: N, s: C, w: '2' },
-        { d: 'M28 46v14M46 46v14M24 46h26', f: N, s: C, w: '2' },
-        { d: 'M60 36h18M72 30l6 6-6 6', f: N, s: D, w: '2' },
-        { d: 'M84 26a5 5 0 100-10 5 5 0 000 10z', f: N, s: D, w: '2' }
-      ],
-      // собранная система: ядро и связанные с ним узлы
-      baza: [
-        { d: 'M48 44a9 9 0 100-18 9 9 0 000 18z', f: N, s: C, w: '2' },
-        { d: 'M20 22h12v12H20zM64 22h12v12H64zM20 50h12v12H20zM64 50h12v12H64z', f: N, s: C, w: '2' },
-        { d: 'M32 28h8M56 28h8M32 56h8M56 56h8', f: N, s: D, w: '2' },
-        { d: 'M40 30l4 3M56 30l-4 3M40 54l4-3M56 54l-4-3', f: N, s: D, w: '2' }
-      ]
-    };
-  })();
 
   SYMLOSS = {
     a: { h: 14, m: 90 },   // разбор заявок руками + те, что не дошли
@@ -3158,7 +3039,9 @@ class Component extends DCLogic {
     const t = p * (n - 1);
     const i = Math.floor(t);
     const f = t - i;
-    const HOLD = 0.34;
+    // 0.34 — это треть хода карточка стоит, потом дёргается. Короткое
+    // удержание читается как «пролистнул», а не как «застряло и прыгнуло».
+    const HOLD = 0.14;
     let e = f <= HOLD ? 0 : (f - HOLD) / (1 - HOLD);
     e = e * e * e * (e * (e * 6 - 15) + 10);
     const want = ((i + e) / Math.max(1, n - 1)) * max;
@@ -3167,7 +3050,7 @@ class Component extends DCLogic {
     // но одиночные рывки инерции до карточки уже не доходят
     const step = Math.max(0.008, Math.min(0.064, dt || 0.016));
     if (this.fPos == null) this.fPos = want;
-    const k = 1 - Math.exp(-step / 0.055);
+    const k = 1 - Math.exp(-step / 0.075);
     this.fPos += (want - this.fPos) * k;
     if (Math.abs(want - this.fPos) < 0.35) this.fPos = want;
 
@@ -3440,21 +3323,47 @@ class Component extends DCLogic {
     rec.t = setTimeout(() => { if (!rec.want) set(0); }, left);
   }
 
-  // Точка, из которой расходится заливка. Берём координату курсора
-  // относительно кнопки и кладём в CSS-переменные — дальше всё делает CSS.
-  // Уходя, ставим точку выхода: круг схлопывается туда, куда ушла рука.
+  // Куда светить. Ставим цель, а саму точку подтягивает glowTick — свет
+  // догоняет руку, а не прыгает за ней. Именно это запаздывание и делает
+  // движение «живым».
   swOrigin(el, e) {
     if (!el || !e || e.clientX == null) return;
     const r = el.getBoundingClientRect();
     if (!r.width || !r.height) return;
-    const x = Math.max(0, Math.min(r.width, e.clientX - r.left));
-    const y = Math.max(0, Math.min(r.height, e.clientY - r.top));
-    el.style.setProperty('--sw-x', x.toFixed(1) + 'px');
-    el.style.setProperty('--sw-y', y.toFixed(1) + 'px');
-    // Круг должен накрыть самый дальний угол из точки входа, иначе в углу
-    // останется непрокрашенный серп.
-    const dx = Math.max(x, r.width - x), dy = Math.max(y, r.height - y);
-    el.style.setProperty('--sw-d', (Math.hypot(dx, dy) * 2.06).toFixed(0) + 'px');
+    const g = el.__glow || (el.__glow = { x: r.width / 2, y: r.height / 2, tx: 0, ty: 0 });
+    g.tx = Math.max(0, Math.min(r.width, e.clientX - r.left));
+    g.ty = Math.max(0, Math.min(r.height, e.clientY - r.top));
+    // первое касание — ставим свет сразу под курсор, без наезда из центра
+    if (!g.seen) { g.seen = 1; g.x = g.tx; g.y = g.ty; this.glowPaint(el, g); }
+    this.glowSet = this.glowSet || new Set();
+    this.glowSet.add(el);
+  }
+
+  glowPaint(el, g) {
+    el.style.setProperty('--sw-x', g.x.toFixed(1) + 'px');
+    el.style.setProperty('--sw-y', g.y.toFixed(1) + 'px');
+  }
+
+  // Свет догоняет курсор по всем подсвеченным сейчас кнопкам. Их всегда
+  // одна-две, поэтому такт стоит дёшево.
+  glowTick(dt) {
+    const set = this.glowSet;
+    if (!set || !set.size) return;
+    const k = 1 - Math.exp(-dt / 0.085);
+    for (const el of set) {
+      const g = el.__glow;
+      if (!g) { set.delete(el); continue; }
+      const dx = g.tx - g.x, dy = g.ty - g.y;
+      if (Math.abs(dx) < 0.3 && Math.abs(dy) < 0.3) {
+        g.x = g.tx; g.y = g.ty;
+        this.glowPaint(el, g);
+        // курсор ушёл и свет догнал — снимаем с такта
+        if (!el.hasAttribute('data-on')) { g.seen = 0; set.delete(el); }
+        continue;
+      }
+      g.x += dx * k; g.y += dy * k;
+      this.glowPaint(el, g);
+    }
   }
 
   // Магнит: кнопка тянется к курсору, но не больше нескольких пикселей —
@@ -3467,34 +3376,6 @@ class Component extends DCLogic {
     const dx = ((e.clientX - (r.left + r.width / 2)) / (r.width / 2)) * pull;
     const dy = ((e.clientY - (r.top + r.height / 2)) / (r.height / 2)) * pull * 0.7;
     el.style.transform = 'translate3d(' + dx.toFixed(2) + 'px,' + dy.toFixed(2) + 'px,0)';
-  }
-
-  // Разбирает подпись на буквы и кладёт под каждую её копию: на наведении
-  // верхняя уезжает вверх, нижняя приходит снизу. Делается один раз на
-  // элемент; пробелы остаются пробелами, чтобы строка не рассыпалась.
-  rollPrep(el) {
-    if (!el || el.__roll) return;
-    el.__roll = 1;
-    const txt = (el.textContent || '').trim();
-    if (!txt || txt.length > 28 || el.children.length) return;
-    el.setAttribute('data-roll', '1');
-    el.textContent = '';
-    const chars = Array.from(txt);
-    // Задержка растёт от первой буквы к последней, но упирается в потолок:
-    // на длинной подписи хвост иначе доезжает заметно позже головы.
-    const step = Math.min(18, 260 / Math.max(1, chars.length));
-    chars.forEach((ch, i) => {
-      const cell = document.createElement('span');
-      cell.setAttribute('data-roll-c', '1');
-      cell.style.setProperty('--rd', Math.round(i * step) + 'ms');
-      const a = document.createElement('span');
-      a.textContent = ch === ' ' ? ' ' : ch;
-      const b = document.createElement('span');
-      b.textContent = a.textContent;
-      b.setAttribute('aria-hidden', 'true');
-      cell.appendChild(a); cell.appendChild(b);
-      el.appendChild(cell);
-    });
   }
 
   // единый ховер для кнопок на CSS-заливке: доигрывает и только потом отпускает
@@ -3536,8 +3417,14 @@ class Component extends DCLogic {
     // один раз и дальше стоит как вкопанная.
     this.onHovMove = (e) => {
       if (e.pointerType === 'touch') return;
-      const el = (e.target && e.target.closest) ? e.target.closest('[data-mag]') : null;
-      if (el) this.magMove(el, e);
+      const t = e.target;
+      if (!t || !t.closest) return;
+      // Свет обязан ехать за рукой, а не стоять в точке входа: без этого
+      // кнопка просто «подсвечена», и весь смысл эффекта теряется.
+      const lit = t.closest('[data-sw]');
+      if (lit && lit.hasAttribute('data-on')) this.swOrigin(lit, e);
+      const mag = t.closest('[data-mag]');
+      if (mag) this.magMove(mag, e);
     };
     this.onHovTap = (e) => {
       if (e.pointerType !== 'touch') return;
@@ -3725,7 +3612,6 @@ class Component extends DCLogic {
     this.firstFallback = setTimeout(() => this.dropFirst(), 2600);
     this.mURL = {};
     // фоновые размытые слои не жгут кадры, пока держим экран загрузки
-    for (const el of document.querySelectorAll('[data-drift]')) { el.style.visibility = 'hidden'; el.style.animationPlayState = 'paused'; }
     this.initSmooth();
     this.initHover();
     this.initReveals();
@@ -4452,24 +4338,40 @@ class Component extends DCLogic {
     this.sweepPrep();
   }
 
-  // Готовит кнопки к наведению: запасной диаметр заливки (если курсор
-  // пришёл раньше, чем мы успели померить) и перекат подписи по буквам.
+  // Готовит кнопки к наведению: радиус пятна света считается от размера
+  // кнопки, чтобы на узкой кнопке свет не растекался за её края, а на
+  // широкой не превращался в точку.
   sweepPrep() {
     if (!this.rootEl) return;
     for (const el of this.rootEl.querySelectorAll('[data-sw]')) {
       const r = el.getBoundingClientRect();
-      if (r.width && !el.style.getPropertyValue('--sw-d')) {
-        el.style.setProperty('--sw-d', Math.round(Math.hypot(r.width, r.height) * 2.06) + 'px');
+      if (!r.width) continue;
+      // Радиус считаем от высоты, а не от ширины: на кнопке 870×48 пятно
+      // в 627 px растекается по всей плашке и читается как ровная подсветка,
+      // а не как свет под рукой. Держим компактную лужицу.
+      const rad = Math.round(Math.max(110, Math.min(300, r.height * 2.9)));
+      const cur = el.style.getPropertyValue('--sw-r');
+      if (cur !== rad + 'px') el.style.setProperty('--sw-r', rad + 'px');
+      if (el.__lum == null) {
+        const bg = getComputedStyle(el).backgroundColor || '';
+        const m = bg.match(/(\d+(?:\.\d+)?)/g);
+        let lum = 0;
+        if (m && m.length >= 3) {
+          const a = m.length > 3 ? parseFloat(m[3]) : 1;
+          // полупрозрачный фон на тёмной странице всё равно остаётся тёмным
+          lum = (0.2126 * +m[0] + 0.7152 * +m[1] + 0.0722 * +m[2]) / 255 * a;
+        }
+        el.__lum = lum;
+        if (lum > 0.45) {
+          el.style.setProperty('--sw-glow', 'rgba(10,10,10,0.2)');
+          el.style.setProperty('--sw-glow-2', 'rgba(10,10,10,0.075)');
+          el.setAttribute('data-lit', 'on-light');
+        } else {
+          el.style.setProperty('--sw-glow', 'rgba(242,235,221,0.5)');
+          el.style.setProperty('--sw-glow-2', 'rgba(242,235,221,0.19)');
+          el.setAttribute('data-lit', 'on-dark');
+        }
       }
-      if (el.__roll) continue;
-      // Перекат ставим только там, где подпись — это простой текст.
-      // Иконки, счётчики и составные подписи трогать нельзя: развалятся.
-      const lab = Array.from(el.children).find((c) => {
-        if (c.hasAttribute('data-roll') || c.querySelector('svg')) return false;
-        const t = (c.textContent || '').trim();
-        return t.length > 1 && t.length <= 28 && !c.children.length;
-      });
-      if (lab) this.rollPrep(lab); else el.__roll = 1;
     }
   }
 
@@ -4556,6 +4458,12 @@ class Component extends DCLogic {
         if (!en.isIntersecting) return;
         const el = en.target;
         el.__shown = 1;
+        // размытие ставим на один кадр и тут же снимаем: браузер успевает
+        // его показать, но не держит размытым весь блок до этого момента
+        el.style.transition = 'none';
+        el.style.filter = 'blur(11px)';
+        void el.offsetWidth;
+        el.style.transition = 'opacity 680ms var(--e-expo), transform 900ms var(--e-expo), filter 700ms var(--e-expo)';
         el.style.transitionDelay = (el.dataset.rd || 0) + 'ms';
         el.style.opacity = '1';
         el.style.transform = 'none';
@@ -4622,9 +4530,56 @@ class Component extends DCLogic {
     for (let i = 0; i < us.length; i++) {
       const u = us[i];
       u.__k = 1; u.__b = 0;
-      const d = Math.min(300, i * 17);
-      u.style.transition = 'opacity 560ms cubic-bezier(.16,.84,.24,1) ' + d + 'ms, transform 720ms cubic-bezier(.16,.84,.24,1) ' + d + 'ms, filter 620ms cubic-bezier(.16,.84,.24,1) ' + d + 'ms';
+      const d = Math.min(460, i * 30);
+      u.style.transition = 'none';
+      u.style.filter = 'blur(12px)';
+      u.style.transition = 'opacity 700ms var(--e-expo) ' + d + 'ms,'
+        + ' transform 900ms var(--e-expo) ' + d + 'ms,'
+        + ' filter 760ms var(--e-expo) ' + d + 'ms';
       u.style.opacity = '1'; u.style.transform = 'none'; u.style.filter = 'none';
+      // will-change снимаем после хода: иначе каждое слово держит свой слой
+      // до конца жизни страницы, и на длинном тексте это заметно
+      setTimeout(() => { u.style.willChange = 'auto'; }, d + 1000);
+    }
+  }
+
+  // Размечать каждый блок руками — значит однажды забыть. Проходим по
+  // секциям и вешаем появление на всё, что этого ещё не получило: заголовки,
+  // абзацы, карточки, ряды. Пропускаем то, где сдвиг сломает работу —
+  // прилипшие и абсолютные слои, конфигуратор (там меряют высоту шагов) и
+  // ленту (там свой скролл).
+  autoReveal() {
+    if (!this.rootEl || this.autoRevealed) return;
+    this.autoRevealed = 1;
+    const skip = (el) => {
+      if (el.closest('#brief') || el.closest('#services')) return true;
+      if (el.closest('[data-reveal]') || el.hasAttribute('data-reveal')) return true;
+      if (el.hasAttribute('data-words') || el.closest('[data-words]')) return true;
+      if (el.closest('header') || el.closest('nav') || el.closest('aside')) return true;
+      const cs = getComputedStyle(el);
+      if (cs.position === 'sticky' || cs.position === 'absolute' || cs.position === 'fixed') return true;
+      return false;
+    };
+    for (const sec of this.rootEl.querySelectorAll('section, footer')) {
+      const kids = [];
+      const walk = (node, depth) => {
+        for (const el of node.children) {
+          if (el.tagName === 'SCRIPT' || el.tagName === 'STYLE' || el.tagName === 'SVG') continue;
+          if (skip(el)) continue;
+          const r = el.getBoundingClientRect();
+          // мелочь не размечаем: у неё появление читается как дрожь
+          if (r.height < 40) { if (depth < 2) walk(el, depth + 1); continue; }
+          // широкая обёртка без собственного вида — идём внутрь, к содержимому
+          if (depth < 2 && el.children.length > 2 && r.height > 420) { walk(el, depth + 1); continue; }
+          kids.push(el);
+        }
+      };
+      walk(sec, 0);
+      kids.forEach((el, i) => {
+        el.setAttribute('data-reveal', '1');
+        if (!el.hasAttribute('data-rdist')) el.setAttribute('data-rdist', '28');
+        if (!el.hasAttribute('data-rd')) el.setAttribute('data-rd', String(Math.min(260, i * 65)));
+      });
     }
   }
 
@@ -4645,9 +4600,8 @@ class Component extends DCLogic {
       const dist = n.dataset.rdist == null ? 34 : (parseFloat(n.dataset.rdist) || 0);
       n.style.opacity = '0';
       n.style.transform = 'translate3d(0,' + dist + 'px,0)';
-      n.style.filter = 'blur(7px)';
-      n.style.willChange = 'transform, opacity, filter';
-      n.style.transition = 'opacity 560ms cubic-bezier(.19,1,.22,1), transform 760ms cubic-bezier(.19,1,.22,1), filter 520ms cubic-bezier(.19,1,.22,1)';
+      n.style.willChange = 'transform, opacity';
+      n.style.transition = 'opacity 680ms var(--e-expo), transform 900ms var(--e-expo), filter 700ms var(--e-expo)';
       this.io.observe(n);
       (this.revPending || (this.revPending = [])).push(n);
     }
@@ -4766,7 +4720,7 @@ class Component extends DCLogic {
   }
 
   splitWords(root) {
-    const WS = 'display:inline-block;opacity:0;transform:translate3d(0,0.4em,0);filter:blur(6px);';
+    const WS = 'display:inline-block;opacity:0;transform:translate3d(0,0.62em,0) scale(0.985);will-change:opacity,transform;';
     const wrap = (node) => {
       const kids = Array.prototype.slice.call(node.childNodes);
       kids.forEach((k) => {
@@ -5022,6 +4976,11 @@ class Component extends DCLogic {
   pour(win, lit, p) {
     if (!win) return;
     const off = (1 - Math.max(0, Math.min(1, p))) * 100;
+    if (!win.__eased) {
+      win.__eased = 1;
+      win.style.transition = 'transform 420ms cubic-bezier(.32,.06,.24,1)';
+      if (lit) lit.style.transition = 'transform 420ms cubic-bezier(.32,.06,.24,1)';
+    }
     const t = 'translate3d(0,' + off.toFixed(2) + '%,0)';
     if (win.__t !== t) { win.__t = t; win.style.transform = t; }
     const c = 'translate3d(0,' + (-off).toFixed(2) + '%,0)';
@@ -5036,13 +4995,9 @@ class Component extends DCLogic {
     this.landedOnce = 1;
     requestAnimationFrame(() => { try { this.fitForm(); } catch (e) {} });
     // фоновые слои получают источник только после посадки, и лёгкий — на телефоне
-    for (const el of document.querySelectorAll('[data-drift]')) {
-      if (this.mob && el.hasAttribute('data-bg2')) { el.style.display = 'none'; continue; }
-      el.style.visibility = 'visible';
-      el.style.animationPlayState = 'running';
-    }
     if (this.mob && this.glowEl) this.glowEl.style.display = 'none';
     setTimeout(() => { this.pumpBm(); this.loadMaskURLs(); this.sweepGeo(); }, 200);
+    setTimeout(() => { try { this.autoReveal(); this.scanReveals(); } catch (e) {} }, 60);
     setTimeout(() => { this.initMap(); }, 420);
   }
 
@@ -5361,6 +5316,8 @@ class Component extends DCLogic {
     if (!this.lossPainted) return false;
     // курсор ведёт заставку — движение должно идти на полном кадре
     if ((this.k || 0) > 0.002) return false;
+    // свет догоняет курсор на кнопке — тоже полный кадр
+    if (this.glowSet && this.glowSet.size) return false;
     const q = this.inkS;
     if (q && (q.x !== q.tx || q.w !== q.tw)) return false;
     if (Math.abs(yNow - (this.idleY == null ? -1e9 : this.idleY)) > 0.3) { this.idleY = yNow; return false; }
@@ -5384,8 +5341,9 @@ class Component extends DCLogic {
       }
     }
     const w = this.runW;
-    // 34 px/с — это медленнее, чем читает глаз: строка казалась застывшей.
-    const tgt = (this.mqHover || this.mqDrag) ? 0 : 82;
+    // 34 px/с читалось как «застыла», 82 — как «убегает». 48 — скорость,
+    // на которой строку успеваешь прочитать, не поворачивая головы.
+    const tgt = (this.mqHover || this.mqDrag) ? 0 : 48;
     if (this.mqV == null) this.mqV = 0;
     this.mqV += (tgt - this.mqV) * (1 - Math.exp(-dt / 0.42));
     if (this.mqX == null) this.mqX = 0;
@@ -5415,6 +5373,7 @@ class Component extends DCLogic {
     // Строка показателей идёт всегда — это единственное, что движется на
     // неподвижной странице, и экономия кадров на ней сразу видна глазом.
     this.mqTick(dt);
+    this.glowTick(dt);
 
     if (this.stepIdle(window.scrollY)) {
       this.idleN = (this.idleN || 0) + 1;
@@ -5504,9 +5463,17 @@ class Component extends DCLogic {
       this.pv = (this.pv || 0) + (raw - (this.pv || 0)) * (1 - Math.exp(-dt / 0.2));
       if (raw >= 1 && this.pv > 0.995) this.pv = 1;
       if (this.tickN % 3 === 0) {
-        if (this.barEl) this.barEl.style.transform = 'scaleX(' + this.pv.toFixed(4) + ')';
         const p100 = Math.floor(this.pv * 100);
         if (this.pctEl && this.pctEl.__p !== p100) { this.pctEl.__p = p100; this.pctEl.textContent = p100 + '%'; }
+      }
+      // Логотип наливается ровно настолько, насколько загрузилась заставка.
+      // Это и есть индикатор: полоса для того же была лишней деталью.
+      if (!this.handedOff) {
+        this.waveOn = true;
+        // немного придерживаем у самого верха — чтобы последний глоток
+        // совпал с передачей экрана, а не случился раньше неё
+        this.fill = this.pv * 0.94;
+        this.paintFill();
       }
       // экран отдаём по РАЗГОНУ, а не по полной загрузке: первый кадр, начало
       // открытия и редкие опорные кадры по всей шкале. Остальное продолжает
@@ -5890,11 +5857,18 @@ class Component extends DCLogic {
     const SAFE = this.mob ? 0.30 : 0.22;
     const s = Math.min(sCover, sFit / (1 - SAFE));
     const w = Math.ceil(iw * s), h = Math.ceil(ih * s);
-    // на телефоне кадр приподнят: ноутбук стоит по центру между шапкой и бегущей строкой
+    // ——— ЦЕНТР ПО ГЛАЗУ, А НЕ ПО ГЕОМЕТРИИ ———————————————————————
+    // На телефоне сверху висит шапка (~72 px), снизу — строка показателей
+    // (34 px). Геометрический центр экрана и центр свободного поля между
+    // ними — разные точки: разница ровно (72 − 34) / 2 ≈ 19 px, и кадр,
+    // поставленный по геометрии, читается как сдвинутый вверх.
+    // Поэтому опускаем его на эту половину разницы — тогда «РАЗРАБОТКА ×
+    // КРЕАТИВ» стоит по центру того поля, которое человек реально видит.
     const dpr = c.height / Math.max(1, c.clientHeight || 1);
-    const lift = this.mob ? 10 * dpr : 0;
+    const TOP_UI = 72, BOT_UI = 34;
+    const drop = this.mob ? ((TOP_UI - BOT_UI) / 2) * dpr : 0;
     const x0 = Math.round((c.width - w) / 2);
-    const y0 = Math.round((c.height - h) / 2 - lift);
+    const y0 = Math.round((c.height - h) / 2 + drop);
     this.cxf = x0; this.cyf = y0; this.csf = s;
     ctx.drawImage(img, x0, y0, w, h);
     // остаток поля — продолжение кадра, а не подложка
@@ -8790,7 +8764,7 @@ class Component extends DCLogic {
         padding: narrow ? '10px 12px 12px' : '12px clamp(12px, 3.2vw, 44px) 14px',
         borderTop: '1px solid ' + cream(0.1),
         backgroundColor: 'rgba(10,10,10,0.82)',
-        backdropFilter: 'blur(26px) saturate(180%)', WebkitBackdropFilter: 'blur(26px) saturate(180%)',
+        backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)',
         transform: dockShow ? 'translateY(0)' : 'translateY(120%)',
         opacity: dockShow ? 1 : 0,
         transition: 'transform 620ms ' + EZ + ', opacity 300ms ease'
@@ -9047,10 +9021,10 @@ class Component extends DCLogic {
     const mR = Math.hypot(vw, vh) * 1.16;
     const skin = {
       position: 'absolute', inset: 0, borderRadius: '999px', boxSizing: 'border-box', pointerEvents: 'none',
-      backgroundColor: 'rgba(13,13,13,0.42)',
+      backgroundColor: narrow ? 'rgba(13,13,13,0.9)' : 'rgba(13,13,13,0.62)',
       border: '1px solid rgba(242,235,221,0.1)',
-      backdropFilter: narrow ? 'blur(13px) saturate(140%)' : 'blur(20px) saturate(150%)',
-      WebkitBackdropFilter: narrow ? 'blur(13px) saturate(140%)' : 'blur(20px) saturate(150%)',
+      backdropFilter: narrow ? 'none' : 'blur(10px)',
+      WebkitBackdropFilter: narrow ? 'none' : 'blur(10px)',
       boxShadow: 'inset 0 1px 0 rgba(242,235,221,0.15), inset 0 -1px 0 rgba(0,0,0,0.28), 0 14px 44px rgba(0,0,0,0.38)',
       opacity: 0, transition: 'opacity 1ms linear'
     };
@@ -9521,12 +9495,24 @@ class Component extends DCLogic {
     const fWork = this.FEEDD[fi] || this.FEEDD[this.FEEDD.length - 1];
     const fWorkTags = svcBlock(fWork.k).tags.slice(0, 6);
     const fSheetCap = (fRvN(fi) ? 'отзывы · ' : 'что входит · ') + fWork.svc;
+    // лайк отзыва: спокойный и нажатый. Держим рядом, чтобы отличались
+    // ровно цветом, а не случайно разъехались
+    const COMLIKE = {
+      display: 'flex', alignItems: 'center', justifyContent: 'center', flex: '0 0 auto',
+      boxSizing: 'border-box', width: '30px', height: '30px', padding: 0, borderRadius: '999px',
+      border: '1px solid rgba(242,235,221,0.16)', background: 'transparent', color: CREAM,
+      cursor: 'pointer', outline: 'none', transition: 'border-color 320ms ease, color 240ms ease'
+    };
+    const COMLIKE_ON = Object.assign({}, COMLIKE, {
+      border: '1px solid rgba(245,35,43,0.5)', background: 'rgba(245,35,43,0.14)', color: '#ff3b40'
+    });
     const fComList = (fAll[fi] || []).map((c, j) => {
       const key = fi + ':' + j;
       const lk = !!fCLikes[key];
       return {
         iniText: c.ini, name: c.n, role: c.ro, text: c.t,
-        heartFill: lk ? '#f2ebdd' : 'none',
+        heartFill: lk ? '#ff3b40' : 'none',
+        likeStyle: lk ? COMLIKE_ON : COMLIKE,
         like: () => this.fComLikeTap(key),
         likeAria: (lk ? 'Нравится' : 'Оценить') + ': отзыв, ' + c.n,
         ini: {
@@ -9560,8 +9546,7 @@ class Component extends DCLogic {
       metricsBarStyle: {
         position: 'fixed', left: 0, right: 0, bottom: 0, zIndex: 27, boxSizing: 'border-box',
         display: 'flex', alignItems: 'center', height: (narrow ? 34 : 40) + 'px', overflow: 'hidden',
-        backgroundColor: 'rgba(10,10,10,0.6)', borderTop: '1px solid rgba(242,235,221,0.12)',
-        backdropFilter: 'blur(26px) saturate(180%)', WebkitBackdropFilter: 'blur(26px) saturate(180%)',
+        backgroundColor: 'rgba(9,9,9,0.94)', borderTop: '1px solid rgba(242,235,221,0.12)',
         transform: st.handoff ? 'translateY(0)' : 'translateY(110%)',
         transition: 'transform 900ms cubic-bezier(.16,.84,.24,1) 600ms'
       },
@@ -9602,10 +9587,27 @@ class Component extends DCLogic {
         border: 'none', background: 'none', cursor: 'pointer',
         color: 'rgba(242,235,221,0.52)', transition: 'color 240ms ease'
       },
-      metricsMoreStyle: {
-        display: 'inline-flex', alignItems: 'center', gap: '8px', marginTop: '16px',
-        fontSize: '11px', fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase',
-        color: 'rgba(242,235,221,0.55)', transition: 'color 240ms ease, gap 320ms ' + EZ
+      metricsFactsStyle: {
+        display: 'flex', flexDirection: 'column', gap: '7px',
+        marginTop: '13px', paddingTop: '12px',
+        borderTop: '1px solid rgba(242,235,221,0.1)'
+      },
+      metricsFactRowStyle: {
+        display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: '14px'
+      },
+      metricsFactKeyStyle: { fontSize: '12px', color: 'rgba(242,235,221,0.52)' },
+      metricsFactValStyle: {
+        fontSize: '12.5px', fontWeight: 600, color: '#f2ebdd',
+        fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap'
+      },
+      metricsFacts: [
+        { k: 'Проектов в выборке', v: '19' },
+        { k: 'Период', v: '3 месяца до / после' },
+        { k: 'Источник', v: 'аналитика клиента' }
+      ],
+      metricsCardFootStyle: {
+        marginTop: '11px', fontSize: '11.5px', lineHeight: 1.5,
+        color: 'rgba(242,235,221,0.4)', textWrap: 'pretty'
       },
       metricsCardStyle: {
         position: 'fixed', left: narrow ? '14px' : '16px', bottom: ((narrow ? 34 : 40) + 12) + 'px', zIndex: 28,
@@ -9613,7 +9615,7 @@ class Component extends DCLogic {
         padding: '20px 22px 20px 20px', borderRadius: '20px',
         border: '1px solid rgba(242,235,221,0.11)', backgroundColor: 'rgba(22,22,22,0.9)',
         backgroundImage: 'linear-gradient(180deg, rgba(242,235,221,0.05), rgba(242,235,221,0) 60%)',
-        backdropFilter: 'blur(26px) saturate(170%)', WebkitBackdropFilter: 'blur(26px) saturate(170%)',
+        backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)',
         boxShadow: 'inset 0 1px 0 rgba(242,235,221,0.1), 0 26px 64px rgba(0,0,0,0.58)',
         opacity: st.mHelp ? 1 : 0, pointerEvents: st.mHelp ? 'auto' : 'none',
         transform: st.mHelp ? 'translateY(0) scale(1)' : 'translateY(12px) scale(0.97)',
@@ -9784,6 +9786,9 @@ class Component extends DCLogic {
       menuTouchEnd: this._mte || (this._mte = () => this.menuTouchEnd()),
 
       skinStyle: skin,
+      // подложка правого пода — только на узком экране, где она держит
+      // бургер рядом с кнопкой
+      ctaSkinStyle: Object.assign({}, skin, { display: narrow ? 'block' : 'none' }),
       shellStyle: Object.assign({}, skin, {
         left: '50%', top: 0, right: 'auto', bottom: 'auto', zIndex: 1,
         display: narrow ? 'none' : 'block', width: '0px', height: POD + 'px',
@@ -9808,7 +9813,10 @@ class Component extends DCLogic {
       },
       ctaPodStyle: {
         position: 'relative', zIndex: 5, boxSizing: 'border-box', pointerEvents: 'auto', flex: '0 0 auto',
-        display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: narrow ? '5px' : '0px', height: POD + 'px', padding: '5px',
+        display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: narrow ? '5px' : '0px', height: POD + 'px',
+        // на широком экране подложки пода нет — значит и её внутреннего поля
+        // быть не должно: иначе кнопка стоит на 5 px левее логотипа слева
+        padding: narrow ? '5px' : '0',
         borderRadius: '999px',
         opacity: 0,
         transform: 'translate3d(0,0,0)',
@@ -9899,12 +9907,6 @@ class Component extends DCLogic {
         transition: 'clip-path 880ms ' + HE + (this.menuDragging ? '' : ', transform 420ms ' + HE)
       },
       menuHidden: menuOn ? 'false' : 'true',
-      menuTopStyle: {
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '12px',
-        fontSize: '11px', fontWeight: 600, letterSpacing: '0.16em', textTransform: 'uppercase',
-        color: 'rgba(10,10,10,0.6)',
-        opacity: menuOn ? 1 : 0, transition: 'opacity 500ms ease ' + (menuOn ? 260 : 0) + 'ms'
-      },
       menuListStyle: {
         display: 'flex', flexDirection: 'column', justifyContent: 'center', flex: '1 1 auto',
         margin: 'clamp(10px, 2.4vh, 30px) 0',
@@ -9918,8 +9920,15 @@ class Component extends DCLogic {
         contacts: menuItem(4, false)
       },
       menuWordStyle: {
-        flex: '1 1 auto', minWidth: 0, fontSize: 'clamp(24px, min(8.4vw, 5.6vh), 46px)', lineHeight: 1.02,
-        letterSpacing: '-0.04em', fontWeight: 600, transition: 'opacity 260ms cubic-bezier(.16,.84,.24,1)'
+        flex: '1 1 auto', minWidth: 0, fontSize: 'clamp(30px, min(10.4vw, 6.6vh), 56px)', lineHeight: 1.0,
+        letterSpacing: '-0.045em', fontWeight: 600, transition: 'opacity 260ms cubic-bezier(.16,.84,.24,1)'
+      },
+      // Номер раздела — мелкая деталь, которая превращает список ссылок
+      // в оформленную навигацию.
+      menuNumStyle: {
+        flex: '0 0 auto', width: '22px', alignSelf: 'flex-start', marginTop: '0.62em',
+        fontSize: '11px', fontWeight: 700, letterSpacing: '0.1em',
+        color: 'rgba(10,10,10,0.32)', fontVariantNumeric: 'tabular-nums'
       },
       menuHereStyle: {
         flex: '0 0 auto', fontSize: '10.5px', fontWeight: 600, letterSpacing: '0.12em', textTransform: 'uppercase',
@@ -10077,49 +10086,6 @@ class Component extends DCLogic {
         top: 'clamp(96px, 15vh, 150px)', alignSelf: 'start',
         order: 0, minWidth: 0
       },
-      symCosts: st.sym.map((k, i) => ({
-        text: this.SYMCOST[k],
-        style: {
-          display: 'grid', gridTemplateColumns: '7px minmax(0, 1fr)', alignItems: 'start', gap: '12px',
-          fontSize: narrow ? '13.5px' : '14px', lineHeight: 1.5, color: 'rgba(242,235,221,0.72)',
-          textWrap: 'pretty',
-          animation: 'lb-slide 520ms cubic-bezier(.16,.84,.24,1) ' + (i * 70) + 'ms both'
-        },
-        dot: {
-          width: '7px', height: '7px', marginTop: '0.52em', borderRadius: '999px',
-          background: CREAM, opacity: 0.62
-        }
-      })),
-      costWrapStyle: {
-        display: 'flex', flexDirection: 'column', gap: '11px', overflow: 'hidden',
-        marginTop: cnt ? '18px' : '0px',
-        paddingTop: cnt ? '18px' : '0px',
-        borderTop: '1px solid ' + (cnt ? 'rgba(242,235,221,0.14)' : 'rgba(242,235,221,0)'),
-        maxHeight: cnt ? '300px' : '0px',
-        opacity: cnt ? 1 : 0,
-        transition: 'max-height 680ms cubic-bezier(.16,.84,.24,1), opacity 460ms ease 120ms, margin-top 620ms cubic-bezier(.16,.84,.24,1), padding-top 620ms cubic-bezier(.16,.84,.24,1), border-color 500ms ease'
-      },
-      costHeadStyle: {
-        fontSize: '11px', fontWeight: 700, letterSpacing: '0.16em', textTransform: 'uppercase',
-        color: 'rgba(242,235,221,0.52)'
-      },
-      symPicks: st.sym.map((k) => ({
-        label: SYML[k],
-        style: {
-          display: 'inline-flex', alignItems: 'center', boxSizing: 'border-box',
-          padding: '7px 13px', borderRadius: '999px',
-          border: '1px solid rgba(242,235,221,0.2)', background: 'rgba(242,235,221,0.09)',
-          fontSize: '12px', fontWeight: 600, letterSpacing: '-0.005em', color: 'rgba(242,235,221,0.82)',
-          animation: 'lb-in 460ms cubic-bezier(.16,.84,.24,1) both'
-        }
-      })),
-      picksWrapStyle: {
-        display: 'flex', flexWrap: 'wrap', gap: '8px', overflow: 'hidden',
-        marginTop: cnt ? '18px' : '0px',
-        maxHeight: cnt ? '160px' : '0px',
-        opacity: cnt ? 1 : 0,
-        transition: 'max-height 620ms cubic-bezier(.16,.84,.24,1), opacity 420ms ease, margin-top 620ms cubic-bezier(.16,.84,.24,1)'
-      },
       meterStyle: {
         boxSizing: 'border-box', padding: 'clamp(20px, 2.2vw, 30px)', borderRadius: '28px',
         border: '1px solid ' + (cnt ? 'rgba(242,235,221,0.3)' : 'rgba(242,235,221,0.1)'),
@@ -10151,8 +10117,8 @@ class Component extends DCLogic {
       },
       lossNumStyle: {
         display: 'flex', alignItems: 'baseline', gap: '6px',
-        fontSize: narrow ? 'clamp(38px, 12vw, 52px)' : 'clamp(40px, 4.4vw, 62px)',
-        fontWeight: 600, letterSpacing: '-0.05em', lineHeight: 0.92, color: CREAM,
+        fontSize: narrow ? 'clamp(28px, 8.4vw, 38px)' : 'clamp(30px, 3vw, 44px)',
+        fontWeight: 600, letterSpacing: '-0.05em', lineHeight: 0.95, color: CREAM,
         fontVariantNumeric: 'tabular-nums'
       },
       lossUnitStyle: {
@@ -10160,7 +10126,7 @@ class Component extends DCLogic {
         color: 'rgba(242,235,221,0.52)'
       },
       lossCapStyle: {
-        maxWidth: '34ch', fontSize: narrow ? '12.5px' : '13.5px', lineHeight: 1.45,
+        maxWidth: '22ch', fontSize: narrow ? '11.5px' : '12.5px', lineHeight: 1.35,
         fontWeight: 500, color: 'rgba(242,235,221,0.52)', textWrap: 'pretty'
       },
       lossYearStyle: {
@@ -10183,119 +10149,49 @@ class Component extends DCLogic {
       },
       lossBase: this.SYMBASE,
       cnt: cnt,
-      meterNumStyle: {
-        fontSize: 'clamp(46px, 5.2vw, 72px)', fontWeight: 600, letterSpacing: '-0.055em', lineHeight: 0.8,
-        color: cnt ? CREAM : 'rgba(242,235,221,0.42)', transition: 'color 520ms ease'
+      // Полоса во всю ширину секции: сверху и снизу — воздух, по бокам
+      // ничего. Заявление должно стоять одно.
+      claimBandStyle: {
+        margin: 'clamp(56px, 9vh, 120px) 0 clamp(8px, 1.6vh, 20px)',
+        paddingTop: 'clamp(26px, 4vh, 48px)',
+        borderTop: '1px solid rgba(242,235,221,0.1)'
       },
+      claimTextStyle: {
+        margin: 0, maxWidth: '100%',
+        fontSize: narrow ? 'clamp(26px, 8vw, 40px)' : 'clamp(34px, 4.6vw, 76px)',
+        lineHeight: 1.06, letterSpacing: '-0.042em', fontWeight: 600,
+        color: 'rgba(242,235,221,0.84)', textWrap: 'balance'
+      },
+      claimAccentStyle: {
+        fontStyle: 'italic', fontWeight: 600, letterSpacing: '-0.04em', color: '#f2ebdd'
+      },
+      // Верхняя строка: шкала занимает место, счётчик прижат к правому краю —
+      // обе части стоят на одной линии, а не в разных углах карточки.
+      meterTopStyle: {
+        display: 'flex', alignItems: 'center', gap: '14px',
+        paddingBottom: narrow ? '14px' : '16px',
+        borderBottom: '1px solid rgba(242,235,221,0.1)'
+      },
+      meterCntStyle: {
+        flex: '0 0 auto', fontSize: narrow ? '15px' : '16px', fontWeight: 600,
+        letterSpacing: '-0.02em', color: cnt ? CREAM : 'rgba(242,235,221,0.42)',
+        fontVariantNumeric: 'tabular-nums', transition: 'color 420ms ease'
+      },
+      meterOfStyle: { color: 'rgba(242,235,221,0.34)', fontWeight: 500 },
+      // Две цифры — две равные колонки. Раньше они шли друг под другом с
+      // подписями разной длины, и карточка расползалась по высоте.
+      lossGridStyle: {
+        display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+        gap: narrow ? '12px' : '16px', alignItems: 'start'
+      },
+      lossCellStyle: { display: 'flex', flexDirection: 'column', gap: '4px', minWidth: 0 },
 
       // ─── кто это делает: сравнение четырёх вариантов ────────────────
-      hireWrapStyle: {
-        display: 'flex', flexDirection: 'column', gap: narrow ? '16px' : '20px',
-        marginTop: 'clamp(26px, 3.4vh, 40px)'
-      },
-      hireHeadStyle: { display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', gap: narrow ? '8px' : '16px' },
-      hireCapStyle: {
-        flex: '0 0 auto', fontSize: '11px', fontWeight: 700, letterSpacing: '0.18em',
-        textTransform: 'uppercase', color: 'rgba(242,235,221,0.52)'
-      },
-      hireNoteStyle: {
-        fontSize: narrow ? '13px' : '14px', lineHeight: 1.5, fontWeight: 500,
-        color: 'rgba(242,235,221,0.52)', textWrap: 'pretty'
-      },
-      hireTabsStyle: {
-        display: 'grid', gridTemplateColumns: narrow ? 'repeat(2, minmax(0, 1fr))' : 'repeat(4, minmax(0, 1fr))',
-        gap: narrow ? '8px' : '10px'
-      },
       // ── ЧЕТЫРЕ СПОСОБА: колонки со шкалами ──────────────────────────
       // Шкалы нормированы так, что длиннее значит лучше для заказчика.
       // Ни одна колонка не выкручена в ноль и ни одна не выиграла по всем
       // трём: подтасованное сравнение видно сразу и убивает доверие ко
       // всей странице. Фрилансер честно выигрывает вход и скорость.
-      hireGridStyle: {
-        display: 'grid',
-        gridTemplateColumns: narrow ? 'repeat(4, 78vw)' : 'repeat(4, minmax(0, 1fr))',
-        gap: narrow ? '12px' : 'clamp(12px, 1.4vw, 20px)',
-        overflowX: narrow ? 'auto' : 'visible',
-        scrollSnapType: narrow ? 'x mandatory' : 'none',
-        margin: narrow ? '0 calc(var(--gut) * -1)' : 0,
-        padding: narrow ? '0 var(--gut)' : 0,
-        scrollbarWidth: 'none'
-      },
-      hireCols: this.HIRE.map((h, i) => {
-        const win = h.k === 'baza';
-        return {
-          title: h.name,
-          costText: h.cost,
-          lineText: this.HIRESHORT[h.k],
-          shapes: this.HIREART[h.k] || [],
-          col: {
-            display: 'flex', flexDirection: 'column', gap: narrow ? '12px' : '14px',
-            boxSizing: 'border-box', minWidth: 0,
-            scrollSnapAlign: narrow ? 'start' : 'none',
-            padding: narrow ? '16px' : 'clamp(16px, 1.5vw, 22px)',
-            borderRadius: 'var(--r-lg)',
-            border: '1px solid ' + (win ? 'rgba(242,235,221,0.34)' : 'rgba(242,235,221,0.1)'),
-            background: win
-              ? 'linear-gradient(165deg, rgba(242,235,221,0.1), rgba(242,235,221,0.025) 72%)'
-              : 'linear-gradient(165deg, rgba(20,20,19,0.9), rgba(13,13,12,0.9) 70%)',
-            animation: 'lb-pop-a 560ms cubic-bezier(.19,1,.22,1) ' + (i * 70) + 'ms both'
-          },
-          // Рисунок вместо иконки: сцена читается быстрее подписи.
-          art: {
-            width: '100%', aspectRatio: '96 / 72', borderRadius: 'var(--r-md)',
-            background: win ? 'rgba(242,235,221,0.06)' : 'rgba(242,235,221,0.03)',
-            padding: narrow ? '8px' : '10px', boxSizing: 'border-box'
-          },
-          nameWrap: { display: 'flex', flexDirection: 'column', gap: '3px', minWidth: 0 },
-          name: {
-            fontSize: narrow ? '17px' : 'clamp(17px, 1.5vw, 21px)', fontWeight: 600,
-            letterSpacing: '-0.025em', lineHeight: 1.15,
-            color: win ? CREAM : 'rgba(242,235,221,0.9)'
-          },
-          cost: {
-            fontSize: narrow ? '12px' : '12.5px', fontWeight: 500, lineHeight: 1.35,
-            color: 'rgba(242,235,221,0.46)', textWrap: 'pretty'
-          },
-          line: {
-            marginTop: 'auto', paddingTop: narrow ? '10px' : '12px',
-            borderTop: '1px solid rgba(242,235,221,0.08)',
-            fontSize: narrow ? '12.5px' : '13px', lineHeight: 1.45, fontWeight: 500,
-            color: win ? 'rgba(242,235,221,0.82)' : 'rgba(242,235,221,0.56)', textWrap: 'pretty'
-          },
-          bars: this.HIREBARS.map((b, j) => ({
-            cap: b.cap,
-            fill: {
-              display: 'block', height: '100%',
-              width: Math.round(b.v[h.k] * 100) + '%',
-              borderRadius: 'var(--r-pill)',
-              background: win
-                ? 'linear-gradient(90deg, var(--acc-lime), #f2ebdd)'
-                : 'rgba(242,235,221,0.4)',
-              transformOrigin: 'left center',
-              animation: 'lb-bar-grow 760ms cubic-bezier(.19,1,.22,1) ' + (i * 70 + j * 90 + 180) + 'ms both'
-            }
-          }))
-        };
-      }),
-      hireBarsStyle: { display: 'flex', flexDirection: 'column', gap: narrow ? '8px' : '9px' },
-      hireBarRowStyle: { display: 'flex', flexDirection: 'column', gap: '5px', minWidth: 0 },
-      hireBarCapStyle: {
-        fontSize: '10px', fontWeight: 700, letterSpacing: '0.12em', textTransform: 'uppercase',
-        color: 'rgba(242,235,221,0.34)'
-      },
-      hireBarRailStyle: {
-        display: 'block', height: '4px', borderRadius: 'var(--r-pill)',
-        background: 'rgba(242,235,221,0.08)', overflow: 'hidden'
-      },
-      hireFootStyle: {
-        display: 'flex', alignItems: 'flex-start', gap: '9px',
-        maxWidth: '86ch', fontSize: narrow ? '12px' : '12.5px', lineHeight: 1.55,
-        color: 'rgba(242,235,221,0.42)', textWrap: 'pretty'
-      },
-      hireFootDotStyle: {
-        flex: '0 0 auto', width: '4px', height: '4px', marginTop: '0.62em',
-        borderRadius: 'var(--r-pill)', background: 'rgba(242,235,221,0.3)'
-      },
 
       // ═══ ЦЕНА: шкала из четырёх и одна рекомендация ═══════════════════
       goFix: this._gfx || (this._gfx = (e) => this.goFix(e)),
@@ -10393,10 +10289,21 @@ class Component extends DCLogic {
         width: 'calc(100% + 16px)', margin: 0, opacity: 0, cursor: 'grab',
         WebkitAppearance: 'none', appearance: 'none', background: 'transparent'
       },
+      forkRailTicksStyle: { position: 'relative', height: '0' },
       forkStopsStyle: {
-        display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
-        alignItems: 'start', gap: narrow ? '4px' : '10px', marginTop: '10px'
+        position: 'relative', height: narrow ? '38px' : '44px', marginTop: '12px'
       },
+      // Засечки на самой шкале: без них деления существуют только в голове
+      // у того, кто писал проценты.
+      forkTicks: [0, 1, 2, 3].map((i) => ({
+        style: {
+          position: 'absolute', top: '13px', left: (i / 3 * 100).toFixed(4) + '%',
+          width: '2px', height: '8px', marginLeft: '-1px', marginTop: '-3px',
+          borderRadius: '2px',
+          background: i <= pickIdx ? 'rgba(242,235,221,0.8)' : 'rgba(242,235,221,0.22)',
+          transition: 'background 380ms ease'
+        }
+      })),
       forkStops: this.FORK.map((t, i) => {
         const on = i === pickIdx;
         const below = i <= pickIdx;
@@ -10405,14 +10312,20 @@ class Component extends DCLogic {
           name: t.term,
           pick: () => { if (i !== this.state.pick) { this.setState({ pick: i }); this.track('pricing_fork', { level: t.k }); } },
           wrap: {
-            display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '4px',
-            minWidth: 0, padding: narrow ? '4px 2px' : '4px 6px 4px 0',
-            background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer',
-            font: 'inherit', color: 'inherit'
+            position: 'absolute', top: 0,
+            left: (i / 3 * 100).toFixed(4) + '%',
+            // крайние подписи прижимаем к краям, иначе они вылезают за шкалу
+            transform: i === 0 ? 'none' : (i === 3 ? 'translateX(-100%)' : 'translateX(-50%)'),
+            display: 'flex', flexDirection: 'column',
+            alignItems: i === 0 ? 'flex-start' : (i === 3 ? 'flex-end' : 'center'),
+            gap: '3px', padding: '2px 0',
+            background: 'none', border: 'none', cursor: 'pointer',
+            textAlign: i === 0 ? 'left' : (i === 3 ? 'right' : 'center'),
+            font: 'inherit', color: 'inherit', whiteSpace: 'nowrap'
           },
           val: {
-            fontSize: narrow ? '11.5px' : 'clamp(12px, 1.05vw, 14px)', fontWeight: 700,
-            letterSpacing: '-0.015em', lineHeight: 1.2, whiteSpace: 'nowrap',
+            fontSize: narrow ? '12px' : 'clamp(13px, 1.1vw, 15px)', fontWeight: 600,
+            letterSpacing: '-0.02em', lineHeight: 1.2, whiteSpace: 'nowrap',
             color: on ? CREAM : (below ? 'rgba(242,235,221,0.72)' : 'rgba(242,235,221,0.52)'),
             transition: 'color 380ms ease'
           },
@@ -10922,16 +10835,18 @@ class Component extends DCLogic {
       },
       footLogoWrapStyle: {
         position: 'relative', overflow: 'hidden', width: '100%',
-        aspectRatio: narrow ? '3.4' : '5.2',
-        maxHeight: narrow ? '30vh' : '26vh',
+        // 1226×213 — пропорции самого начертания: клеймо влезает целиком,
+        // без обрезки по низу
+        aspectRatio: narrow ? '4.6' : '5.756',
+        maxHeight: narrow ? '22vh' : '24vh',
         cursor: 'default',
         // низ растворяется, а не обрезается ножом — иначе клеймо выглядит
         // куском, который не поместился
-        maskImage: 'linear-gradient(to bottom, #000 0%, #000 62%, transparent 100%)',
-        WebkitMaskImage: 'linear-gradient(to bottom, #000 0%, #000 62%, transparent 100%)',
+        maskImage: 'linear-gradient(to bottom, #000 0%, #000 84%, transparent 100%)',
+        WebkitMaskImage: 'linear-gradient(to bottom, #000 0%, #000 84%, transparent 100%)',
         userSelect: 'none', WebkitUserSelect: 'none', WebkitTouchCallout: 'none'
       },
-      footLogoInnerStyle: { position: 'absolute', left: 0, right: 0, top: 0, aspectRatio: '2.6124' },
+      footLogoInnerStyle: { position: 'absolute', left: 0, right: 0, top: 0, aspectRatio: '5.756' },
       footMove: (e) => {
         const el = this.footLogoEl; if (!el) return;
         const r = el.getBoundingClientRect();
@@ -11293,7 +11208,10 @@ class Component extends DCLogic {
         ? 'Пять запусков: что было, что стало и слова владельца.'
         : 'Пять запусков: что было до нас, что стало после и слова владельца — без пересказа.',
       fShellStyle: (narrow || this.mob) ? {
-        position: 'sticky', top: 0, display: 'block', width: '100%', height: '100svh',
+        position: 'sticky', top: 0, display: 'block', width: '100%',
+        // внизу живёт строка показателей — кадр не должен под неё заезжать,
+        // иначе у карточки срезан низ
+        height: 'calc(100svh - ' + (narrow ? 34 : 40) + 'px)',
         overflow: 'hidden', isolation: 'isolate',
         perspective: '1400px', perspectiveOrigin: '50% 46%'
       } : {
@@ -11324,7 +11242,7 @@ class Component extends DCLogic {
         flexDirection: 'row', gap: 'clamp(14px, 1.6vw, 24px)',
         // высота считается от окна за вычетом шапки и заголовка секции:
         // раньше телефон свешивался за нижний край на ноутбуках 900px
-        flex: '0 0 auto', height: 'min(82vh, 920px)', minHeight: '520px'
+        flex: '0 0 auto', height: 'min(88vh, 1040px)', minHeight: '560px'
       },
       fStageStyle: (narrow || this.mob) ? {
         position: 'absolute', boxSizing: 'border-box', inset: 0, zIndex: 1,
@@ -11568,12 +11486,7 @@ class Component extends DCLogic {
         margin: 0, fontSize: narrow ? '13.5px' : '14.5px', lineHeight: 1.55, fontWeight: 450,
         color: 'rgba(242,235,221,0.82)', textWrap: 'pretty'
       },
-      fComLikeStyle: {
-        display: 'flex', alignItems: 'center', justifyContent: 'center', flex: '0 0 auto',
-        boxSizing: 'border-box', width: '30px', height: '30px', padding: 0, borderRadius: '999px',
-        border: '1px solid rgba(242,235,221,0.16)', background: 'transparent', color: CREAM,
-        cursor: 'pointer', outline: 'none', transition: 'border-color 320ms ease'
-      },
+      // нажатый лайк отзыва подсвечиваем тем же красным, что и в ленте
       fSheetCtaStyle: {
         flex: '0 0 auto', boxSizing: 'border-box', display: 'flex', alignItems: 'center',
         justifyContent: 'space-between', gap: '12px', minHeight: '48px',
@@ -11769,17 +11682,20 @@ class Component extends DCLogic {
           burst: {
             position: 'absolute', zIndex: 4, left: '50%', top: '46%',
             display: st.fBst === i ? 'block' : 'none', pointerEvents: 'none',
+            color: '#ff3b40',
             animation: 'lb-heart 820ms cubic-bezier(.16,.84,.24,1) forwards',
             filter: 'drop-shadow(0 10px 30px rgba(10,10,10,0.55))'
           },
-          heartFill: lk ? '#f2ebdd' : 'none',
+          heartFill: lk ? '#ff3b40' : 'none',
           heartWrap: {
             display: 'flex', alignItems: 'center', justifyContent: 'center', flex: '0 0 auto',
             boxSizing: 'border-box', width: '44px', height: '44px', borderRadius: '999px',
-            background: lk ? 'rgba(242,235,221,0.12)' : 'rgba(10,10,10,0.56)',
-            border: '1px solid ' + (lk ? 'rgba(242,235,221,0.34)' : 'rgba(242,235,221,0.14)'),
-            transform: lk ? 'scale(1.06)' : 'scale(1)',
-            transition: 'transform 460ms ' + EZ + ', background 320ms ease, border-color 320ms ease'
+            background: lk ? 'rgba(245,35,43,0.16)' : 'rgba(10,10,10,0.56)',
+            border: '1px solid ' + (lk ? 'rgba(245,35,43,0.55)' : 'rgba(242,235,221,0.14)'),
+            color: lk ? '#ff3b40' : CREAM,
+            transform: lk ? 'scale(1.08)' : 'scale(1)',
+            boxShadow: lk ? '0 0 20px rgba(245,35,43,0.32)' : 'none',
+            transition: 'transform 460ms ' + EZ + ', background 320ms ease, border-color 320ms ease, color 240ms ease, box-shadow 380ms ease'
           },
           comWrap: {
             display: 'flex', alignItems: 'center', justifyContent: 'center', flex: '0 0 auto',
@@ -11857,15 +11773,15 @@ class Component extends DCLogic {
       },
       clMapStyle: {
         position: 'relative', boxSizing: 'border-box', minWidth: 0,
-        width: '100%', maxWidth: narrow ? '100%' : '1120px', margin: '0 auto',
+        width: '100%', maxWidth: '100%', margin: '0 auto',
         opacity: st.mapOn ? 1 : 0,
         transition: 'opacity 900ms ease'
       },
-      clSvgWrapStyle: {
-        display: 'block', width: '100%',
-        maskImage: 'linear-gradient(to right, transparent 0, #000 4%, #000 96%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 6%, #000 86%, transparent 100%)',
-        WebkitMaskImage: 'linear-gradient(to right, transparent 0, #000 4%, #000 96%, transparent 100%), linear-gradient(to bottom, transparent 0, #000 6%, #000 86%, transparent 100%)',
-        maskComposite: 'intersect', WebkitMaskComposite: 'source-in'
+      clSvgWrapStyle: { display: 'block', width: '100%' },
+      clFadeStyle: {
+        position: 'absolute', inset: 0, zIndex: 1, pointerEvents: 'none',
+        background: 'linear-gradient(to right, #0a0a0a 0, rgba(10,10,10,0) 7%, rgba(10,10,10,0) 93%, #0a0a0a 100%),'
+          + ' linear-gradient(to bottom, #0a0a0a 0, rgba(10,10,10,0) 9%, rgba(10,10,10,0) 84%, #0a0a0a 100%)'
       },
       pins: (st.mapOn && this.pinPos) ? this.CL.map((c, i) => {
         const on = st.cl === i || st.clPin === i;
@@ -12128,10 +12044,10 @@ class Component extends DCLogic {
       etoLitRef: this._elR || (this._elR = (el) => { if (el) this.etoLitEl = el; }),
       bazaLitRef: this._blR || (this._blR = (el) => { if (el) this.bazaLitEl = el; }),
       // низ наполняется первым, верх следом — вода поднимается снизу вверх
-      bazaWaterStyle: Object.assign({}, WATER, { animation: 'lb-pour-up 380ms cubic-bezier(.32,.06,.24,1) 660ms both' }),
-      etoWaterStyle: Object.assign({}, WATER, { animation: 'lb-pour-up 420ms cubic-bezier(.32,.06,.24,1) 980ms both' }),
-      bazaLitStyle: Object.assign({}, LIT, { animation: 'lb-pour-in 380ms cubic-bezier(.32,.06,.24,1) 660ms both' }),
-      etoLitStyle: Object.assign({}, LIT, { animation: 'lb-pour-in 420ms cubic-bezier(.32,.06,.24,1) 980ms both' }),
+      bazaWaterStyle: Object.assign({}, WATER, { transform: 'translate3d(0,100%,0)' }),
+      etoWaterStyle: Object.assign({}, WATER, { transform: 'translate3d(0,100%,0)' }),
+      bazaLitStyle: Object.assign({}, LIT, { transform: 'translate3d(0,-100%,0)' }),
+      etoLitStyle: Object.assign({}, LIT, { transform: 'translate3d(0,-100%,0)' }),
       footCrestStyle: {
         position: 'absolute', left: 0, right: 0, top: '-5px', height: '8px',
         backgroundImage: "url(\"data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 240 40' preserveAspectRatio='none'%3E%3Cpath d='M0 10 C 30 4 30 4 60 10 C 90 16 90 16 120 10 C 150 4 150 4 180 10 C 210 16 210 16 240 10 L240 40 L0 40 Z' fill='%23f2ebdd'/%3E%3C/svg%3E\")",
@@ -12151,25 +12067,6 @@ class Component extends DCLogic {
         filter: 'blur(16px)', opacity: st.ready ? 0 : 0.4,
         animation: 'lb-sweep 3.4s cubic-bezier(.5,0,.5,1) infinite',
         transition: 'opacity 500ms ease'
-      },
-      introMsgStyle: {
-        position: 'fixed', left: 0, right: 0,
-        top: Math.round(vh / 2 - 14 + (bigW / 2.6141) / 2 + (narrow ? 26 : 38)) + 'px', zIndex: 34,
-        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-start',
-        gap: narrow ? '18px' : '24px', padding: '0 14px', pointerEvents: 'none',
-        opacity: st.ready ? 0 : 1,
-        transition: 'opacity 420ms cubic-bezier(.16,.84,.24,1)'
-      },
-      introRailStyle: {
-        display: 'block', width: 'min(190px, 42vw)', height: '2px', borderRadius: '999px',
-        overflow: 'hidden', background: 'rgba(242,235,221,0.12)',
-        animation: 'lb-msg 460ms cubic-bezier(.16,.84,.24,1) 260ms both'
-      },
-      introBarRef: this._ibR || (this._ibR = (el) => { if (el) this.barEl = el; }),
-      introBarStyle: {
-        display: 'block', width: '100%', height: '100%', borderRadius: '999px',
-        background: 'rgba(242,235,221,0.72)', transformOrigin: 'left center',
-        transform: 'scaleX(0)', willChange: 'transform'
       },
 
       // cookie
