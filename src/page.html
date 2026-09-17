@@ -664,8 +664,8 @@
     opacity: 0; will-change: opacity;
     transition: opacity 620ms var(--e-soft);
     background: radial-gradient(circle var(--sw-r, 160px) at var(--sw-x, 50%) var(--sw-y, 50%),
-      var(--sw-glow, rgba(242,235,221,0.30)) 0%,
-      var(--sw-glow-2, rgba(242,235,221,0.13)) 38%,
+      var(--sw-glow, rgba(242,235,221,0.46)) 0%,
+      var(--sw-glow-2, rgba(242,235,221,0.2)) 38%,
       transparent 72%); }
   [data-sw] > * { position: relative; z-index: 1; }
   [data-sw][data-on]::before { opacity: 1; }
@@ -1017,6 +1017,7 @@
                потом вывод. Одно и то же повторялось трижды.
                Осталось: шкала, две цифры в ровной сетке, год и один вывод.
                Всё на общей сетке — ни одна подпись не висит сама по себе. -->
+          <sc-if value="{{ meterOn }}" hint-placeholder-val="{{ false }}">
           <div data-reveal="1" data-rdist="28" style="{{ meterStyle }}">
             <div style="{{ meterTopStyle }}">
               <div style="display: flex; align-items: center; gap: 6px; flex: 1 1 auto;">
@@ -1051,6 +1052,7 @@
               <svg data-ar="1" sc-camel-view-box="0 0 24 24" width="15" height="15" style="flex: 0 0 auto;" aria-hidden="true"><path d="M5 12h13M12.5 6.5l5.5 5.5-5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
             </a>
           </div>
+          </sc-if>
         </div>
       </div>
 
@@ -1828,31 +1830,21 @@
              оговорки ушли одной строкой вниз, к копирайту: там им и место. -->
         <div data-reveal="1" data-rd="150" data-rdist="22" style="{{ footLegalStyle }}">
           <div style="{{ footLegalColStyle }}">
-            <span style="{{ footLegalCapStyle }}">контакты</span>
-            <a href="https://t.me/lllbaza" target="_blank" rel="noopener" data-hov="1" style="{{ footLegalLink }}" style-hover="color: #f2ebdd;">Telegram — @lllbaza</a>
-            <a href="https://vk.com/lllbaza" target="_blank" rel="noopener" data-hov="1" style="{{ footLegalLink }}" style-hover="color: #f2ebdd;">ВКонтакте</a>
-            <a href="https://www.tiktok.com/@lllbaza" target="_blank" rel="noopener" data-hov="1" style="{{ footLegalLink }}" style-hover="color: #f2ebdd;">TikTok</a>
-            <sc-for list="{{ legalReq }}" as="r" hint-placeholder-count="0">
-              <span style="{{ footReqRowStyle }}"><span style="{{ footReqKeyStyle }}">{{ r.k }}</span><span style="{{ footReqValStyle }}">{{ r.v }}</span></span>
-            </sc-for>
-          </div>
-
-          <div style="{{ footLegalColStyle }}">
-            <span style="{{ footLegalCapStyle }}">разделы</span>
-            <a href="#about" sc-camel-on-click="{{ navGo }}" data-k="about" data-hov="1" style="{{ footLegalLink }}" style-hover="color: #f2ebdd;">О нас</a>
-            <a href="#services" sc-camel-on-click="{{ navGo }}" data-k="services" data-hov="1" style="{{ footLegalLink }}" style-hover="color: #f2ebdd;">Услуги</a>
-            <a href="#pricing" sc-camel-on-click="{{ navGo }}" data-k="pricing" data-hov="1" style="{{ footLegalLink }}" style-hover="color: #f2ebdd;">Цены</a>
-            <a href="#projects" sc-camel-on-click="{{ navGo }}" data-k="projects" data-hov="1" style="{{ footLegalLink }}" style-hover="color: #f2ebdd;">Проекты</a>
-            <a href="#brief" sc-camel-on-click="{{ navGo }}" data-k="contacts" data-hov="1" style="{{ footLegalLink }}" style-hover="color: #f2ebdd;">Конфигуратор</a>
-          </div>
-
-          <div style="{{ footLegalColStyle }}">
             <span style="{{ footLegalCapStyle }}">документы</span>
             <a href="#legal-privacy" sc-camel-on-click="{{ openPrivacy }}" data-hov="1" style="{{ footLegalLink }}" style-hover="color: #f2ebdd;">Политика конфиденциальности</a>
             <a href="#legal-consent" sc-camel-on-click="{{ openConsent }}" data-hov="1" style="{{ footLegalLink }}" style-hover="color: #f2ebdd;">Согласие на обработку данных</a>
             <a href="#legal-cookies" sc-camel-on-click="{{ openCookies }}" data-hov="1" style="{{ footLegalLink }}" style-hover="color: #f2ebdd;">Политика в отношении cookie</a>
             <a href="#legal-terms" sc-camel-on-click="{{ openTerms }}" data-hov="1" style="{{ footLegalLink }}" style-hover="color: #f2ebdd;">Пользовательское соглашение</a>
             <button type="button" data-press="1" data-hov="1" sc-camel-on-click="{{ reopenCookies }}" style="{{ footLegalBtn }}" style-hover="color: #f2ebdd;">Настройки cookie</button>
+          </div>
+
+          <div style="{{ footLegalColStyle }}">
+            <span style="{{ footLegalCapStyle }}">реквизиты</span>
+            <span style="{{ footReqNameStyle }}">{{ legalOwner }}</span>
+            <sc-for list="{{ legalReq }}" as="r" hint-placeholder-count="0">
+              <span style="{{ footReqRowStyle }}"><span style="{{ footReqKeyStyle }}">{{ r.k }}</span><span style="{{ footReqValStyle }}">{{ r.v }}</span></span>
+            </sc-for>
+            <span style="{{ footReqNoteStyle }}">{{ legalReqNote }}</span>
           </div>
         </div>
 
@@ -2393,20 +2385,21 @@ class Component extends DCLogic {
   // без звука, по кругу, ровно в тех же свайпах. Вертикальное, 9:16.
   FEEDD = [
     { k: 'a', svc: 'Создание сайтов', slot: 'wk-1', img: 'work/w1.webp',
-      video: 'feed/v1.mp4', poster: 'feed/v1-poster.jpg',
+      video: 'feed/w1.mp4', poster: 'feed/w1-poster.jpg',
       alt: 'Рабочее место: ноутбук с открытым первым экраном сайта бренда одежды', tag: 'Бренд одежды · сайт',
       title: 'Сайт, который не догнать',
       was: 'сайт не отличался от соседних в выдаче',
       now: 'партнёры пишут и спрашивают, кто делал',
       note: 'Партнёры пишут сами и спрашивают, кто делал дизайн.', rv: 0 },
     { k: 'e', svc: 'Автоматизация процессов', slot: 'wk-2', img: 'work/w2.webp',
+      video: 'feed/w2.mp4', poster: 'feed/w2-poster.jpg',
       alt: 'Ноутбук с воронкой заявок и панелью показателей на экране', tag: 'Оптовые продажи · сайт и автоматизация',
       title: 'Месяц после запуска = три предыдущих',
       was: 'заявки собирали руками из четырёх мессенджеров',
       now: 'форма → CRM → менеджер за 3 минуты',
       note: 'Первый месяц дал выручку трёх предыдущих.', rv: 1 },
     { k: 'g', svc: 'Бизнес под ключ', slot: 'wk-3', img: 'work/w3.webp',
-      video: 'feed/v2.mp4', poster: 'feed/v2-poster.jpg',
+      video: 'feed/w3.mp4', poster: 'feed/w3-poster.jpg',
       alt: 'Планшет на столе с открытой главной страницей рекламного агентства', tag: 'Рекламное агентство · сайт',
       title: 'Ссылку теперь скидывают первыми',
       was: 'на встречах старались быстрее закрыть вкладку',
@@ -2419,13 +2412,14 @@ class Component extends DCLogic {
       now: 'бот пишет, записывает и переносит сам',
       note: 'Запись, перенос, цены — без администратора на телефоне.', rv: 3 },
     { k: 'd', svc: 'Мобильные приложения', slot: 'wk-5', img: 'work/w5.webp',
+      video: 'feed/w4.mp4', poster: 'feed/w4-poster.jpg',
       alt: 'Три экрана мобильного приложения сервиса доставки', tag: 'Сервис доставки · приложение',
       title: 'Повторных заказов в два раза больше',
       was: 'возвращались единицы, и только после рассылки',
       now: 'повторных заказов вдвое больше — сами',
       note: 'Без рассылок и напоминаний — люди возвращаются сами.', rv: 4 },
     { k: 'b', svc: 'Брендинг и айдентика', slot: 'wk-6', img: 'work/w6.webp',
-      video: 'feed/v3.mp4', poster: 'feed/v3-poster.jpg',
+      video: 'feed/w5.mp4', poster: 'feed/w5-poster.jpg',
       alt: 'Фирменные носители: футболка, кружка, кепка и карточки со знаком БАЗЫ', tag: 'Айдентика',
       title: 'Узнают до первого слова', was: '', now: '',
       note: 'Имя, знак, цвет и тон голоса — один язык везде.', rv: -1 },
@@ -3273,6 +3267,70 @@ class Component extends DCLogic {
       p3: 'Сроки назвали в самом начале и попали в них без нервов. Для меня это уже фантастика' }
   ];
 
+  // ═══ КОММЕНТАРИИ ПОД РОЛИКАМИ ═════════════════════════════════════════
+  // Это не отзывы клиентов — это реакции зрителей на само видео, как в
+  // любой ленте. Отзывы заказчиков лежат отдельно, в RV, и их проверяет
+  // владелец. Здесь же живой разговор: вопросы, шутки, «а сколько стоит».
+  // Смешивать одно с другим нельзя: выдуманный отзыв клиента стоит дороже,
+  // чем отсутствие отзывов.
+  COM = {
+    a: [
+      { n: 'Кирилл', ini: 'К', ro: '', t: 'первый экран просто 🔥 сколько делали?', lk: 128 },
+      { n: 'nastya.wrk', ini: 'Н', ro: '', t: 'вот этот переход на карточках — как сделали? 👀', lk: 74 },
+      { n: 'Данил', ini: 'Д', ro: '', t: 'у меня магазин, хочу так же 🙌', lk: 61 },
+      { n: 'Ирина', ini: 'И', ro: '', t: 'шрифт огонь, что за гарнитура?', lk: 44 },
+      { n: 'mxm_design', ini: 'М', ro: '', t: 'наконец-то не очередной шаблон 💯', lk: 39 },
+      { n: 'Олег', ini: 'О', ro: '', t: 'на телефоне так же плавно? боюсь тормозов', lk: 27 },
+      { n: 'Света', ini: 'С', ro: '', t: 'забрала себе в сохранёнки 📌', lk: 18 }
+    ],
+    e: [
+      { n: 'Артём', ini: 'А', ro: '', t: 'вот это и есть автоматизация, а не табличка в экселе 👏', lk: 96 },
+      { n: 'Лена', ini: 'Л', ro: '', t: 'а с амо связывается? у нас всё там', lk: 58 },
+      { n: 'prodano.ru', ini: 'П', ro: '', t: 'сколько по времени такое внедрение?', lk: 41 },
+      { n: 'Виктор', ini: 'В', ro: '', t: 'у нас менеджеры вручную переносят, боль 😭', lk: 35 },
+      { n: 'Камиль', ini: 'К', ro: '', t: 'а если заявка ночью придёт?', lk: 22 },
+      { n: 'Оксана', ini: 'О', ro: '', t: 'отчёты сами собираются — вот это ценно 💯', lk: 17 }
+    ],
+    g: [
+      { n: 'Рустам', ini: 'Р', ro: '', t: 'под ключ — это прям под ключ? без «а это отдельно»? 🤔', lk: 112 },
+      { n: 'Алина', ini: 'А', ro: '', t: 'выглядит дорого 🔥 в хорошем смысле', lk: 67 },
+      { n: 'dev.ilya', ini: 'И', ro: '', t: 'на чём собрано? выглядит быстро', lk: 52 },
+      { n: 'Марина', ini: 'М', ro: '', t: 'а поддержка после запуска входит?', lk: 38 },
+      { n: 'Тимур', ini: 'Т', ro: '', t: 'вот так и должен выглядеть бизнес в 2026 🙌', lk: 29 },
+      { n: 'Женя', ini: 'Ж', ro: '', t: 'сохранил, буду показывать партнёру 📌', lk: 15 }
+    ],
+    f: [
+      { n: 'Саша', ini: 'С', ro: '', t: 'бот отвечает лучше моего админа, без обид 😅', lk: 143 },
+      { n: 'barber.one', ini: 'Б', ro: '', t: 'а он запись переносит сам? это главное', lk: 81 },
+      { n: 'Гуля', ini: 'Г', ro: '', t: 'ночью записываются? у нас такое постоянно 🌙', lk: 54 },
+      { n: 'Никита', ini: 'Н', ro: '', t: 'сколько стоит такой на салон?', lk: 46 },
+      { n: 'Эльвира', ini: 'Э', ro: '', t: 'клиенты не бесятся, что это бот?', lk: 33 },
+      { n: 'Пётр', ini: 'П', ro: '', t: 'вот это экономия на зарплате 💯', lk: 21 }
+    ],
+    d: [
+      { n: 'Глеб', ini: 'Г', ro: '', t: 'анимации внутри приложения очень приятные 🔥', lk: 88 },
+      { n: 'Диана', ini: 'Д', ro: '', t: 'и на андроид, и на айфон делаете?', lk: 63 },
+      { n: 'shop.maker', ini: 'Ш', ro: '', t: 'в сторы сами заливаете или мне самому?', lk: 47 },
+      { n: 'Роман', ini: 'Р', ro: '', t: 'повторные заказы ×2 — верю, интерфейс топ 👏', lk: 36 },
+      { n: 'Катя', ini: 'К', ro: '', t: 'push-уведомления не бесячие? это редкость', lk: 24 },
+      { n: 'Ильдар', ini: 'И', ro: '', t: 'сроки реально такие? 🤯', lk: 19 }
+    ],
+    b: [
+      { n: 'Полина', ini: 'П', ro: '', t: 'знак запоминается с первого раза 💯', lk: 74 },
+      { n: 'brand.lab', ini: 'Б', ro: '', t: 'гайдлайн отдаёте? или только макеты', lk: 52 },
+      { n: 'Захар', ini: 'З', ro: '', t: 'мерч тоже вы делали? кепка топ 🧢', lk: 41 },
+      { n: 'Милана', ini: 'М', ro: '', t: 'сколько вариантов на выбор даёте?', lk: 28 },
+      { n: 'Стас', ini: 'С', ro: '', t: 'вот это уровень, а не логотип за 5 тысяч 🔥', lk: 22 }
+    ],
+    c: [
+      { n: 'Вика', ini: 'В', ro: '', t: 'сетка профиля прям вылизанная 😍', lk: 97 },
+      { n: 'smm.dasha', ini: 'Д', ro: '', t: 'съёмку тоже вы организуете?', lk: 58 },
+      { n: 'Марк', ini: 'М', ro: '', t: 'контент-план на месяц вперёд — это сильно 👏', lk: 44 },
+      { n: 'Люда', ini: 'Л', ro: '', t: 'а если у меня совсем нет материала?', lk: 31 },
+      { n: 'Тоня', ini: 'Т', ro: '', t: 'ведёте под ключ или только настраиваете?', lk: 20 }
+    ]
+  };
+
   shift(d) {
     const N = this.RV.length;
     clearTimeout(this.jt);
@@ -3360,13 +3418,27 @@ class Component extends DCLogic {
 
   // Магнит: кнопка тянется к курсору, но не больше нескольких пикселей —
   // иначе это уже не «живая», а «убегающая» кнопка, по которой трудно попасть.
+  // Родной прямоугольник кнопки — без наложенного сдвига. Снимаем его,
+  // временно убрав transform: иначе получаем координаты уже уехавшей
+  // кнопки и следующий шаг считаем от них.
+  magHome(el) {
+    const prev = el.style.transform;
+    if (prev) el.style.transform = 'none';
+    const r = el.getBoundingClientRect();
+    if (prev) el.style.transform = prev;
+    return { cx: r.left + r.width / 2, cy: r.top + r.height / 2, w: r.width, h: r.height };
+  }
+
   magMove(el, e) {
     if (!el || !e || e.clientX == null) return;
-    const r = el.getBoundingClientRect();
-    if (!r.width) return;
-    const pull = Math.min(9, r.height * 0.26);
-    const dx = ((e.clientX - (r.left + r.width / 2)) / (r.width / 2)) * pull;
-    const dy = ((e.clientY - (r.top + r.height / 2)) / (r.height / 2)) * pull * 0.7;
+    // дом пересчитываем, если страница проехала под курсором
+    const sy = window.scrollY || 0;
+    let h = el.__mh;
+    if (!h || h.sy !== sy) { h = this.magHome(el); h.sy = sy; el.__mh = h; }
+    if (!h.w) return;
+    const pull = Math.min(10, h.h * 0.24);
+    const dx = Math.max(-1, Math.min(1, (e.clientX - h.cx) / (h.w / 2))) * pull;
+    const dy = Math.max(-1, Math.min(1, (e.clientY - h.cy) / (h.h / 2))) * pull * 0.62;
     el.style.transform = 'translate3d(' + dx.toFixed(2) + 'px,' + dy.toFixed(2) + 'px,0)';
   }
 
@@ -3395,13 +3467,18 @@ class Component extends DCLogic {
       this.swOrigin(el, e);
       on(el);
     };
+    const unmag = (t, rel) => {
+      const m = (t && t.closest) ? t.closest('[data-mag]') : null;
+      if (!m || (rel && m.contains(rel))) return;
+      m.style.transform = ''; m.__mh = null;
+    };
     const leave = (e) => {
       if (e.pointerType === 'touch') return;
+      unmag(e.target, e.relatedTarget);
       const el = hit(e.target);
       if (!el || (e.relatedTarget && el.contains(e.relatedTarget))) return;
       // Точку выхода ставим до снятия data-on: круг уже едет обратно к ней.
       this.swOrigin(el, e);
-      if (el.hasAttribute('data-mag')) el.style.transform = '';
       off(el);
     };
     this.onHovIn = enter; this.onHovOut = leave;
@@ -4355,12 +4432,12 @@ class Component extends DCLogic {
         }
         el.__lum = lum;
         if (lum > 0.45) {
-          el.style.setProperty('--sw-glow', 'rgba(10,10,10,0.2)');
-          el.style.setProperty('--sw-glow-2', 'rgba(10,10,10,0.075)');
+          el.style.setProperty('--sw-glow', 'rgba(10,10,10,0.46)');
+          el.style.setProperty('--sw-glow-2', 'rgba(10,10,10,0.2)');
           el.setAttribute('data-lit', 'on-light');
         } else {
-          el.style.setProperty('--sw-glow', 'rgba(242,235,221,0.5)');
-          el.style.setProperty('--sw-glow-2', 'rgba(242,235,221,0.19)');
+          el.style.setProperty('--sw-glow', 'rgba(242,235,221,0.72)');
+          el.style.setProperty('--sw-glow-2', 'rgba(242,235,221,0.3)');
           el.setAttribute('data-lit', 'on-dark');
         }
       }
@@ -5052,10 +5129,10 @@ class Component extends DCLogic {
         .then((d) => { this.mURL[u] = d; this.forceUpdate(); },
               () => { this.mURL[u] = url; this.forceUpdate(); });
     };
-    take('assets/logo-key-lg.webp').then(() => take('assets/logo.webp'));
+    take('assets/logo-baza-2x.webp');
     setTimeout(() => {
       let d = 0;
-      for (const u of ['assets/logo-key-lg.webp', 'assets/logo.webp']) {
+      for (const u of ['assets/logo-baza-2x.webp']) {
         if (!this.mURL[u]) { this.mURL[u] = this.rsrc(u); d = 1; }
       }
       if (d) this.forceUpdate();
@@ -9456,11 +9533,14 @@ class Component extends DCLogic {
       const out = [];
       const r = it.rv >= 0 ? this.RV[it.rv] : null;
       out.push({ n: 'БАЗА', ro: 'ответ студии', ini: 'Б', pin: 1, t: 'Что входит: ' + (SVCI[it.k] || []).join(' · ') + '.' });
-      if (r) [r.p1, r.p2, r.p3].forEach((t) => { if (t) out.push({ n: r.name, ro: r.co ? (r.role + ' · ' + r.co) : r.role, ini: r.ini, t: t }); });
+      if (r) [r.p1, r.p2, r.p3].forEach((t) => { if (t) out.push({ n: r.name, ro: r.co ? (r.role + ' · ' + r.co) : r.role, ini: r.ini, t: t, cl: 1 }); });
       else out.push({ n: 'БАЗА', ro: 'ответ студии', ini: 'Б', pin: 1, t: 'Работы по этому направлению под NDA — показываем в разговоре, вместе с цифрами и сроками.' });
+      for (const c of (this.COM[it.k] || [])) out.push({ n: c.n, ro: c.ro, ini: c.ini, t: c.t, lk: c.lk });
       return out;
     });
     const fRvN = (i) => (fAll[i] || []).filter((c) => !c.pin).length;
+    // сколько из них именно отзывов заказчика — по ним и подписан лист
+    const fClN = (i) => (fAll[i] || []).filter((c) => c.cl).length;
     const fCut = (t, n) => { const x = (t || '').replace(/\s+/g, ' ').trim(); return x.length > n ? x.slice(0, n).replace(/[\s,.:;!?—-]+$/, '') + '…' : x; };
     const fQuo = this.FEEDD.map((it) => {
       const r = it.rv >= 0 ? this.RV[it.rv] : null;
@@ -10634,6 +10714,8 @@ class Component extends DCLogic {
         ? 'Заявка сохранена, но канал связи сейчас не отвечает. Мы отправим её повторно, когда вы вернётесь на сайт, — а чтобы наверняка, продублируйте одним нажатием: текст уже в буфере обмена.'
         : 'Смотрим, где вырастут цифры. Увидим — напишем. Не увидим — скажем прямо.',
       verdict: this.VERDICT[cnt] || this.VERDICT[0],
+      // до первой отметки считать нечего — карточку не показываем вовсе
+      meterOn: cnt > 0,
       verdictTextStyle: {
         marginTop: '18px', minHeight: narrow ? '2.4em' : '3em',
         fontSize: narrow ? '14.5px' : '16px', lineHeight: 1.5,
@@ -10690,7 +10772,7 @@ class Component extends DCLogic {
       // от них оставалось пустое поле в пол-экрана.
       footLegalStyle: {
         display: 'grid',
-        gridTemplateColumns: narrow ? 'minmax(0, 1fr)' : 'repeat(3, minmax(0, 1fr))',
+        gridTemplateColumns: narrow ? 'minmax(0, 1fr)' : 'minmax(0, 1fr) minmax(0, 1fr)',
         gap: narrow ? '26px' : '20px clamp(28px, 4vw, 64px)',
         alignItems: 'start',
         paddingTop: 'clamp(22px, 3vh, 34px)',
@@ -10702,6 +10784,14 @@ class Component extends DCLogic {
         color: 'rgba(242,235,221,0.34)', marginBottom: '2px'
       },
       footReqRowStyle: { display: 'flex', gap: '8px', fontSize: '12.5px', lineHeight: 1.5, minWidth: 0 },
+      footReqNameStyle: {
+        fontSize: '13px', lineHeight: 1.5, fontWeight: 600, letterSpacing: '-0.01em',
+        color: 'rgba(242,235,221,0.82)', textWrap: 'pretty'
+      },
+      footReqNoteStyle: {
+        fontSize: '12.5px', lineHeight: 1.5, fontWeight: 450,
+        color: 'rgba(242,235,221,0.42)', textWrap: 'pretty'
+      },
       footReqKeyStyle: { flex: '0 0 auto', color: 'rgba(242,235,221,0.34)' },
       footReqValStyle: { minWidth: 0, color: 'rgba(242,235,221,0.62)', wordBreak: 'break-word' },
       // Ссылки идут в две колонки и держат высоту нажатия 40 px — палец
@@ -10733,6 +10823,10 @@ class Component extends DCLogic {
       },
       legalName: this.LEGAL.name,
       legalReq: this.LEGAL.req,
+      legalOwner: this.LEGAL.name,
+      // Пока владелец не вписал ИНН и ОГРНИП, колонка не притворяется
+      // заполненной, а честно говорит, где их взять.
+      legalReqNote: this.LEGAL.req.length ? '' : 'Полные реквизиты — по запросу в Telegram ' + this.LEGAL.tg + '.',
       legalYear: String(this.LEGAL.year),
       legalMade: 'Сделано в БАЗЕ · ' + this.LEGAL.year,
       // Копирайт и юридическая оговорка идут одной строкой: раньше оговорки
@@ -10825,7 +10919,7 @@ class Component extends DCLogic {
         display: 'block', width: '100%', height: '100%', opacity: 0.075,
         pointerEvents: 'none', WebkitUserDrag: 'none', userSelect: 'none', willChange: 'opacity'
       },
-      footMaskStyle: partMask('assets/logo.webp'),
+      footMaskStyle: partMask('assets/logo-baza-2x.webp'),
       footTorchStyle: {
         position: 'absolute', left: 0, top: 0, width: '1000px', height: '1000px',
         marginLeft: '-500px', marginTop: '-500px', borderRadius: '999px',
