@@ -546,7 +546,7 @@
     --sh-1: 0 2px 10px rgba(0,0,0,0.22);
     --sh-2: 0 10px 26px rgba(0,0,0,0.34);
     --sh-3: 0 18px 40px rgba(0,0,0,0.50);
-    --sh-4: 0 30px 80px rgba(0,0,0,0.62);
+    --sh-4: 0 30px 53px rgba(0,0,0,0.62);
 
     /* ——— ДВИЖЕНИЕ ——————————————————————————————————————————————— */
     --e-out:          cubic-bezier(.16,.84,.24,1);   /* основной выход */
@@ -767,7 +767,9 @@
        ничего. Отдельным слоем остаётся только подсветка под курсором —
        она действительно двигается. -->
   <div style="position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden;
-       background-color: #0a0a0a;
+       background-color: #0a0a0a;">
+    <div ref="{{ bgParRef }}" style="position: absolute; left: -4%; right: -4%; top: -8%; height: 116%; will-change: transform; background-image: url(&quot;/*__LB_ASSET:assets/bg-blur.webp__*/&quot;); background-size: cover; background-position: 50% 42%; opacity: 0.85;"></div>
+  <div style="position: absolute; inset: 0; pointer-events: none;
        background-image:
          url(&quot;data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20width='200'%20height='200'%3E%3Cfilter%20id='n'%3E%3CfeTurbulence%20type='fractalNoise'%20baseFrequency='0.9'%20numOctaves='3'/%3E%3C/filter%3E%3Crect%20width='200'%20height='200'%20filter='url%28%23n%29'%20opacity='0.32'/%3E%3C/svg%3E&quot;),
          radial-gradient(78% 62% at 50% 34%, rgba(10,10,10,0.22) 0%, rgba(10,10,10,0.62) 62%, rgba(10,10,10,0.86) 100%),
@@ -776,7 +778,7 @@
          radial-gradient(42% 38% at 16% 84%, #0d0d0d 0%, rgba(13,13,13,0) 72%),
          radial-gradient(40% 36% at 86% 58%, #0a0a0a 0%, rgba(10,10,10,0) 70%);
        background-size: 150px 150px, cover, cover, cover, cover, cover;
-       background-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;">
+       background-repeat: repeat, no-repeat, no-repeat, no-repeat, no-repeat, no-repeat;"></div>
     <div ref="{{ glowRef }}" style="position: absolute; left: 0; top: 0; width: 74vw; height: 74vw; margin-left: -37vw; margin-top: -37vw; border-radius: 999px; transform: translate3d(-160vw,0,0); will-change: transform; backface-visibility: hidden; opacity: 1; background: radial-gradient(closest-side, rgba(242,235,221,0.052) 0%, rgba(242,235,221,0.049) 9%, rgba(242,235,221,0.043) 18%, rgba(242,235,221,0.036) 27%, rgba(242,235,221,0.028) 36%, rgba(242,235,221,0.021) 45%, rgba(242,235,221,0.0145) 54%, rgba(242,235,221,0.0095) 63%, rgba(242,235,221,0.0056) 72%, rgba(242,235,221,0.0028) 81%, rgba(242,235,221,0.0010) 90%, rgba(242,235,221,0) 100%);"></div>
   </div>
 
@@ -1093,6 +1095,20 @@
         </button>
 
         <div style="{{ fBodyStyle }}">
+          <div style="{{ fAsideStyle }}">
+            <span style="{{ fAsideCapStyle }}">{{ fAsideCap }}</span>
+            <div style="{{ fAsideTitleStyle }}">{{ fWorkTitle }}</div>
+            <div style="{{ fAsideNoteStyle }}">{{ fWorkNote }}</div>
+            <div style="{{ fAsideTagsStyle }}">
+              <sc-for list="{{ fAsideTags }}" as="t" hint-placeholder-count="5">
+                <span style="{{ fAsideTagStyle }}">{{ t }}</span>
+              </sc-for>
+            </div>
+            <a href="#brief" data-sw="light" data-press="1" data-mag="1" sc-camel-on-click="{{ goBrief }}" style="{{ fAsideCtaStyle }}" style-hover="border-color: rgba(242,235,221,0.52);">
+              <span>Собрать такой же</span>
+              <svg data-ar="1" sc-camel-view-box="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex: 0 0 auto;" aria-hidden="true"><path d="M5 12h13M12.5 6.5l5.5 5.5-5.5 5.5"></path></svg>
+            </a>
+          </div>
           <div ref="{{ fStageRef }}" style="{{ fStageStyle }}">
             <div ref="{{ fViewRef }}" data-feedwheel="1" sc-camel-tab-index="0" aria-label="Лента работ и отзывов" style="{{ fViewStyle }}">
               <sc-for list="{{ feed }}" as="f" hint-placeholder-count="7">
@@ -1462,50 +1478,38 @@
 
 
 
+    <!-- ═══ УСЛОВИЯ ══════════════════════════════════════════════════
+         Здесь стояли «мы не возьмёмся, если» и «что обычно происходит
+         дальше»: два ящика с мелким текстом, которые читались как отказ
+         и как продажа следующего этапа. Вместо них — четыре условия,
+         которые человек хочет услышать до того, как напишет: сколько
+         платить вперёд, меняется ли смета, когда он увидит правки и что
+         будет после запуска. Одна строка, крупная цифра, знак внутри
+         текста. -->
     <section style="width: 100%; padding: 0 var(--gut); max-width: var(--maxw); margin: 0 auto; box-sizing: border-box;">
-      <!-- ── ФИЛЬТР И ЛЕСТНИЦА ────────────────────────────────────────────
-           Оба блока раньше были абзацами: три длинные строки слева и
-           четыре справа. Читать их никто не будет.
-           Слева — три знака «не берёмся» с перечёркнутым рисунком, справа —
-           лестница из четырёх ступеней. Смысл виден до того, как человек
-           начнёт читать подписи. -->
-      <div style="{{ twoColStyle }}">
-        <div data-reveal="1" data-rdist="30" style="{{ filterCardStyle }}">
-          <span style="{{ blockCapStyle }}">фильтр</span>
-          <h3 data-words="1" style="{{ blockH3Style }}">Мы не возьмёмся, если</h3>
-          <div style="{{ noFitGridStyle }}">
-            <sc-for list="{{ noFits }}" as="x" hint-placeholder-count="3">
-              <div style="{{ x.card }}">
-                <span style="{{ noFitArtStyle }}">
-                  <svg viewBox="0 0 48 48" width="34" height="34" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display: block;">
-                    <sc-for list="{{ x.shapes }}" as="d" hint-placeholder-count="2">
+      <div style="{{ termsHeadStyle }}">
+        <h2 data-words="1" style="{{ termsH2Style }}">Условия, которые <span data-hl="1" style="font-style: italic; font-weight: 600; letter-spacing: -0.03em; color: #f2ebdd;">не поплывут</span></h2>
+        <p data-reveal="1" data-rdist="20" style="{{ termsLeadStyle }}">{{ termsLead }}</p>
+      </div>
+
+      <div style="{{ termsGridStyle }}">
+        <sc-for list="{{ terms }}" as="t" hint-placeholder-count="4">
+          <div data-reveal="1" data-rd="{{ t.delay }}" data-rdist="26" style="{{ t.row }}">
+            <span style="{{ t.num }}">{{ t.numText }}</span>
+            <span style="{{ t.body }}">
+              <span style="{{ t.title }}">{{ t.titleText }}</span>
+              <span style="{{ t.note }}">
+                <span style="{{ t.chip }}">
+                  <svg sc-camel-view-box="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display: block;">
+                    <sc-for list="{{ t.ico }}" as="d" hint-placeholder-count="1">
                       <path sc-camel-d="{{ d }}"></path>
                     </sc-for>
                   </svg>
-                  <span style="{{ noFitSlashStyle }}"></span>
-                </span>
-                <span style="{{ noFitTitleStyle }}">{{ x.title }}</span>
-                <span style="{{ noFitSubStyle }}">{{ x.sub }}</span>
-              </div>
-            </sc-for>
+                </span>{{ t.noteText }}
+              </span>
+            </span>
           </div>
-          <p style="{{ blockNoteStyle }}">Не понты: в таких проектах мы не даём результат, за который берём деньги.</p>
-        </div>
-
-        <div data-reveal="1" data-rd="110" data-rdist="30" style="{{ nextCardStyle }}">
-          <span style="{{ blockCapStyle }}">после запуска</span>
-          <h3 data-words="1" style="{{ blockH3Style }}">Что обычно происходит дальше</h3>
-          <div style="{{ ladderStyle }}">
-            <sc-for list="{{ nextSteps }}" as="x" hint-placeholder-count="4">
-              <div style="{{ x.step }}">
-                <span style="{{ x.bar }}"></span>
-                <span style="{{ x.head }}">{{ x.headText }}</span>
-                <span style="{{ x.tail }}">{{ x.tailText }}</span>
-              </div>
-            </sc-for>
-          </div>
-          <p style="{{ blockNoteStyle }}">Пакетом заранее не продаём — говорим, когда придёт время следующего шага.</p>
-        </div>
+        </sc-for>
       </div>
     </section>
 
@@ -2104,6 +2108,23 @@ class Component extends DCLogic {
       cta: 'Обсудить сопровождение' }
   ];
 
+  // Четыре условия, которые чаще всего спрашивают до начала работы.
+  // Знак у каждого — тот же язык линий, что и во всей мелкой графике.
+  TERMS = [
+    { title: "Половина вперёд, половина на сдаче",
+      note: "Смета фиксируется до старта. Вырос объём — сначала считаем и согласуем, потом делаем.",
+      ico: ["M12 3v18", "M7 7.5h7a2.5 2.5 0 0 1 0 5H8a2.5 2.5 0 0 0 0 5h7"] },
+    { title: "Правки на второй неделе, а не на сдаче",
+      note: "Каждую пятницу — ссылка на рабочую версию. Спорное видно рано, когда переделать дёшево.",
+      ico: ["M4 12.5l5 5L20 6.5"] },
+    { title: "Месяц поддержки входит в цену",
+      note: "После запуска месяц правим и доводим без отдельного счёта. Дальше — по желанию.",
+      ico: ["M12 3l7.5 3.5v5c0 4.6-3.2 8.3-7.5 9.5-4.3-1.2-7.5-4.9-7.5-9.5v-5z"] },
+    { title: "Исходники и доступы — ваши",
+      note: "Код, макеты, домен и аналитика оформлены на вас. Уйти от нас можно в любой день.",
+      ico: ["M15.5 8.5a3.5 3.5 0 1 1-4.9 3.2L5 17.3V20h3l.8-.8V17.5h1.7l1.3-1.3v-1.6h1.6l1-1a3.5 3.5 0 0 0 1.1-5.1z"] }
+  ];
+
   // ═══ КАРТА МАРШРУТА ═══════════════════════════════════════════════════
   // Четыре острова присланной иллюстрации. bubbleUp говорит, с какой
   // стороны у острова висит пузырь: текст всегда встаёт с другой.
@@ -2525,6 +2546,20 @@ class Component extends DCLogic {
       id: 'lb-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8),
       code: Math.random().toString(36).slice(2, 6).toUpperCase(),
       ts: new Date().toISOString(),
+      visit: (() => {
+        const sec = Math.round((performance.now ? performance.now() : 0) / 1000);
+        const seen = [];
+        try {
+          for (const el of document.querySelectorAll('section[id]')) if (el.__seen) seen.push(el.id);
+        } catch (e) {}
+        return {
+          sec: sec,
+          seen: seen,
+          feed: (this.fSeen ? Array.from(this.fSeen) : []),
+          deep: Math.round(((window.scrollY || 0) + window.innerHeight) / Math.max(1, document.documentElement.scrollHeight) * 100),
+          dev: (window.innerWidth < 760 ? 'телефон' : (window.innerWidth < 1080 ? 'планшет' : 'компьютер')) + ' ' + window.innerWidth + '×' + window.innerHeight
+        };
+      })(),
       reco: (this.TIERS.find((t) => t.k === this.recoKey()) || {}).name || '',
       recoPrice: (this.TIERS.find((t) => t.k === this.recoKey()) || {}).price || '',
       name: (st.name || '').trim(),
@@ -2698,6 +2733,13 @@ class Component extends DCLogic {
     }
     if (p.reco) L.push('Сайт рекомендовал: ' + p.reco + (p.recoPrice ? ' — ' + p.recoPrice : ''));
     L.push('—————————————');
+    if (p.visit) {
+      const v = p.visit, m = Math.floor(v.sec / 60), c = v.sec % 60;
+      L.push('На сайте: ' + (m ? m + ' мин ' : '') + c + ' с, дочитал до ' + v.deep + ' %');
+      if (v.seen && v.seen.length) L.push('Смотрел разделы: ' + v.seen.join(', '));
+      if (v.feed && v.feed.length) L.push('Работы в ленте: ' + v.feed.join(', '));
+      L.push('Устройство: ' + v.dev);
+    }
     L.push('Источник: ' + this.leadWhereFrom(p));
     L.push('Время: ' + this.leadWhen(p));
     if (p.consent) {
@@ -2744,6 +2786,19 @@ class Component extends DCLogic {
     const url = (this.LEAD || {}).endpoint;
     if (!url) return Promise.resolve(false);
     return this.leadPost(url, p);
+  }
+
+  // Доставка без обработчика: текст в буфер и открытый чат. Лучше так,
+  // чем заявка, которая молча лежит в localStorage посетителя.
+  leadHandoff(p) {
+    const t = this.leadText(p);
+    let copied = false;
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(t); copied = true; }
+    } catch (e) {}
+    const user = (this.LEAD || {}).tgUser || 'lllbaza';
+    try { window.open('https://t.me/' + user, '_blank', 'noopener'); } catch (e) {}
+    return copied;
   }
 
   // при заходе добиваем всё, что не ушло в прошлый раз
@@ -3057,7 +3112,11 @@ class Component extends DCLogic {
         if (!el || this.dgOn) return;
         const h = el.clientHeight || 1;
         const i = Math.max(0, Math.min(this.fN() - 1, Math.round(el.scrollTop / h)));
-        if (i !== (this.state.fi || 0)) this.setState({ fi: i, fCom: this.state.narrow ? 0 : this.state.fCom });
+        if (i !== (this.state.fi || 0)) {
+          const it = this.FEEDD[Math.max(0, Math.min(this.FEEDD.length - 1, i))];
+          if (it) (this.fSeen || (this.fSeen = new Set())).add(it.svc);
+          this.setState({ fi: i, fCom: this.state.narrow ? 0 : this.state.fCom });
+        }
       });
     };
     v.addEventListener('scroll', this.fOnScroll, { passive: true });
@@ -3184,6 +3243,7 @@ class Component extends DCLogic {
     if (i !== (this.state.fi || 0)) this.fJump(i, true);
     if (this.state.narrow) { this.setState({ fi: i, fCom: 1 }); return; }
     // на широком экране панель уже открыта: ведём к первому отзыву и подсвечиваем её
+    { const it = this.FEEDD[Math.max(0, Math.min(this.FEEDD.length - 1, i))]; if (it) (this.fSeen || (this.fSeen = new Set())).add(it.svc); }
     this.setState({ fi: i, fCom: 1, fPulse: 1 });
     clearTimeout(this.fPT);
     this.fPT = setTimeout(() => this.setState({ fPulse: 0 }), 900);
@@ -4708,6 +4768,7 @@ class Component extends DCLogic {
       // завеса действует только пока сцена реально стоит на экране
       if (veil > 0 && r.top < veil && r.bottom > 0) continue;
       n.__shown = 1;
+      { const sec = n.closest && n.closest('section[id]'); if (sec) sec.__seen = 1; }
       n.style.transitionDelay = (n.dataset.rd || 0) + 'ms';
       n.style.opacity = '1';
       n.style.transform = 'none';
@@ -4958,10 +5019,14 @@ class Component extends DCLogic {
     }
     this.mapSvgEl.innerHTML = '<svg viewBox="' + M.vb + '" '
       + 'preserveAspectRatio="xMidYMid meet" aria-hidden="true" style="display:block;width:100%;height:auto">'
-      + '<path d="' + M.base + '" fill="rgba(242,235,221,0.1)" stroke="rgba(242,235,221,0.28)" '
-      + 'stroke-width="0.55" stroke-linejoin="round"></path>'
-      + '<path d="' + M.hot + '" fill="rgba(242,235,221,0.3)" stroke="rgba(242,235,221,0.62)" '
-      + 'stroke-width="0.8" stroke-linejoin="round"></path>'
+      // Страны, где мы не работали, раньше спорили с теми, где работали:
+      // заливка 0.1 против 0.3 и рамка 0.28 против 0.62 — разница невелика,
+      // и глаз читал всю карту разом. Теперь фон почти уходит в тень, а
+      // свои страны светятся и держат тонкий контур.
+      + '<path d="' + M.base + '" fill="rgba(242,235,221,0.035)" stroke="rgba(242,235,221,0.1)" '
+      + 'stroke-width="0.4" stroke-linejoin="round"></path>'
+      + '<path d="' + M.hot + '" fill="rgba(242,235,221,0.46)" stroke="#f2ebdd" '
+      + 'stroke-width="0.9" stroke-linejoin="round" style="filter:drop-shadow(0 0 3px rgba(242,235,221,0.35))"></path>'
       + '<g fill="none" stroke="#f2ebdd" stroke-width="1.1" stroke-linecap="round">' + arcs + '</g></svg>';
     this.arcEls = Array.prototype.slice.call(this.mapSvgEl.querySelectorAll('[data-arc]'));
     this.pinPos = M.pins.map((p) => ({ x: p[0], y: p[1] }));
@@ -5754,6 +5819,13 @@ class Component extends DCLogic {
         this.footTorchEl.style.opacity = o.toFixed(3);
         this.footImgEl.style.opacity = (0.075 + 0.075 * o).toFixed(3);
       }
+    }
+    // Фон живёт своей скоростью: сдвиг в четырнадцать раз меньше хода
+    // страницы. Движение заметно краем глаза и не спорит с текстом.
+    if (this.bgParEl) {
+      const sy = window.scrollY || 0;
+      const v = (-sy * 0.07).toFixed(1);
+      if (this.bgParEl.__p !== v) { this.bgParEl.__p = v; this.bgParEl.style.transform = 'translate3d(0,' + v + 'px,0)'; }
     }
     if (this.moved && this.mapRoadEl && this.mapEl) {
       // Дорога прочерчивается ровно настолько, насколько блок вошёл в кадр:
@@ -8005,7 +8077,7 @@ class Component extends DCLogic {
         border: '1px solid ' + cream(0.11),
         backgroundColor: '#0e0e0d',
         backgroundImage: 'radial-gradient(120% 90% at 50% -10%, rgba(242,235,221,0.07) 0%, rgba(242,235,221,0) 62%)',
-        boxShadow: '0 40px 110px rgba(0,0,0,0.6), inset 0 1px 0 ' + cream(0.05)
+        boxShadow: '0 40px 61px rgba(0,0,0,0.6), inset 0 1px 0 ' + cream(0.05)
       },
       cBarStyle: {
         display: 'grid', gridTemplateColumns: '44px minmax(0, 1fr) 44px',
@@ -8990,14 +9062,22 @@ class Component extends DCLogic {
     // не переходим, а переписываем адрес: обновление или «назад» отдадут
     // обычную страницу, а человек не теряет то, что только что собрал.
     this.goThanks();
-    this.leadSend(p).then((ok) => {
-      if (ok) { this.leadDrop(p.id); this.track('form_delivered', {}); }
-      else this.track('form_undelivered', {});
-      this.setState({ sent: true, sending: false, sendOk: ok ? 1 : -1 });
-    }, () => {
-      this.track('form_undelivered', {});
-      this.setState({ sent: true, sending: false, sendOk: -1 });
-    });
+    // Нет обработчика — не бросаем заявку в браузере: отдаём её человеку
+    // в руки текстом и открываем чат. Доедет в любом случае.
+    if (!(this.LEAD || {}).endpoint) {
+      const copied = this.leadHandoff(p);
+      this.track('form_handoff', { copied: copied ? 1 : 0 });
+      this.setState({ sent: true, sending: false, sendOk: copied ? 2 : -1 });
+    } else {
+      this.leadSend(p).then((ok) => {
+        if (ok) { this.leadDrop(p.id); this.track('form_delivered', {}); }
+        else this.track('form_undelivered', {});
+        this.setState({ sent: true, sending: false, sendOk: ok ? 1 : -1 });
+      }, () => {
+        this.track('form_undelivered', {});
+        this.setState({ sent: true, sending: false, sendOk: -1 });
+      });
+    }
     // экран благодарности не ждёт сеть дольше полутора секунд
     clearTimeout(this.sentT);
     this.sentT = setTimeout(() => { if (!this.state.sent) this.setState({ sent: true }); }, 1500);
@@ -9400,7 +9480,7 @@ class Component extends DCLogic {
       borderRadius: narrow ? '26px' : '32px',
       border: '1px solid rgba(242,235,221,0.15)',
       background: 'linear-gradient(158deg, #191919 0%, #111111 56%, #0b0b0b 100%)',
-      boxShadow: 'inset 0 1px 0 rgba(242,235,221,0.08), 0 -30px 80px rgba(0,0,0,0.78)',
+      boxShadow: 'inset 0 1px 0 rgba(242,235,221,0.08), 0 -30px 53px rgba(0,0,0,0.78)',
       transformOrigin: '50% 0%', willChange: 'transform'
     });
     const svcIco = (k) => {
@@ -9591,6 +9671,7 @@ class Component extends DCLogic {
       isNarrow: !!(narrow || this.mob),
       isWide: !(narrow || this.mob),
       glowRef: this._gwR || (this._gwR = (el) => { if (el) this.glowEl = el; }),
+      bgParRef: this._bgR || (this._bgR = (el) => { if (el) this.bgParEl = el; }),
       metrics: MET,
       svc: { a: svcBlock('a'), b: svcBlock('b'), c: svcBlock('c'), d: svcBlock('d'), e: svcBlock('e'), f: svcBlock('f'), g: svcBlock('g') },
       svcNumStyle: {
@@ -9670,7 +9751,7 @@ class Component extends DCLogic {
         border: '1px solid rgba(242,235,221,0.11)', backgroundColor: 'rgba(22,22,22,0.9)',
         backgroundImage: 'linear-gradient(180deg, rgba(242,235,221,0.05), rgba(242,235,221,0) 60%)',
         backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)',
-        boxShadow: 'inset 0 1px 0 rgba(242,235,221,0.1), 0 26px 64px rgba(0,0,0,0.58)',
+        boxShadow: 'inset 0 1px 0 rgba(242,235,221,0.1), 0 26px 49px rgba(0,0,0,0.58)',
         opacity: st.mHelp ? 1 : 0, pointerEvents: st.mHelp ? 'auto' : 'none',
         transform: st.mHelp ? 'translateY(0) scale(1)' : 'translateY(12px) scale(0.97)',
         transformOrigin: '0% 100%',
@@ -9752,7 +9833,7 @@ class Component extends DCLogic {
         maxHeight: narrow ? '92vh' : '84vh', display: 'flex', flexDirection: 'column',
         background: '#111', border: '1px solid rgba(242,235,221,0.11)',
         borderRadius: narrow ? '26px 26px 0 0' : '26px',
-        boxShadow: '0 30px 90px rgba(0,0,0,0.6)', overflow: 'hidden',
+        boxShadow: '0 30px 56px rgba(0,0,0,0.6)', overflow: 'hidden',
         transform: legalOn ? 'translateY(0)' : 'translateY(' + (narrow ? 34 : 18) + 'px)',
         transition: 'transform ' + (legalOn ? 520 : 220) + 'ms ' + EZ
       },
@@ -10480,7 +10561,7 @@ class Component extends DCLogic {
         padding: narrow ? '24px 22px' : 'clamp(26px, 2.4vw, 38px)',
         borderRadius: narrow ? '24px' : '30px',
         border: '1px solid ' + CREAM, background: CREAM, color: '#0a0a0a',
-        boxShadow: '0 26px 70px rgba(0,0,0,0.5)',
+        boxShadow: '0 26px 51px rgba(0,0,0,0.5)',
         transition: 'transform 560ms ' + EZ + ', border-color 320ms ease'
       },
       calcLureLeftStyle: { display: 'flex', flexDirection: 'column', gap: '9px', minWidth: 0, flex: '1 1 auto' },
@@ -10583,38 +10664,6 @@ class Component extends DCLogic {
       },
 
       // ═══ ФИЛЬТР И ЧТО ДАЛЬШЕ ═════════════════════════════════════════
-      twoColStyle: {
-        display: 'grid',
-        gridTemplateColumns: narrow ? 'minmax(0, 1fr)' : 'repeat(auto-fit, minmax(min(100%, 380px), 1fr))',
-        gap: 'clamp(14px, 1.6vw, 24px)', alignItems: 'stretch'
-      },
-      blockCapStyle: {
-        fontSize: '11px', fontWeight: 700, letterSpacing: '0.2em', textTransform: 'uppercase',
-        color: 'rgba(242,235,221,0.52)'
-      },
-      blockH3Style: {
-        margin: '10px 0 0', fontSize: narrow ? '25px' : 'clamp(26px, 2.9vw, 42px)',
-        lineHeight: 1.04, letterSpacing: '-0.038em', fontWeight: 600, color: CREAM, textWrap: 'balance'
-      },
-      blockNoteStyle: {
-        margin: 'auto 0 0', paddingTop: '16px', borderTop: '1px solid rgba(242,235,221,0.1)',
-        fontSize: '13px', lineHeight: 1.5, fontWeight: 500,
-        color: 'rgba(242,235,221,0.52)', textWrap: 'pretty'
-      },
-      filterCardStyle: {
-        boxSizing: 'border-box', display: 'flex', flexDirection: 'column',
-        padding: narrow ? '24px 20px' : 'clamp(26px, 2.4vw, 38px)',
-        borderRadius: narrow ? '24px' : '30px',
-        border: '1px solid rgba(242,235,221,0.12)',
-        background: 'linear-gradient(160deg, #161616, #0d0d0d 68%)'
-      },
-      nextCardStyle: {
-        boxSizing: 'border-box', display: 'flex', flexDirection: 'column',
-        padding: narrow ? '24px 20px' : 'clamp(26px, 2.4vw, 38px)',
-        borderRadius: narrow ? '24px' : '30px',
-        border: '1px solid rgba(242,235,221,0.12)',
-        background: 'linear-gradient(160deg, rgba(242,235,221,0.06), rgba(242,235,221,0.012) 70%)'
-      },
       filterListStyle: { display: 'flex', flexDirection: 'column', gap: '13px', margin: 'clamp(20px, 2.4vh, 28px) 0 clamp(20px, 2.4vh, 28px)' },
       filterRowStyle: {
         display: 'flex', alignItems: 'flex-start', gap: '13px',
@@ -10629,51 +10678,11 @@ class Component extends DCLogic {
       // Перечёркнутый рисунок, два слова заголовка и одна строка пояснения.
       // Длинные формулировки лежат в NOFIT и остались для смысла, но на
       // экран идёт то, что читается за секунду.
-      noFits: this.NOFIT.map((n, i) => ({
-        title: n.t, sub: n.s, shapes: n.art,
-        card: {
-          display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '9px',
-          boxSizing: 'border-box', minWidth: 0,
-          padding: narrow ? '14px' : '16px',
-          borderRadius: 'var(--r-md)',
-          border: '1px solid rgba(242,235,221,0.1)',
-          background: 'rgba(242,235,221,0.025)',
-          animation: 'lb-pop-a 520ms cubic-bezier(.19,1,.22,1) ' + (i * 80) + 'ms both'
-        }
-      })),
-      noFitGridStyle: {
-        display: 'grid',
-        gridTemplateColumns: narrow ? 'minmax(0, 1fr)' : 'repeat(3, minmax(0, 1fr))',
-        gap: narrow ? '10px' : '12px',
-        margin: 'clamp(20px, 2.4vh, 28px) 0 clamp(18px, 2.2vh, 26px)'
-      },
       // Косая черта поверх рисунка — знак запрета, который понятен без слов.
-      noFitArtStyle: {
-        position: 'relative', display: 'inline-flex', color: 'rgba(242,235,221,0.5)'
-      },
-      noFitSlashStyle: {
-        position: 'absolute', left: '50%', top: '50%', width: '38px', height: '2px',
-        marginLeft: '-19px', marginTop: '-1px', borderRadius: '2px',
-        background: 'var(--acc-red)', transform: 'rotate(-45deg)', transformOrigin: 'center',
-        boxShadow: '0 0 0 2px rgba(10,10,10,0.85)'
-      },
-      noFitTitleStyle: {
-        fontSize: narrow ? '15px' : '16px', fontWeight: 600, letterSpacing: '-0.02em',
-        lineHeight: 1.2, color: CREAM, textWrap: 'pretty'
-      },
-      noFitSubStyle: {
-        fontSize: '12.5px', lineHeight: 1.45, color: 'rgba(242,235,221,0.5)', textWrap: 'pretty'
-      },
 
       // ── ЛЕСТНИЦА ПОСЛЕ ЗАПУСКА ──────────────────────────────────────
       // Четыре ступени, каждая выше предыдущей: рост виден формой, а не
       // словами «потом стало больше».
-      ladderStyle: {
-        display: 'grid',
-        gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
-        alignItems: 'end', gap: narrow ? '7px' : '10px',
-        margin: 'clamp(20px, 2.4vh, 28px) 0 clamp(18px, 2.2vh, 26px)'
-      },
       nextSteps: this.NEXTS.map((x, i) => ({
         headText: x[0],
         tailText: this.NEXTSHORT[i] || '',
@@ -10710,9 +10719,11 @@ class Component extends DCLogic {
         border: '1px solid rgba(10,10,10,0.22)', background: 'transparent', color: '#0a0a0a',
         fontSize: '14px', fontWeight: 600, letterSpacing: '-0.01em'
       },
-      sentText: st.sendOk === -1
-        ? 'Заявка сохранена, но канал связи сейчас не отвечает. Мы отправим её повторно, когда вы вернётесь на сайт, — а чтобы наверняка, продублируйте одним нажатием: текст уже в буфере обмена.'
-        : 'Смотрим, где вырастут цифры. Увидим — напишем. Не увидим — скажем прямо.',
+      sentText: st.sendOk === 2
+        ? 'Мы открыли чат в Telegram, а заявку положили в буфер обмена — вставьте её и нажмите «отправить». Так она точно дойдёт.'
+        : (st.sendOk === -1
+          ? 'Заявка сохранена, но канал связи сейчас не отвечает. Мы отправим её повторно, когда вы вернётесь на сайт, — а чтобы наверняка, продублируйте одним нажатием: текст уже в буфере обмена.'
+          : 'Смотрим, где вырастут цифры. Увидим — напишем. Не увидим — скажем прямо.'),
       verdict: this.VERDICT[cnt] || this.VERDICT[0],
       // до первой отметки считать нечего — карточку не показываем вовсе
       meterOn: cnt > 0,
@@ -11292,7 +11303,7 @@ class Component extends DCLogic {
         perspective: '1400px', perspectiveOrigin: '50% 46%'
       } : {
         position: 'relative', display: 'flex', minWidth: 0, minHeight: 0,
-        flexDirection: 'row', gap: 'clamp(14px, 1.6vw, 24px)',
+        flexDirection: 'row', justifyContent: 'center',
         // высота считается от окна за вычетом шапки и заголовка секции:
         // раньше телефон свешивался за нижний край на ноутбуках 900px
         flex: '0 0 auto', height: 'min(88vh, 1040px)', minHeight: '560px'
@@ -11302,7 +11313,7 @@ class Component extends DCLogic {
         overflow: 'hidden', isolation: 'isolate',
         borderRadius: '30px', border: 'none', background: '#0a0a0a',
         transformOrigin: '50% 46%', willChange: 'transform',
-        boxShadow: '0 34px 80px rgba(0,0,0,0.66)'
+        boxShadow: '0 34px 53px rgba(0,0,0,0.66)'
       } : {
         position: 'relative', boxSizing: 'border-box', overflow: 'hidden', isolation: 'isolate',
         flex: '0 0 auto', minWidth: 0, minHeight: 0, width: 'auto', height: '100%',
@@ -11466,10 +11477,12 @@ class Component extends DCLogic {
         boxShadow: fi >= this.FEEDD.length - 1 ? '0 0 0 4px rgba(242,235,221,0.08)' : 'none',
         transition: 'border-color 520ms ease, box-shadow 620ms ' + EZ
       },
+      // завеса теперь работает и на большом экране: отзывы всплывают
+      // поверх ролика, и клик мимо листа его закрывает
       fVeilStyle: {
-        position: 'absolute', inset: 0, zIndex: 5, display: narrow ? 'block' : 'none',
+        position: 'absolute', inset: 0, zIndex: 5, display: 'block',
         background: 'rgba(10,10,10,0.55)',
-        opacity: st.fCom ? 1 : 0, pointerEvents: (narrow && st.fCom) ? 'auto' : 'none',
+        opacity: st.fCom ? 1 : 0, pointerEvents: st.fCom ? 'auto' : 'none',
         transition: 'opacity 420ms ease', cursor: 'pointer'
       },
       fSheetStyle: narrow ? {
@@ -11480,11 +11493,19 @@ class Component extends DCLogic {
         transform: st.fCom ? 'translate3d(0,0,0)' : 'translate3d(0,101%,0)',
         transition: 'transform 520ms ' + EZ
       } : {
-        position: 'relative', flex: '1 1 auto', minWidth: 0, height: '100%',
-        boxSizing: 'border-box', display: 'flex', flexDirection: 'column', overflow: 'hidden',
-        background: '#111', borderRadius: '30px',
-        border: '1px solid ' + (st.fPulse ? 'rgba(242,235,221,0.4)' : 'rgba(242,235,221,0.12)'),
-        transition: 'border-color 620ms ' + EZ
+        // окно отзывов лежит поверх самой карточки и той же ширины:
+        // карточка 9:16, значит и лист 9:16, выезжает снизу на 76 %
+        position: 'absolute', zIndex: 6, top: 0, left: '50%',
+        height: '100%', aspectRatio: '9 / 16',
+        boxSizing: 'border-box', display: 'flex', flexDirection: 'column',
+        overflow: 'hidden', pointerEvents: st.fCom ? 'auto' : 'none',
+        background: '#131313', borderRadius: '30px',
+        border: '1px solid rgba(242,235,221,0.14)',
+        clipPath: 'inset(24% 0 0 0 round 30px)', willChange: 'transform',
+        transform: st.fCom
+          ? 'translate3d(-50%,0,0)'
+          : 'translate3d(-50%,101%,0)',
+        transition: 'transform 520ms ' + EZ
       },
       fSheetHeadStyle: {
         flex: '0 0 auto', display: 'flex', flexDirection: 'column', alignItems: 'stretch',
@@ -11508,6 +11529,41 @@ class Component extends DCLogic {
         boxSizing: 'border-box', width: '34px', height: '34px', padding: 0, borderRadius: '999px',
         border: '1px solid rgba(242,235,221,0.2)', background: 'transparent', color: CREAM,
         cursor: 'pointer', outline: 'none', transition: 'border-color 320ms ease'
+      },
+      // Разбор кейса слева от ролика: на телефоне его нет — там карточка
+      // занимает экран целиком.
+      fAsideStyle: {
+        display: narrow ? 'none' : 'flex', flexDirection: 'column', alignItems: 'flex-start',
+        justifyContent: 'center', gap: '14px',
+        flex: '1 1 0', minWidth: 0, maxWidth: 'clamp(280px, 30vw, 420px)',
+        paddingRight: 'clamp(16px, 2.4vw, 44px)'
+      },
+      fAsideCapStyle: {
+        fontSize: '10.5px', fontWeight: 700, letterSpacing: '0.17em',
+        textTransform: 'uppercase', color: 'rgba(242,235,221,0.42)'
+      },
+      fAsideCap: fWork.svc,
+      fAsideTitleStyle: {
+        fontSize: 'clamp(24px, 2.4vw, 38px)', fontWeight: 600, letterSpacing: '-0.035em',
+        lineHeight: 1.06, color: CREAM, textWrap: 'balance'
+      },
+      fAsideNoteStyle: {
+        fontSize: '14px', lineHeight: 1.55, fontWeight: 450,
+        color: 'rgba(242,235,221,0.6)', textWrap: 'pretty'
+      },
+      fAsideTagsStyle: { display: 'flex', flexWrap: 'wrap', gap: '6px', marginTop: '2px' },
+      fAsideTagStyle: {
+        padding: '5px 11px', borderRadius: 'var(--r-pill)',
+        border: '1px solid rgba(242,235,221,0.12)', background: 'rgba(242,235,221,0.03)',
+        fontSize: '11.5px', lineHeight: 1.3, fontWeight: 500, color: 'rgba(242,235,221,0.6)'
+      },
+      fAsideTags: fWorkTags.map((t) => (t && typeof t === 'object') ? (t.label || t.name || t.text || '') : t),
+      fAsideCtaStyle: {
+        display: 'inline-flex', alignItems: 'center', gap: '10px', marginTop: '4px',
+        padding: '12px 20px', borderRadius: 'var(--r-pill)',
+        border: '1px solid rgba(242,235,221,0.2)', background: 'transparent',
+        color: CREAM, fontSize: '13.5px', fontWeight: 600, letterSpacing: '-0.01em',
+        textDecoration: 'none', position: 'relative', isolation: 'isolate', overflow: 'hidden'
       },
       fWorkStyle: {
         display: narrow ? 'none' : 'flex', flexDirection: 'column', gap: '11px', flex: '0 0 auto',
@@ -11879,6 +11935,57 @@ class Component extends DCLogic {
 
       mapRef: this._mpR || (this._mpR = (el) => { if (el) this.mapEl = el; }),
       mapPathRef: this._mrR || (this._mrR = (el) => { if (el) { this.mapRoadEl = el.querySelector('[data-road]'); this.roadClipEl = el.querySelector('[data-roadclip]'); } }),
+      // ─── УСЛОВИЯ ───────────────────────────────────────────────────
+      // Четыре строки, ради которых человек и пишет: предоплата, смета,
+      // правки, поддержка. Знак стоит прямо в строке — так подпись
+      // читается за один взгляд, а не разбивается на иконку и текст.
+      termsHeadStyle: { display: "flex", flexDirection: "column", alignItems: "flex-start", gap: "14px" },
+      termsH2Style: {
+        margin: 0, maxWidth: "15ch", fontSize: "clamp(30px, 4.6vw, 68px)", lineHeight: 0.99,
+        letterSpacing: "-0.035em", fontWeight: 600, textWrap: "balance"
+      },
+      termsLeadStyle: {
+        margin: 0, maxWidth: "48ch", fontSize: narrow ? "15px" : "clamp(15px, 1.4vw, 18px)",
+        lineHeight: 1.55, fontWeight: 500, color: "rgba(242,235,221,0.6)", textWrap: "pretty"
+      },
+      termsLead: "Это написано до того, как вы напишете нам, а не после подписания.",
+      termsGridStyle: {
+        display: "grid", gridTemplateColumns: narrow ? "minmax(0, 1fr)" : "repeat(2, minmax(0, 1fr))",
+        gap: narrow ? "2px" : "0 clamp(28px, 4vw, 72px)",
+        marginTop: "clamp(26px, 4vh, 48px)"
+      },
+      terms: this.TERMS.map((t, i) => ({
+        numText: String(i + 1).padStart(2, "0"),
+        titleText: t.title, noteText: " " + t.note, ico: t.ico, delay: i * 80,
+        row: {
+          display: "grid", gridTemplateColumns: "auto minmax(0, 1fr)",
+          alignItems: "start", gap: narrow ? "14px" : "18px",
+          padding: narrow ? "18px 0" : "22px 0",
+          borderTop: "1px solid rgba(242,235,221,0.1)"
+        },
+        num: {
+          fontVariantNumeric: "tabular-nums", fontFeatureSettings: '"tnum" 1',
+          fontSize: narrow ? "12px" : "13px", fontWeight: 700, letterSpacing: "0.06em",
+          lineHeight: 1.6, color: "rgba(242,235,221,0.34)"
+        },
+        body: { display: "flex", flexDirection: "column", gap: "6px", minWidth: 0 },
+        title: {
+          fontSize: narrow ? "17px" : "clamp(17px, 1.6vw, 21px)", fontWeight: 600,
+          letterSpacing: "-0.025em", lineHeight: 1.2, color: "#f2ebdd", textWrap: "balance"
+        },
+        note: {
+          fontSize: narrow ? "13px" : "13.5px", lineHeight: 1.6, fontWeight: 450,
+          color: "rgba(242,235,221,0.6)", textWrap: "pretty"
+        },
+        // знак-фишка прямо в строке текста
+        chip: {
+          display: "inline-flex", alignItems: "center", justifyContent: "center",
+          width: "22px", height: "22px", marginRight: "2px", verticalAlign: "-6px",
+          borderRadius: "7px", border: "1px solid rgba(242,235,221,0.16)",
+          background: "rgba(242,235,221,0.06)", color: "rgba(242,235,221,0.82)"
+        }
+      })),
+
       // ─── КАРТА МАРШРУТА ────────────────────────────────────────────
       // Четыре острова из присланной иллюстрации. Пузырь у первого и
       // третьего сверху, у второго и четвёртого снизу — значит и текст
