@@ -62,6 +62,12 @@ function score(p) {
   n += Math.min(2, (p.pains || []).length);
   n += Math.min(2, (p.symptoms || []).length);
   if (p.name) n += 1;
+  // Поведение на сайте — такой же сигнал, как ответы в форме: тот, кто
+  // просидел десять минут и дочитал до конца, греется сильнее случайного.
+  const v = p.visit || {};
+  if ((v.sec | 0) >= 300) n += 2; else if ((v.sec | 0) >= 120) n += 1;
+  if ((v.deep | 0) >= 80) n += 1;
+  if ((v.feed || []).length >= 3) n += 1;
   if (n >= 7) return { ico: '🔥', label: 'ГОРЯЧАЯ ЗАЯВКА' };
   if (n >= 4) return { ico: '⚡', label: 'ТЁПЛАЯ ЗАЯВКА' };
   return { ico: '🌱', label: 'ЗАЯВКА' };
@@ -147,9 +153,33 @@ function render(p) {
       + (p.recoPrice ? ' — ' + clean(p.recoPrice, 40) : ''));
   }
 
+  // Как человек вёл себя до заявки. Это не служебное: по времени,
+  // глубине и списку разделов сразу видно, с чего начинать разговор.
+  const v = p.visit;
+  if (v && typeof v === 'object') {
+    const sec = Math.max(0, v.sec | 0);
+    const mm = Math.floor(sec / 60), ss = sec % 60;
+    L.push('');
+    L.push('👀 <b>КАК ВЁЛ СЕБЯ НА САЙТЕ</b>');
+    L.push('Провёл <b>' + (mm ? mm + ' мин ' : '') + ss + ' с</b>, дочитал до <b>' + Math.max(0, Math.min(100, v.deep | 0)) + ' %</b>');
+    if (Array.isArray(v.seen) && v.seen.length) {
+      L.push('Разделы: <i>' + v.seen.slice(0, 12).map((x) => clean(x, 24)).join(' → ') + '</i>');
+    }
+    if (Array.isArray(v.feed) && v.feed.length) {
+      L.push('Смотрел работы: <i>' + v.feed.slice(0, 10).map((x) => clean(x, 24)).join(', ') + '</i>');
+    }
+    if (v.dev) L.push('Устройство: <b>' + clean(v.dev, 40) + '</b>');
+  }
+
   L.push('');
   L.push(RULE);
   L.push('📍 ' + whereFrom(p) + '  ·  🕓 ' + when(p));
+  // Согласия — не формальность: без первого заявку обрабатывать нельзя,
+  // а второе решает, можно ли слать этому человеку что-то помимо ответа.
+  if (p.consent && typeof p.consent === 'object') {
+    L.push('📄 Согласие на ПД: <b>' + (p.consent.pd ? 'да' : 'НЕТ') + '</b>'
+      + '  ·  реклама: <b>' + (p.consent.ads ? 'разрешил' : 'не разрешил') + '</b>');
+  }
   return L.join('\n');
 }
 

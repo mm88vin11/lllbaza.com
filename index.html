@@ -2103,6 +2103,13 @@ class Component extends DCLogic {
   // Значение подставляет build/set-lead.mjs, руками его трогать не нужно.
   LEAD = { endpoint: '', tgUser: 'lllbaza' };
 
+  // Идентификаторы секций владельцу ничего не говорят. В заявку уходят те
+  // же слова, что стоят в шапке сайта, — их видно без расшифровки.
+  SECNAME = {
+    about: 'о нас', services: 'что делаем', pricing: 'цены',
+    projects: 'проекты', brief: 'конфигуратор'
+  };
+
   // ═══ АНАЛИТИКА ════════════════════════════════════════════════════════
   // Поставьте номер счётчика — цели поедут сами: quiz_started,
   // quiz_completed, pricing_viewed, entry_clicked, form_step1, form_step2,
@@ -2594,7 +2601,7 @@ class Component extends DCLogic {
         const sec = Math.round((performance.now ? performance.now() : 0) / 1000);
         const seen = [];
         try {
-          for (const el of document.querySelectorAll('section[id]')) if (el.__seen) seen.push(el.id);
+          for (const el of document.querySelectorAll('section[id]')) if (el.__seen) seen.push(this.SECNAME[el.id] || el.id);
         } catch (e) {}
         return {
           sec: sec,
