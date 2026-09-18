@@ -600,6 +600,7 @@
     94%,100% { clip-path: inset(100% 0 0 0); }
   }
   @keyframes lb-ring-turn { to { transform: rotate(360deg); } }
+  @keyframes lb-desk-nudge { 0%, 100% { transform: translateX(-1.5px); } 50% { transform: translateX(1.5px); } }
   [data-ringspin] { animation: lb-ring-turn 24s linear infinite; }
   @media (prefers-reduced-motion: reduce) {
     [data-ringspin] { animation: none; }
@@ -1282,69 +1283,76 @@
       <h2 data-words="1" style="margin: 0; max-width: 16ch; font-size: clamp(32px, 5.4vw, 84px); line-height: 0.96; letter-spacing: -0.04em; font-weight: 600; text-wrap: balance;">Сколько это <span data-hl="1" style="font-style: italic; font-weight: 600; letter-spacing: -0.03em; color: #f2ebdd;">стоит</span></h2>
       <p data-words="1" data-wd="120" style="margin: 18px 0 0; max-width: 54ch; font-size: clamp(16px, 1.6vw, 20px); line-height: 1.55; font-weight: 500; color: rgba(242,235,221,0.62); text-wrap: pretty;">Вилка — что именно меняется от денег. Точную цифру соберёт конфигуратор.</p>
 
-      <div data-reveal="1" data-rdist="24" style="{{ scaleWrapStyle }}">
-        <div style="{{ scaleHeadStyle }}">
-          <span style="{{ scaleCapStyle }}">вилка</span>
-          <span style="{{ scaleNoteStyle }}">Потяните — увидите, что меняется.</span>
-        </div>
+      <!-- ── РЕГУЛЯТОР ЦЕНЫ ───────────────────────────────────────────
+           Ползунок был правильный по сути, но выглядел как чертёж: тонкая
+           линия и подписи. Человек не понимал, что его можно тянуть, и что
+           вообще меняется.
+           Стало: прибор. Слева крупная цифра, которая пересчитывается
+           прямо под рукой, справа тяжёлая ручка на рельсе с четырьмя
+           станциями. Чем выше уровень, тем ярче светится панель и тем
+           длиннее список того, что входит. Тянуть можно за ручку, за
+           рельс и стрелками с клавиатуры. -->
+      <div data-reveal="1" data-rdist="24" style="{{ deskStyle }}">
+        <div style="{{ deskGlowStyle }}" aria-hidden="true"></div>
 
-        <div style="{{ poleRowStyle }}">
-          <div data-reveal="1" data-rdist="22" style="{{ poleLowStyle }}">
-            <span style="{{ poleCapStyle }}">нижняя граница</span>
-            <span style="{{ poleTitleStyle }}">Экономить на своём продукте</span>
-            <span style="{{ poleTextStyle }}">Готовые механики, без съёмки. Работать будет.</span>
+        <div style="{{ deskTopStyle }}">
+          <div style="{{ deskReadStyle }}">
+            <span style="{{ deskCapStyle }}">{{ forkCap }}</span>
+            <div style="{{ deskSumStyle }}">
+              <span style="{{ deskFromStyle }}">{{ forkFrom }}</span>
+              <span data-forknum="1" style="{{ deskNumStyle }}">25 000</span>
+              <span style="{{ deskCurStyle }}">₽</span>
+            </div>
+            <span style="{{ deskBaseStyle }}">{{ forkBase }}</span>
+            <span style="{{ deskNameStyle }}">{{ forkName }}</span>
+            <span style="{{ deskTermStyle }}">{{ forkTerm }}</span>
           </div>
-          <span style="{{ poleArrowStyle }}" aria-hidden="true">
-            <svg sc-camel-view-box="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16M14 6.5l6 5.5-6 5.5"></path></svg>
-          </span>
-          <div data-reveal="1" data-rd="90" data-rdist="22" style="{{ poleHighStyle }}">
-            <span style="{{ poleCapStyle }}">верхняя граница</span>
-            <span style="{{ poleTitleStyle }}">Сделать прям как у топов</span>
-            <span style="{{ poleTextStyle }}">Своя съёмка, свои механики, команда после запуска.</span>
+
+          <div style="{{ deskSideStyle }}">
+            <span style="{{ deskHintStyle }}">
+              <span style="{{ deskHintIcoStyle }}">
+                <svg sc-camel-view-box="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display: block;"><path d="M8 7.5L4.5 12 8 16.5M16 7.5l3.5 4.5-3.5 4.5"></path></svg>
+              </span>Тяните — цифра считается на глазах
+            </span>
+            <span style="{{ deskCutStyle }}">{{ forkCut }}</span>
           </div>
         </div>
 
-        <div style="{{ forkRailStyle }}">
-          <span style="{{ forkTrackStyle }}"></span>
-          <span style="{{ forkFillStyle }}"></span>
-          <span style="{{ forkKnobStyle }}"></span>
-          <input type="range" min="0" max="3" step="1" value="{{ pickVal }}"
-                 sc-camel-on-input="{{ onPick }}" sc-camel-on-change="{{ onPick }}"
-                 aria-label="Ориентир по бюджету" data-fork="1" style="{{ forkInputStyle }}">
-        </div>
-
-        <div style="{{ forkRailTicksStyle }}">
-          <sc-for list="{{ forkTicks }}" as="t" hint-placeholder-count="4">
+        <div ref="{{ railRef }}" style="{{ railWrapStyle }}">
+          <span style="{{ railTrackStyle }}"></span>
+          <sc-for list="{{ railTicks }}" as="t" hint-placeholder-count="4">
             <span style="{{ t.style }}"></span>
           </sc-for>
+          <span style="{{ railFillStyle }}"></span>
+          <span style="{{ railKnobStyle }}">
+            <span style="{{ railKnobLineStyle }}"></span>
+            <span style="{{ railKnobLineStyle }}"></span>
+            <span style="{{ railKnobLineStyle }}"></span>
+          </span>
+          <input type="range" min="0" max="3" step="1" value="{{ pickVal }}"
+                 sc-camel-on-input="{{ onPick }}" sc-camel-on-change="{{ onPick }}"
+                 aria-label="Уровень проекта" data-fork="1" style="{{ forkInputStyle }}">
         </div>
 
         <div style="{{ forkStopsStyle }}">
           <sc-for list="{{ forkStops }}" as="s" hint-placeholder-count="4">
             <button type="button" data-press="1" sc-camel-on-click="{{ s.pick }}" style="{{ s.wrap }}">
+              <span style="{{ s.dot }}"></span>
               <span style="{{ s.val }}">{{ s.label }}</span>
               <span style="{{ s.nameStyle }}">{{ s.name }}</span>
             </button>
           </sc-for>
         </div>
 
-        <div style="{{ forkPanelStyle }}">
-          <div style="{{ forkSumStyle }}">
-            <span style="{{ forkSumCapStyle }}">{{ forkCap }}</span>
-            <span style="{{ forkSumPriceStyle }}">{{ forkName }}</span>
-            <span style="{{ forkSumTermStyle }}">{{ forkTerm }}</span>
-            <span style="{{ forkCutStyle }}">{{ forkCut }}</span>
-          </div>
-          <div style="{{ forkListStyle }}">
-            <sc-for list="{{ forkRows }}" as="r" hint-placeholder-count="8">
-              <span style="{{ r.row }}">
-                <span style="{{ r.mark }}">
-                  <svg sc-camel-view-box="0 0 24 24" width="12" height="12" style="{{ r.ico }}" aria-hidden="true"><path sc-camel-d="{{ r.path }}" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                </span>
-                <span style="{{ r.text }}">{{ r.label }}</span>
+        <div style="{{ deskListStyle }}">
+          <sc-for list="{{ forkRows }}" as="r" hint-placeholder-count="8">
+            <span style="{{ r.row }}">
+              <span style="{{ r.mark }}">
+                <svg sc-camel-view-box="0 0 24 24" width="12" height="12" style="{{ r.ico }}" aria-hidden="true"><path sc-camel-d="{{ r.path }}" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
               </span>
-            </sc-for>
-          </div>
+              <span style="{{ r.text }}">{{ r.label }}</span>
+            </span>
+          </sc-for>
         </div>
       </div>
 
@@ -1523,276 +1531,292 @@
     <section id="brief" style="{{ cSecStyle }}">
       <div ref="{{ cTopRef }}" style="{{ cAppStyle }}">
 
-        <!-- ── ПАНЕЛЬ ─────────────────────────────────────────────── -->
-        <div data-reveal="1" data-rdist="18" style="{{ cBarStyle }}">
-          <button type="button" data-press="1" onClick="{{ cBack }}" aria-label="Шаг назад" style="{{ cBarBtnStyle }}" style-hover="border-color: rgba(242,235,221,0.52);">
-            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
-          </button>
-          <div style="{{ cBarTitleWrapStyle }}">
-            <span style="{{ cBarTitleStyle }}">{{ cBarTitle }}</span>
-            <span style="{{ cBarSubStyle }}">{{ cBarSub }}</span>
-          </div>
-          <button type="button" data-press="1" onClick="{{ cOpenSpec }}" aria-label="Что входит в сборку" style="{{ cBarInfoStyle }}" style-hover="border-color: rgba(242,235,221,0.52);">
-            <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5.5M12 7.6v.1"></path></svg>
-          </button>
+        <!-- ── ШАПКА ──────────────────────────────────────────────────
+             Заголовок стоял внутри правой колонки и слово в слово повторял
+             строку шага. Теперь он один и общий: два крыла живут под ним. -->
+        <div data-reveal="1" data-rdist="16" style="{{ cHeadStyle }}">
+          <span style="{{ cHeroCapStyle }}">{{ cHeroCap }}</span>
+          <h2 style="{{ cHeroTitleStyle }}">{{ cHeroTitle }}</h2>
+          <span style="{{ cHeroSubStyle }}">{{ cHeroSub }}</span>
         </div>
 
-        <sc-if value="{{ cDraft }}">
-          <div style="{{ cDraftStyle }}">
-            <span style="{{ cDraftDotStyle }}"></span>
-            <button type="button" data-press="1" onClick="{{ cDraftBack }}" style="{{ cDraftBtnStyle }}">{{ cDraftText }}</button>
-            <button type="button" data-press="1" onClick="{{ cDraftDrop }}" style="{{ cDraftDropStyle }}">{{ cT.draftDrop }}</button>
-          </div>
-        </sc-if>
-
-        <!-- ── СТЕНД СБОРКИ + ЦЕНА ────────────────────────────────── -->
-        <div data-reveal="1" data-rd="90" data-rdist="26" style="{{ cHeroStyle }}">
+        <!-- ── ПРАВОЕ КРЫЛО: ВЕРСТАК ──────────────────────────────────
+             Крафт-сетка, цифра сборки и три характеристики — вилка, срок
+             и команда. Всё, что меняется от галочек слева, видно здесь,
+             не сходя с экрана: это и есть правая половина наброска. -->
+        <div data-reveal="1" data-rd="90" data-rdist="22" style="{{ cRightStyle }}">
           <div onMouseMove="{{ cStageMove }}" onMouseLeave="{{ cStageLeave }}" style="{{ cStageWrapStyle }}">
             <canvas ref="{{ cStageRef }}" aria-hidden="true" style="{{ cStageStyle }}"></canvas>
-            <span style="{{ cStageHintStyle }}">{{ cStageHint }}</span>
+          </div>
+          <span style="{{ cStageHintStyle }}">{{ cStageHint }}</span>
+
+          <button type="button" data-press="1" onClick="{{ cOpenSpec }}" style="{{ cPriceBtnStyle }}" style-hover="color: #f2ebdd;">
+            <span style="{{ cPriceRowStyle }}">
+              <span data-cfgn="lo" style="{{ cNumStyle }}">—</span>
+              <span style="{{ cPriceDashStyle }}">—</span>
+              <span data-cfgn="hi" style="{{ cNumStyle }}">—</span>
+              <span style="{{ cPriceCurStyle }}">₽</span>
+            </span>
+            <span style="{{ cPriceMetaStyle }}">{{ cPriceMeta }}</span>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style="{{ cPriceChevStyle }}"><path d="M9 5l7 7-7 7"></path></svg>
+          </button>
+          <span style="{{ cPegStyle }}"><span style="{{ cPegDotStyle }}"></span><span>{{ cPegText }}</span></span>
+
+          <!-- ── ХАРАКТЕРИСТИКИ ────────────────────────────────────────
+               Три шкалы, которые двигаются, пока человек собирает: вилка,
+               срок и размер команды. Это тот же приём, что в карточке
+               машины, — цифра рядом с полосой понятнее, чем цифра одна. -->
+          <div style="{{ cSpecLinesStyle }}">
+            <sc-for list="{{ cSpecLines }}" as="l" hint-placeholder-count="3">
+              <div style="{{ cSpecLineRowStyle }}">
+                <span style="{{ cSpecLineHeadStyle }}">
+                  <span style="{{ cSpecLineCapStyle }}">{{ l.cap }}</span>
+                  <span style="{{ cSpecLineValStyle }}">{{ l.val }}</span>
+                </span>
+                <span style="{{ cSpecLineRailStyle }}"><span style="{{ l.fill }}"></span></span>
+              </div>
+            </sc-for>
           </div>
 
-          <div style="{{ cHeroTextStyle }}">
-            <span style="{{ cHeroCapStyle }}">{{ cHeroCap }}</span>
-            <h2 style="{{ cHeroTitleStyle }}">{{ cHeroTitle }}</h2>
-            <span style="{{ cHeroSubStyle }}">{{ cHeroSub }}</span>
-            <button type="button" data-press="1" onClick="{{ cOpenSpec }}" style="{{ cPriceBtnStyle }}" style-hover="color: #f2ebdd;">
-              <span style="{{ cPriceRowStyle }}">
-                <span data-cfgn="lo" style="{{ cNumStyle }}">—</span>
-                <span style="{{ cPriceDashStyle }}">—</span>
-                <span data-cfgn="hi" style="{{ cNumStyle }}">—</span>
-                <span style="{{ cPriceCurStyle }}">₽</span>
-              </span>
-              <span style="{{ cPriceMetaStyle }}">{{ cPriceMeta }}</span>
-              <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style="{{ cPriceChevStyle }}"><path d="M9 5l7 7-7 7"></path></svg>
-            </button>
-            <span style="{{ cPegStyle }}"><span style="{{ cPegDotStyle }}"></span><span>{{ cPegText }}</span></span>
+          <span style="{{ cSrStyle }}" aria-live="polite">{{ cPriceSr }}</span>
 
-            <!-- ── ХАРАКТЕРИСТИКИ ────────────────────────────────────────
-                 Три шкалы, которые двигаются, пока человек собирает: вилка,
-                 срок и размер команды. Это тот же приём, что в карточке
-                 машины, — цифра рядом с полосой понятнее, чем цифра одна. -->
-            <div style="{{ cSpecLinesStyle }}">
-              <sc-for list="{{ cSpecLines }}" as="l" hint-placeholder-count="3">
-                <div style="{{ cSpecLineRowStyle }}">
-                  <span style="{{ cSpecLineHeadStyle }}">
-                    <span style="{{ cSpecLineCapStyle }}">{{ l.cap }}</span>
-                    <span style="{{ cSpecLineValStyle }}">{{ l.val }}</span>
-                  </span>
-                  <span style="{{ cSpecLineRailStyle }}"><span style="{{ l.fill }}"></span></span>
-                </div>
-              </sc-for>
-            </div>
-
-            <span style="{{ cSrStyle }}" aria-live="polite">{{ cPriceSr }}</span>
-          </div>
+          <button type="button" data-press="1" onClick="{{ cOpenSpec }}" style="{{ cRightBarStyle }}" style-hover="border-color: rgba(242,235,221,0.42);">
+            <span style="{{ cRightBarTextStyle }}">{{ cRightBarText }}</span>
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style="flex: 0 0 auto;"><path d="M5 12h13M12.5 6.5l5.5 5.5-5.5 5.5"></path></svg>
+          </button>
         </div>
 
-        <!-- ── ШАГИ ───────────────────────────────────────────────── -->
-        <div ref="{{ stepsWrapRef }}" style="{{ stepsWrapStyle }}">
+        <!-- ── ЛЕВОЕ КРЫЛО: ЧТО СОБИРАЕМ ─────────────────────────────
+             Панель шага, сами шаги и строка-подсказка внизу. -->
+        <div style="{{ cLeftStyle }}">
 
-          <!-- ─ 1. Что собираем ─────────────────────────────────── -->
-          <div ref="{{ cS1Ref }}" style="{{ cS1Style }}">
-            <div style="{{ cCapRowStyle }}"><span style="{{ cCapStyle }}">{{ cT.steps.0 }}</span><span style="{{ cCapHintStyle }}">{{ cT.stepHints.0 }}</span></div>
-            <div style="{{ cTilesStyle }}">
-              <sc-for list="{{ cDirs }}" as="d" hint-placeholder-count="6">
-                <button type="button" data-press="1" onClick="{{ d.pick }}" aria-pressed="{{ d.on }}" style="{{ d.tileStyle }}" style-hover="border-color: rgba(242,235,221,0.52);">
-                  <span style="{{ d.artStyle }}"></span>
-                  <span style="{{ d.nameStyle }}">{{ d.name }}</span>
-                  <span style="{{ d.whyStyle }}">{{ d.why }}</span>
-                  <span style="{{ d.priceStyle }}">{{ d.price }}</span>
-                  <span style="{{ d.markStyle }}">
-                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style="{{ d.checkStyle }}"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
-                  </span>
-                </button>
-              </sc-for>
+          <!-- ── ПАНЕЛЬ ШАГА ──────────────────────────────────────── -->
+          <div data-reveal="1" data-rdist="18" style="{{ cBarStyle }}">
+            <button type="button" data-press="1" onClick="{{ cBack }}" aria-label="Шаг назад" style="{{ cBarBtnStyle }}" style-hover="border-color: rgba(242,235,221,0.52);">
+              <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"></path></svg>
+            </button>
+            <div style="{{ cBarTitleWrapStyle }}">
+              <span style="{{ cBarTitleStyle }}">{{ cBarTitle }}</span>
+              <span style="{{ cBarSubStyle }}">{{ cBarSub }}</span>
             </div>
-            <div style="{{ cComboStyle }}"><span style="{{ cComboDotStyle }}"></span><span style="{{ cComboTextStyle }}">{{ cComboText }}</span></div>
+            <button type="button" data-press="1" onClick="{{ cOpenSpec }}" aria-label="Что входит в сборку" style="{{ cBarInfoStyle }}" style-hover="border-color: rgba(242,235,221,0.52);">
+              <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5.5M12 7.6v.1"></path></svg>
+            </button>
           </div>
 
-          <!-- ─ 2. Сборка ─────────────────────────────────── -->
-          <div ref="{{ cS2Ref }}" style="{{ cS2Style }}">
-            <div style="{{ cTabsWrapStyle }}">
-              <div data-hscroll="1" style="{{ cTabsStyle }}">
-                <sc-for list="{{ cTabs }}" as="t" hint-placeholder-count="2">
-                  <button type="button" data-press="1" onClick="{{ t.pick }}" aria-pressed="{{ t.on }}" style="{{ t.style }}">
-                    <span style="{{ t.artStyle }}"></span>
-                    <span>{{ t.name }}</span>
-                    <span style="{{ t.priceStyle }}">{{ t.price }}</span>
+          <sc-if value="{{ cDraft }}">
+            <div style="{{ cDraftStyle }}">
+              <span style="{{ cDraftDotStyle }}"></span>
+              <button type="button" data-press="1" onClick="{{ cDraftBack }}" style="{{ cDraftBtnStyle }}">{{ cDraftText }}</button>
+              <button type="button" data-press="1" onClick="{{ cDraftDrop }}" style="{{ cDraftDropStyle }}">{{ cT.draftDrop }}</button>
+            </div>
+          </sc-if>
+
+          <!-- ── ШАГИ ─────────────────────────────────────────────── -->
+          <div ref="{{ stepsWrapRef }}" style="{{ stepsWrapStyle }}">
+
+            <!-- ─ 1. Что собираем ─────────────────────────────────── -->
+            <div ref="{{ cS1Ref }}" style="{{ cS1Style }}">
+              <div style="{{ cTilesStyle }}">
+                <sc-for list="{{ cDirs }}" as="d" hint-placeholder-count="6">
+                  <button type="button" data-press="1" onClick="{{ d.pick }}" aria-pressed="{{ d.on }}" style="{{ d.tileStyle }}" style-hover="border-color: rgba(242,235,221,0.52);">
+                    <span style="{{ d.artStyle }}"></span>
+                    <span style="{{ d.nameStyle }}">{{ d.name }}</span>
+                    <span style="{{ d.whyStyle }}">{{ d.why }}</span>
+                    <span style="{{ d.priceStyle }}">{{ d.price }}</span>
+                    <span style="{{ d.markStyle }}">
+                      <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style="{{ d.checkStyle }}"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+                    </span>
                   </button>
                 </sc-for>
               </div>
+              <div style="{{ cComboStyle }}"><span style="{{ cComboDotStyle }}"></span><span style="{{ cComboTextStyle }}">{{ cComboText }}</span></div>
             </div>
 
-            <div data-hscroll="1" style="{{ cOptRowStyle }}">
-              <sc-for list="{{ cOpts }}" as="o" hint-placeholder-count="6">
-                <div style="{{ o.cardStyle }}">
-                  <span style="{{ o.icoStyle }}"></span>
-                  <span style="{{ o.nameStyle }}">{{ o.name }}</span>
-                  <span style="{{ o.whyStyle }}">{{ o.why }}</span>
-
-                  <sc-if value="{{ o.isSw }}">
-                    <button type="button" data-press="1" role="switch" aria-checked="{{ o.on }}" aria-label="{{ o.aria }}" onClick="{{ o.toggle }}" style="{{ o.pillStyle }}">
-                      <span style="{{ o.pillTextStyle }}">{{ o.pillText }}</span>
-                      <span style="{{ o.pillMarkStyle }}">
-                        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style="{{ o.pillCheckStyle }}"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
-                        <span style="{{ o.pillPlusStyle }}">+</span>
-                      </span>
+            <!-- ─ 2. Сборка ─────────────────────────────────── -->
+            <div ref="{{ cS2Ref }}" style="{{ cS2Style }}">
+              <div style="{{ cTabsWrapStyle }}">
+                <div data-hscroll="1" style="{{ cTabsStyle }}">
+                  <sc-for list="{{ cTabs }}" as="t" hint-placeholder-count="2">
+                    <button type="button" data-press="1" onClick="{{ t.pick }}" aria-pressed="{{ t.on }}" style="{{ t.style }}">
+                      <span style="{{ t.artStyle }}"></span>
+                      <span>{{ t.name }}</span>
+                      <span style="{{ t.priceStyle }}">{{ t.price }}</span>
                     </button>
-                  </sc-if>
-
-                  <sc-if value="{{ o.isSeg }}">
-                    <button type="button" data-press="1" onClick="{{ o.cycle }}" onKeyDown="{{ o.key }}" aria-label="{{ o.aria }}" style="{{ o.pillStyle }}">
-                      <span style="{{ o.pillTextStyle }}">{{ o.valText }}</span>
-                      <span style="{{ o.pillMarkStyle }}">
-                        <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg>
-                      </span>
-                    </button>
-                    <div style="{{ o.dotsStyle }}">
-                      <sc-for list="{{ o.dots }}" as="p" hint-placeholder-count="3"><span style="{{ p.style }}"></span></sc-for>
-                    </div>
-                  </sc-if>
-
-                  <sc-if value="{{ o.isMulti }}">
-                    <div style="{{ o.multiRowStyle }}">
-                      <sc-for list="{{ o.items }}" as="v" hint-placeholder-count="3">
-                        <button type="button" data-press="1" aria-pressed="{{ v.on }}" onClick="{{ v.pick }}" style="{{ v.style }}">{{ v.n }}</button>
-                      </sc-for>
-                    </div>
-                  </sc-if>
-
-                  <sc-if value="{{ o.isNum }}">
-                    <div style="{{ o.numRowStyle }}">
-                      <button type="button" data-press="1" aria-label="{{ o.ariaMinus }}" onClick="{{ o.dec }}" style="{{ o.stepStyle }}">−</button>
-                      <span style="{{ o.numValStyle }}"><span style="{{ o.numDigitStyle }}">{{ o.val }}</span><span style="{{ o.numUnitStyle }}">{{ o.unit }}</span></span>
-                      <button type="button" data-press="1" aria-label="{{ o.ariaPlus }}" onClick="{{ o.inc }}" style="{{ o.stepStyle }}">+</button>
-                      <input type="range" min="{{ o.min }}" max="{{ o.max }}" step="{{ o.step }}" value="{{ o.val }}" onInput="{{ o.slide }}" onChange="{{ o.slide }}" aria-label="{{ o.aria }}" style="{{ o.rangeStyle }}">
-                    </div>
-                  </sc-if>
-
-                  <span style="{{ o.deltaStyle }}">{{ o.delta }}</span>
+                  </sc-for>
                 </div>
-              </sc-for>
-            </div>
-            <sc-if value="{{ cNoDirs }}">
-              <div style="{{ cEmptyStyle }}">
-                <span style="{{ cEmptyTitleStyle }}">{{ cT.empty }}</span>
-                <span style="{{ cEmptyNoteStyle }}">{{ cT.emptyNote }}</span>
               </div>
-            </sc-if>
-          </div>
 
-          <!-- ─ 3. Режим работы ─────────────────────────────────── -->
-          <div ref="{{ cS3Ref }}" style="{{ cS3Style }}">
-            <div style="{{ cRowsStyle }}">
-              <sc-for list="{{ cModes }}" as="m" hint-placeholder-count="3">
-                <div style="{{ m.wrapStyle }}">
-                  <button type="button" data-press="1" onClick="{{ m.toggle }}" aria-expanded="{{ m.open }}" style="{{ m.rowStyle }}">
-                    <span style="{{ m.icoStyle }}"></span>
-                    <span style="{{ m.textStyle }}">
-                      <span style="{{ m.capStyle }}">{{ m.cap }}</span>
-                      <span style="{{ m.noteStyle }}">{{ m.note }}</span>
-                    </span>
-                    <span style="{{ m.valStyle }}">{{ m.val }}</span>
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style="{{ m.chevStyle }}"><path d="M9 5l7 7-7 7"></path></svg>
-                  </button>
-                  <div style="{{ m.bodyStyle }}">
-                    <div style="{{ m.clipStyle }}">
-                    <div role="radiogroup" aria-label="{{ m.cap }}" onKeyDown="{{ m.key }}" style="{{ m.gridStyle }}">
-                      <sc-for list="{{ m.items }}" as="v" hint-placeholder-count="3">
-                        <button type="button" role="radio" data-press="1" aria-checked="{{ v.on }}" tabIndex="{{ v.tab }}" onClick="{{ v.pick }}" style="{{ v.style }}">
-                          <span style="{{ v.nameStyle }}">{{ v.n }}</span>
-                          <span style="{{ v.subStyle }}">{{ v.s }}</span>
-                          <span style="{{ v.priceStyle }}">{{ v.price }}</span>
-                        </button>
-                      </sc-for>
-                    </div>
+              <div data-hscroll="1" style="{{ cOptRowStyle }}">
+                <sc-for list="{{ cOpts }}" as="o" hint-placeholder-count="6">
+                  <div style="{{ o.cardStyle }}">
+                    <span style="{{ o.icoStyle }}"></span>
+                    <span style="{{ o.nameStyle }}">{{ o.name }}</span>
+                    <span style="{{ o.whyStyle }}">{{ o.why }}</span>
+
+                    <sc-if value="{{ o.isSw }}">
+                      <button type="button" data-press="1" role="switch" aria-checked="{{ o.on }}" aria-label="{{ o.aria }}" onClick="{{ o.toggle }}" style="{{ o.pillStyle }}">
+                        <span style="{{ o.pillTextStyle }}">{{ o.pillText }}</span>
+                        <span style="{{ o.pillMarkStyle }}">
+                          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style="{{ o.pillCheckStyle }}"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+                          <span style="{{ o.pillPlusStyle }}">+</span>
+                        </span>
+                      </button>
+                    </sc-if>
+
+                    <sc-if value="{{ o.isSeg }}">
+                      <button type="button" data-press="1" onClick="{{ o.cycle }}" onKeyDown="{{ o.key }}" aria-label="{{ o.aria }}" style="{{ o.pillStyle }}">
+                        <span style="{{ o.pillTextStyle }}">{{ o.valText }}</span>
+                        <span style="{{ o.pillMarkStyle }}">
+                          <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"></path></svg>
+                        </span>
+                      </button>
+                      <div style="{{ o.dotsStyle }}">
+                        <sc-for list="{{ o.dots }}" as="p" hint-placeholder-count="3"><span style="{{ p.style }}"></span></sc-for>
+                      </div>
+                    </sc-if>
+
+                    <sc-if value="{{ o.isMulti }}">
+                      <div style="{{ o.multiRowStyle }}">
+                        <sc-for list="{{ o.items }}" as="v" hint-placeholder-count="3">
+                          <button type="button" data-press="1" aria-pressed="{{ v.on }}" onClick="{{ v.pick }}" style="{{ v.style }}">{{ v.n }}</button>
+                        </sc-for>
+                      </div>
+                    </sc-if>
+
+                    <sc-if value="{{ o.isNum }}">
+                      <div style="{{ o.numRowStyle }}">
+                        <button type="button" data-press="1" aria-label="{{ o.ariaMinus }}" onClick="{{ o.dec }}" style="{{ o.stepStyle }}">−</button>
+                        <span style="{{ o.numValStyle }}"><span style="{{ o.numDigitStyle }}">{{ o.val }}</span><span style="{{ o.numUnitStyle }}">{{ o.unit }}</span></span>
+                        <button type="button" data-press="1" aria-label="{{ o.ariaPlus }}" onClick="{{ o.inc }}" style="{{ o.stepStyle }}">+</button>
+                        <input type="range" min="{{ o.min }}" max="{{ o.max }}" step="{{ o.step }}" value="{{ o.val }}" onInput="{{ o.slide }}" onChange="{{ o.slide }}" aria-label="{{ o.aria }}" style="{{ o.rangeStyle }}">
+                      </div>
+                    </sc-if>
+
+                    <span style="{{ o.deltaStyle }}">{{ o.delta }}</span>
+                  </div>
+                </sc-for>
+              </div>
+              <sc-if value="{{ cNoDirs }}">
+                <div style="{{ cEmptyStyle }}">
+                  <span style="{{ cEmptyTitleStyle }}">{{ cT.empty }}</span>
+                  <span style="{{ cEmptyNoteStyle }}">{{ cT.emptyNote }}</span>
+                </div>
+              </sc-if>
+            </div>
+
+            <!-- ─ 3. Режим работы ─────────────────────────────────── -->
+            <div ref="{{ cS3Ref }}" style="{{ cS3Style }}">
+              <div style="{{ cRowsStyle }}">
+                <sc-for list="{{ cModes }}" as="m" hint-placeholder-count="3">
+                  <div style="{{ m.wrapStyle }}">
+                    <button type="button" data-press="1" onClick="{{ m.toggle }}" aria-expanded="{{ m.open }}" style="{{ m.rowStyle }}">
+                      <span style="{{ m.icoStyle }}"></span>
+                      <span style="{{ m.textStyle }}">
+                        <span style="{{ m.capStyle }}">{{ m.cap }}</span>
+                        <span style="{{ m.noteStyle }}">{{ m.note }}</span>
+                      </span>
+                      <span style="{{ m.valStyle }}">{{ m.val }}</span>
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style="{{ m.chevStyle }}"><path d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+                    <div style="{{ m.bodyStyle }}">
+                      <div style="{{ m.clipStyle }}">
+                      <div role="radiogroup" aria-label="{{ m.cap }}" onKeyDown="{{ m.key }}" style="{{ m.gridStyle }}">
+                        <sc-for list="{{ m.items }}" as="v" hint-placeholder-count="3">
+                          <button type="button" role="radio" data-press="1" aria-checked="{{ v.on }}" tabIndex="{{ v.tab }}" onClick="{{ v.pick }}" style="{{ v.style }}">
+                            <span style="{{ v.nameStyle }}">{{ v.n }}</span>
+                            <span style="{{ v.subStyle }}">{{ v.s }}</span>
+                            <span style="{{ v.priceStyle }}">{{ v.price }}</span>
+                          </button>
+                        </sc-for>
+                      </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </sc-for>
-            </div>
-
-            <!-- Стоимость бездействия: считается из тех же опций -->
-            <div style="{{ cIdleStyle }}">
-              <span style="{{ cIdleCapStyle }}">{{ cT.idleCap }}</span>
-              <div style="{{ cIdleRowStyle }}">
-                <span style="{{ cIdleBigStyle }}"><span data-cfgn="idle" style="{{ cNumStyle }}">0</span> ₽</span>
-                <span style="{{ cIdleUnitStyle }}">в месяц</span>
-              </div>
-              <span style="{{ cIdleHrsStyle }}">{{ cIdleHrs }}</span>
-              <span style="{{ cIdleNoteStyle }}">{{ cIdleNote }}</span>
-            </div>
-          </div>
-
-          <!-- ─ 4. Заявка ───────────────────────────────────────── -->
-          <div ref="{{ cS4Ref }}" style="{{ cS4Style }}">
-            <div style="{{ cRecapStyle }}">
-              <div style="{{ cRecapTopStyle }}">
-                <span style="{{ cCapStyle }}">что уходит нам</span>
-                <button type="button" data-press="1" onClick="{{ cToStep2 }}" style="{{ cRecapEditStyle }}">поправить</button>
-              </div>
-              <div style="{{ cRecapChipsStyle }}">
-                <sc-for list="{{ cRecap }}" as="r" hint-placeholder-count="3"><span style="{{ r.style }}">{{ r.label }}</span></sc-for>
-              </div>
-            </div>
-
-            <div style="{{ cFieldsStyle }}">
-              <div style="{{ cFieldStyle }}">
-                <span style="{{ cFieldCapStyle }}">Имя</span>
-                <input type="text" name="name" aria-label="Как к вам обращаться" autoComplete="given-name" value="{{ nameVal }}" placeholder="Как к вам обращаться" onInput="{{ onName }}" style="{{ cInputStyle }}">
-              </div>
-              <div style="{{ cFieldStyle }}">
-                <span style="{{ cFieldCapStyle }}">Телефон</span>
-                <div data-fld="1" style="{{ cPhoneRowStyle }}">
-                  <span style="{{ flagStyle }}"></span>
-                  <input ref="{{ phoneRef }}" type="tel" inputMode="tel" autoComplete="tel" name="phone" aria-label="Ваш номер телефона" value="{{ phoneVal }}" placeholder="{{ phonePh }}" onInput="{{ onPhone }}" onKeyDown="{{ onPhoneKey }}" style="{{ cPhoneInputStyle }}">
-                </div>
-              </div>
-            </div>
-
-            <div style="{{ cFieldStyle }}">
-              <span style="{{ cFieldCapStyle }}">Куда прислать расчёт</span>
-              <div style="{{ cMsgRowStyle }}">
-                <sc-for list="{{ cMsgs }}" as="m" hint-placeholder-count="3">
-                  <button type="button" data-press="1" aria-pressed="{{ m.on }}" onClick="{{ m.pick }}" style="{{ m.style }}">
-                    <span style="{{ m.icoStyle }}"></span>
-                    <span>{{ m.label }}</span>
-                  </button>
                 </sc-for>
               </div>
+
+              <!-- Стоимость бездействия: считается из тех же опций -->
+              <div style="{{ cIdleStyle }}">
+                <span style="{{ cIdleCapStyle }}">{{ cT.idleCap }}</span>
+                <div style="{{ cIdleRowStyle }}">
+                  <span style="{{ cIdleBigStyle }}"><span data-cfgn="idle" style="{{ cNumStyle }}">0</span> ₽</span>
+                  <span style="{{ cIdleUnitStyle }}">в месяц</span>
+                </div>
+                <span style="{{ cIdleHrsStyle }}">{{ cIdleHrs }}</span>
+                <span style="{{ cIdleNoteStyle }}">{{ cIdleNote }}</span>
+              </div>
             </div>
 
-            <!-- Два согласия, а не одно. Первое обязательно и касается только
-                 связи по заявке. Второе — про рассылку: статья 18 закона
-                 «О рекламе» требует, чтобы согласие на рекламу было
-                 отдельным, предварительным и не проставленным заранее.
-                 Оба работают с клавиатуры: role + tabindex + пробел. -->
-            <div role="checkbox" tabindex="0" aria-checked="{{ agreeChecked }}"
-                 onClick="{{ toggleAgree }}" onKeyDown="{{ agreeKey }}" style="{{ cAgreeStyle }}">
-              <span style="{{ cAgreeBoxStyle }}">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style="{{ cAgreeCheckStyle }}"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
-              </span>
-              <span style="{{ cAgreeTextStyle }}">Согласен(-а) на обработку персональных данных для ответа на заявку — по <a href="#legal-consent" onClick="{{ openConsent }}" style="{{ cAgreeLinkStyle }}">этой форме согласия</a> и <a href="#legal-privacy" onClick="{{ openPrivacy }}" style="{{ cAgreeLinkStyle }}">политике</a></span>
-            </div>
+            <!-- ─ 4. Заявка ───────────────────────────────────────── -->
+            <div ref="{{ cS4Ref }}" style="{{ cS4Style }}">
+              <div style="{{ cRecapStyle }}">
+                <div style="{{ cRecapTopStyle }}">
+                  <span style="{{ cCapStyle }}">что уходит нам</span>
+                  <button type="button" data-press="1" onClick="{{ cToStep2 }}" style="{{ cRecapEditStyle }}">поправить</button>
+                </div>
+                <div style="{{ cRecapChipsStyle }}">
+                  <sc-for list="{{ cRecap }}" as="r" hint-placeholder-count="3"><span style="{{ r.style }}">{{ r.label }}</span></sc-for>
+                </div>
+              </div>
 
-            <div role="checkbox" tabindex="0" aria-checked="{{ adsChecked }}"
-                 onClick="{{ toggleAds }}" onKeyDown="{{ adsKey }}" style="{{ cAgreeStyle }}">
-              <span style="{{ cAdsBoxStyle }}">
-                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style="{{ cAdsCheckStyle }}"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
-              </span>
-              <span style="{{ cAgreeTextStyle }}">Хочу получать новости и предложения БАЗЫ. Необязательно — без этого заявка уходит так же</span>
-            </div>
+              <div style="{{ cFieldsStyle }}">
+                <div style="{{ cFieldStyle }}">
+                  <span style="{{ cFieldCapStyle }}">Имя</span>
+                  <input type="text" name="name" aria-label="Как к вам обращаться" autoComplete="given-name" value="{{ nameVal }}" placeholder="Как к вам обращаться" onInput="{{ onName }}" style="{{ cInputStyle }}">
+                </div>
+                <div style="{{ cFieldStyle }}">
+                  <span style="{{ cFieldCapStyle }}">Телефон</span>
+                  <div data-fld="1" style="{{ cPhoneRowStyle }}">
+                    <span style="{{ flagStyle }}"></span>
+                    <input ref="{{ phoneRef }}" type="tel" inputMode="tel" autoComplete="tel" name="phone" aria-label="Ваш номер телефона" value="{{ phoneVal }}" placeholder="{{ phonePh }}" onInput="{{ onPhone }}" onKeyDown="{{ onPhoneKey }}" style="{{ cPhoneInputStyle }}">
+                  </div>
+                </div>
+              </div>
 
-            <a href="https://t.me/lllbaza" target="_blank" rel="noopener" data-press="1" onClick="{{ tgWrite }}" style="{{ cTgStyle }}" style-hover="border-color: rgba(242,235,221,0.52);">
-              <svg viewBox="-1.457 -3.284 29.964 29.964" width="18" height="18" fill="currentColor" aria-hidden="true" style="flex: 0 0 auto; display: block;"><path d="M9.42 15.18l-.4 5.58c.57 0 .82-.24 1.12-.53l2.68-2.57 5.56 4.07c1.02.57 1.75.27 2.02-.93L23.99 3.6c.33-1.5-.54-2.09-1.53-1.72L1.18 9.6C-.28 10.16-.26 10.97.93 11.34l5.32 1.65 12.35-7.73c.58-.39 1.11-.18.67.21z"></path></svg>
-              <span>Не хочу форму — напишу в Telegram</span>
-              <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style="flex: 0 0 auto; margin-left: auto;"><path d="M7 17L17 7M9 7h8v8"></path></svg>
-            </a>
+              <div style="{{ cFieldStyle }}">
+                <span style="{{ cFieldCapStyle }}">Куда прислать расчёт</span>
+                <div style="{{ cMsgRowStyle }}">
+                  <sc-for list="{{ cMsgs }}" as="m" hint-placeholder-count="3">
+                    <button type="button" data-press="1" aria-pressed="{{ m.on }}" onClick="{{ m.pick }}" style="{{ m.style }}">
+                      <span style="{{ m.icoStyle }}"></span>
+                      <span>{{ m.label }}</span>
+                    </button>
+                  </sc-for>
+                </div>
+              </div>
+
+              <!-- Два согласия, а не одно. Первое обязательно и касается только
+                   связи по заявке. Второе — про рассылку: статья 18 закона
+                   «О рекламе» требует, чтобы согласие на рекламу было
+                   отдельным, предварительным и не проставленным заранее.
+                   Оба работают с клавиатуры: role + tabindex + пробел. -->
+              <div role="checkbox" tabindex="0" aria-checked="{{ agreeChecked }}"
+                   onClick="{{ toggleAgree }}" onKeyDown="{{ agreeKey }}" style="{{ cAgreeStyle }}">
+                <span style="{{ cAgreeBoxStyle }}">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style="{{ cAgreeCheckStyle }}"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+                </span>
+                <span style="{{ cAgreeTextStyle }}">Согласен(-а) на обработку персональных данных для ответа на заявку — по <a href="#legal-consent" onClick="{{ openConsent }}" style="{{ cAgreeLinkStyle }}">этой форме согласия</a> и <a href="#legal-privacy" onClick="{{ openPrivacy }}" style="{{ cAgreeLinkStyle }}">политике</a></span>
+              </div>
+
+              <div role="checkbox" tabindex="0" aria-checked="{{ adsChecked }}"
+                   onClick="{{ toggleAds }}" onKeyDown="{{ adsKey }}" style="{{ cAgreeStyle }}">
+                <span style="{{ cAdsBoxStyle }}">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style="{{ cAdsCheckStyle }}"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg>
+                </span>
+                <span style="{{ cAgreeTextStyle }}">Хочу получать новости и предложения БАЗЫ. Необязательно — без этого заявка уходит так же</span>
+              </div>
+
+              <a href="https://t.me/lllbaza" target="_blank" rel="noopener" data-press="1" onClick="{{ tgWrite }}" style="{{ cTgStyle }}" style-hover="border-color: rgba(242,235,221,0.52);">
+                <svg viewBox="-1.457 -3.284 29.964 29.964" width="18" height="18" fill="currentColor" aria-hidden="true" style="flex: 0 0 auto; display: block;"><path d="M9.42 15.18l-.4 5.58c.57 0 .82-.24 1.12-.53l2.68-2.57 5.56 4.07c1.02.57 1.75.27 2.02-.93L23.99 3.6c.33-1.5-.54-2.09-1.53-1.72L1.18 9.6C-.28 10.16-.26 10.97.93 11.34l5.32 1.65 12.35-7.73c.58-.39 1.11-.18.67.21z"></path></svg>
+                <span>Не хочу форму — напишу в Telegram</span>
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style="flex: 0 0 auto; margin-left: auto;"><path d="M7 17L17 7M9 7h8v8"></path></svg>
+              </a>
+            </div>
           </div>
-        </div>
 
-        <div style="{{ cNoteStyle }}"><span style="{{ cNoteDotStyle }}"></span><span style="{{ cNoteTextStyle }}">{{ cNote }}</span></div>
+          <div style="{{ cNoteStyle }}"><span style="{{ cNoteDotStyle }}"></span><span style="{{ cNoteTextStyle }}">{{ cNote }}</span></div>
+        </div>
 
         <!-- ── ОТПРАВЛЕНО ─────────────────────────────────────────── -->
         <div style="{{ cSentStyle }}">
@@ -1806,6 +1830,7 @@
             <button type="button" data-press="1" onClick="{{ cSpec }}" style="{{ cSentActStyle }}" style-hover="border-color: rgba(242,235,221,0.52);"><span>{{ cSpecLabel }}</span></button>
             <a href="https://t.me/lllbaza" target="_blank" rel="noopener" data-press="1" onClick="{{ tgWrite }}" style="{{ cSentActStyle }}" style-hover="border-color: rgba(242,235,221,0.52);"><span>Продублировать в Telegram</span></a>
           </div>
+        </div>
         </div>
       </div>
     </section>
@@ -2160,6 +2185,18 @@ class Component extends DCLogic {
       cap: 'верх вилки', term: 'от 2 месяцев',
       cut: 'Здесь живут своя съёмка, свой код, тесты и команда, которая остаётся после запуска.' }
   ];
+
+  // Что стоит за цифрой на приборе. Без этой строки «от 85 000» — просто
+  // число; с ней видно, откуда оно берётся и что с ним можно делать.
+  FORKBASE = [
+    'фиксированная цена, уходит в счёт проекта',
+    '1 000 $ по курсу ЦБ на сегодня',
+    'вилка до 1 200 000 ₽',
+    'или от 60 000 ₽ в месяц'
+  ];
+  // Опорная цифра уровня в рублях. Вторая считается по курсу ЦБ, поэтому
+  // здесь дыра: её подставляет forkSum().
+  FORKSUM = [25000, 0, 350000, 1200000];
 
 
   // ═══ КАЛЬКУЛЯТОР ══════════════════════════════════════════════════════
@@ -5449,6 +5486,8 @@ class Component extends DCLogic {
     if (this.tq && (this.tq.on || (this.tq.r || 0) > 0.5)) return false;
     // счётчик потерь докручивается — цифра обязана ехать, а не прыгать
     if (!this.lossPainted) return false;
+    // цена на приборе докручивается — то же самое
+    if (this.fkTo != null && !this.fkDone) return false;
     // курсор ведёт заставку — движение должно идти на полном кадре
     if ((this.k || 0) > 0.002) return false;
     // свет догоняет курсор на кнопке — тоже полный кадр
@@ -5536,6 +5575,7 @@ class Component extends DCLogic {
     if (this.tickN % 20 === 4) { this.cfgScan(); this.lossScan(); }
     this.cfgTick(dt);
     this.lossTick(dt);
+    this.forkTick(dt);
     try { this.stageVis(); } catch (e) {}
     try { this.fDrive(dt); } catch (e) {}
     this.stgTick(dt);
@@ -7578,6 +7618,44 @@ class Component extends DCLogic {
     put('y', sep(a.y));
   }
 
+  // ——— живая цифра на приборе цены ——————————————————————————————————
+  // Ползунок, который меняет ярлык, — это переключатель. Ползунок, под
+  // которым цифра докручивается, — это цена. Разница читается пальцем:
+  // видно не «другой тариф», а сколько именно прибавилось.
+  forkSum(i) {
+    const t = this.TIERS[i];
+    // нижняя граница сайта живёт в долларах — считаем по курсу ЦБ на сегодня
+    if (t && t.usd) return Math.round((t.usd * this.cfgRate()) / 1000) * 1000;
+    return this.FORKSUM[i] || this.FORKSUM[0];
+  }
+
+  forkTick(dt) {
+    const st = this.state;
+    const i = st.pick >= 0 ? st.pick
+      : Math.max(0, this.TIERS.findIndex((t) => t.k === this.recoKey()));
+    const to = this.forkSum(i);
+    if (this.fkTo !== to) {
+      this.fkFrom = this.fkVal == null ? to : this.fkVal;
+      this.fkTo = to;
+      this.fkT0 = performance.now();
+      this.fkDone = 0;
+    }
+    if (this.fkDone) return;
+    const DUR = this.still ? 0 : 680;
+    const pr = DUR ? Math.min(1, (performance.now() - this.fkT0) / DUR) : 1;
+    // тот же экспо-аут, что у счётчика потерь: резкий старт, мягкая посадка
+    const e = 1 - Math.pow(1 - pr, 4);
+    this.fkVal = this.fkFrom + (this.fkTo - this.fkFrom) * e;
+    if (pr >= 1) { this.fkVal = this.fkTo; this.fkDone = 1; }
+    if (!this.fkEl || !this.fkEl.isConnected) this.fkEl = document.querySelector('[data-forknum]');
+    if (!this.fkEl) return;
+    // шаг округления растёт вместе с цифрой: на миллионе единицы — шум
+    const stp = this.fkTo >= 1e6 ? 5000 : (this.fkTo >= 1e5 ? 1000 : 100);
+    const v = Math.round(this.fkVal / stp) * stp;
+    const txt = v.toLocaleString('ru-RU').replace(/\u00a0|\s/g, '\u202f');
+    if (this.fkEl.textContent !== txt) this.fkEl.textContent = txt;
+  }
+
   lossScan() {
     const r = this.rootEl || document;
     this.lossEls = {
@@ -8069,9 +8147,15 @@ class Component extends DCLogic {
         // снизу всегда висит строка действия — оставляем ей место
         padding: '0 var(--gut) ' + (BARH + (narrow ? 70 : 74)) + 'px'
       },
+      // Набросок заказчика: два крыла под общей шапкой. Слева — что
+      // собираем, справа — верстак, где всё это сразу превращается в
+      // цифру. На телефоне крылья встают в колонку, верстак первым:
+      // сначала показать, что получится, потом просить отмечать.
       cAppStyle: {
-        position: 'relative', boxSizing: 'border-box', display: 'flex', flexDirection: 'column',
-        gap: narrow ? '11px' : '14px', overflow: 'hidden',
+        position: 'relative', boxSizing: 'border-box', display: 'grid', alignItems: 'start',
+        gridTemplateColumns: wide ? 'minmax(0, 1.32fr) minmax(0, 1fr)' : 'minmax(0, 1fr)',
+        columnGap: 'clamp(13px, 1.5vw, 24px)', rowGap: narrow ? '11px' : '14px',
+        overflow: 'hidden',
         padding: narrow ? '12px 11px 14px' : 'clamp(15px, 1.5vw, 22px)',
         borderRadius: narrow ? '26px' : '34px',
         border: '1px solid ' + cream(0.11),
@@ -8130,71 +8214,106 @@ class Component extends DCLogic {
 
     // ─── стенд и цена ────────────────────────────────────────────────
     const hero = {
-      cHeroStyle: {
-        display: 'grid', alignItems: 'center', minWidth: 0,
-        gridTemplateColumns: wide ? 'minmax(0, 1.05fr) minmax(0, 0.95fr)' : 'minmax(0, 1fr)',
-        gap: narrow ? '4px' : (wide ? 'clamp(16px, 2vw, 34px)' : '10px'),
-        boxSizing: 'border-box', padding: narrow ? '2px 2px 6px' : '4px 6px 10px'
+      // шапка на всю ширину: одна на оба крыла
+      cHeadStyle: {
+        gridColumn: '1 / -1', gridRow: wide ? '1 / 2' : 'auto', order: 0,
+        display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
+        gap: narrow ? '5px' : '7px', minWidth: 0,
+        padding: narrow ? '2px 4px 0' : '4px 6px 2px'
       },
+      // левое крыло — шаги; правое — верстак. На узком экране верстак
+      // поднимается наверх, потому что смотреть на цифру без него незачем.
+      cLeftStyle: {
+        gridColumn: wide ? '1 / 2' : 'auto', gridRow: wide ? '2 / 3' : 'auto',
+        order: wide ? 1 : 2, minWidth: 0,
+        display: 'flex', flexDirection: 'column', gap: narrow ? '11px' : '13px'
+      },
+      cRightStyle: {
+        gridColumn: wide ? '2 / 3' : 'auto', gridRow: wide ? '2 / 3' : 'auto',
+        order: wide ? 2 : 1, minWidth: 0, boxSizing: 'border-box',
+        display: (narrow && cs === 4 && !st.sent) ? 'none' : 'flex',
+        flexDirection: 'column', alignItems: 'stretch',
+        gap: narrow ? '3px' : '5px',
+        padding: narrow ? '13px 14px 14px' : 'clamp(15px, 1.4vw, 22px)',
+        borderRadius: narrow ? '20px' : '26px',
+        border: '1px solid ' + cream(0.1),
+        backgroundColor: '#121211',
+        backgroundImage: 'linear-gradient(168deg, rgba(242,235,221,0.05) 0%, rgba(242,235,221,0) 58%)',
+        boxShadow: 'inset 0 1px 0 ' + cream(0.05)
+      },
+      // нижняя планка верстака — та самая полоса под правым блоком наброска
+      cRightBarStyle: {
+        display: (has && !narrow) ? 'flex' : 'none', alignItems: 'center', justifyContent: 'space-between',
+        gap: '12px', boxSizing: 'border-box', width: '100%',
+        marginTop: narrow ? '10px' : 'auto', paddingTop: '0',
+        minHeight: narrow ? '42px' : '50px', padding: narrow ? '0 13px' : '0 16px',
+        borderRadius: '14px', cursor: 'pointer', outline: 'none',
+        border: '1px solid ' + cream(0.14), background: cream(0.045), color: cream(0.88),
+        fontFamily: 'inherit', fontSize: '13px', fontWeight: 600, letterSpacing: '-0.01em',
+        transition: 'border-color 260ms ease, background 260ms ease'
+      },
+      cRightBarTextStyle: { minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' },
+      cRightBarText: 'Что входит в сборку',
       cStageWrapStyle: {
         position: 'relative', width: '100%', minWidth: 0,
-        height: narrow ? 'clamp(146px, 33vw, 178px)' : (wide ? 'clamp(180px, 15vw, 204px)' : 'clamp(172px, 23vw, 200px)')
+        display: (narrow && cs >= 3) ? 'none' : 'block',
+        height: narrow ? 'clamp(118px, 30vw, 152px)' : (wide ? 'clamp(190px, 16.5vw, 246px)' : 'clamp(176px, 24vw, 208px)')
       },
       cStageStyle: { display: 'block', width: '100%', height: '100%' },
       cStageRef: this._stgR || (this._stgR = (el) => { if (el) this.stgBind(el); }),
       cStageMove: (ev) => this.stgMove(ev),
       cStageLeave: () => this.stgLeave(),
+      // Подсказка стояла поверх холста и ложилась на нижний ряд ячеек.
+      // Теперь она под ним и схлопывается, как только в верстак что-то упало.
       cStageHintStyle: {
-        position: 'absolute', left: 0, right: 0, bottom: narrow ? '2px' : '6px',
-        textAlign: 'center', fontSize: '11.5px', fontWeight: 500, letterSpacing: '-0.005em',
+        display: 'block', textAlign: 'center', overflow: 'hidden',
+        fontSize: '11.5px', fontWeight: 500, letterSpacing: '-0.005em',
         color: cream(0.52), pointerEvents: 'none',
-        opacity: has ? 0 : 1, transition: 'opacity 420ms ease'
+        height: has ? '0px' : '17px', opacity: has ? 0 : 1,
+        transition: 'opacity 420ms ease, height 420ms ' + EZ
       },
       cStageHint: 'Отмечайте — предметы падают в верстак',
-      cHeroTextStyle: {
-        display: 'flex', flexDirection: 'column', alignItems: 'flex-start',
-        gap: narrow ? '5px' : '7px', minWidth: 0,
-        padding: narrow ? '0 6px' : (wide ? '0' : '0 6px')
-      },
       cHeroCapStyle: Object.assign({}, CAP, { color: cream(0.52) }),
       cHeroCap: has ? (e.n === 1 ? 'одно направление' : (e.n < 5 ? e.n + ' направления' : e.n + ' направлений')) : 'конфигуратор',
       cHeroTitleStyle: {
-        margin: 0, fontSize: narrow ? 'clamp(30px, 8.6vw, 40px)' : 'clamp(34px, 3.6vw, 56px)',
+        margin: 0, fontSize: narrow ? 'clamp(28px, 8vw, 36px)' : 'clamp(30px, 2.8vw, 44px)',
         lineHeight: 0.98, letterSpacing: '-0.045em', fontWeight: 600, color: CREAM, textWrap: 'balance'
       },
       cHeroTitle: has
         ? (e.n === 1 ? e.rows[0].name : 'Комплекс')
         : 'Соберите проект',
       cHeroSubStyle: {
-        fontSize: narrow ? '13.5px' : '15px', lineHeight: 1.4, fontWeight: 450,
+        fontSize: narrow ? '13px' : '15px', lineHeight: 1.4, fontWeight: 450,
         color: cream(0.52), textWrap: 'pretty', maxWidth: '42ch'
       },
-      cHeroSub: has
+      // При одном направлении список повторял заголовок слово в слово.
+      cHeroSub: (has && e.n > 1)
         ? e.rows.map((r) => r.name).join(' + ')
-        : 'Отмечайте, что нужно, — вилка и срок считаются на глазах.',
+        : (narrow ? 'Отмечайте нужное — цифра считается сразу.'
+          : 'Отмечайте, что нужно, — вилка и срок считаются на глазах.'),
       cPriceBtnStyle: {
-        display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', gap: narrow ? '4px 10px' : '4px 14px',
-        marginTop: narrow ? '4px' : '6px', padding: '4px 0', border: 'none', background: 'none',
-        cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left',
-        color: cream(0.94), display: has ? 'flex' : 'none',
+        display: has ? 'flex' : 'none',
+        alignItems: 'baseline', flexWrap: 'nowrap', gap: narrow ? '0 8px' : '4px 14px',
+        marginTop: narrow ? '10px' : '12px', padding: '4px 0', border: 'none', background: 'none',
+        cursor: 'pointer', fontFamily: 'inherit', textAlign: 'left', color: cream(0.94),
         transition: 'opacity 420ms ease, color 240ms ease'
       },
       cPriceRowStyle: Object.assign({}, NUM, {
-        display: 'inline-flex', alignItems: 'baseline', gap: '0 7px',
-        fontSize: narrow ? 'clamp(23px, 6.6vw, 30px)' : 'clamp(24px, 2.3vw, 34px)',
+        display: 'inline-flex', alignItems: 'baseline', gap: '0 7px', flex: '0 1 auto', minWidth: 0,
+        fontSize: narrow ? 'clamp(21px, 6vw, 28px)' : 'clamp(24px, 2.3vw, 34px)',
         fontWeight: 600, letterSpacing: '-0.05em', lineHeight: 1.05, whiteSpace: 'nowrap'
       }),
       cPriceDashStyle: { opacity: 0.4, fontWeight: 400 },
       cPriceCurStyle: { fontSize: '0.6em', fontWeight: 500, opacity: 0.6 },
-      cPriceMetaStyle: { fontSize: narrow ? '12.5px' : '13.5px', fontWeight: 500, color: cream(0.52), whiteSpace: 'nowrap' },
+      cPriceMetaStyle: { flex: '0 0 auto', fontSize: narrow ? '12px' : '13.5px', fontWeight: 500, color: cream(0.52), whiteSpace: 'nowrap' },
       cPriceMeta: has ? this.cfgWeeks(e.wl, e.wh) + (e.rush ? ' · ускоренно' : '') : '',
 
       // строка привязки: показывается только когда в сборке есть направление
       // с долларовым порогом, и говорит ровно то, что произошло с ценой
       cPegStyle: {
-        display: (has && e.floor > 0) ? 'inline-flex' : 'none',
-        alignItems: 'center', gap: '7px', marginTop: narrow ? '7px' : '9px',
-        padding: narrow ? '5px 10px' : '6px 12px', borderRadius: 'var(--r-pill)',
+        display: (has && e.floor > 0 && !(narrow && cs >= 3)) ? 'inline-flex' : 'none',
+        alignItems: 'center', gap: '7px', marginTop: narrow ? '6px' : '9px',
+        padding: narrow ? '4px 9px' : '6px 12px', borderRadius: 'var(--r-pill)',
         border: '1px solid ' + cream(0.14), background: cream(0.04),
         fontSize: narrow ? '11px' : '12px', fontWeight: 500, letterSpacing: '-0.005em',
         color: cream(0.56), whiteSpace: 'nowrap', maxWidth: '100%', overflow: 'hidden'
@@ -8213,9 +8332,9 @@ class Component extends DCLogic {
       // ничего не выбрано, блока нет: пустые шкалы ничего не объясняют.
       cSpecLinesStyle: {
         display: has ? 'flex' : 'none', flexDirection: 'column',
-        gap: narrow ? '9px' : '11px',
-        marginTop: narrow ? '14px' : '18px',
-        paddingTop: narrow ? '14px' : '16px',
+        gap: narrow ? '7px' : '11px',
+        marginTop: narrow ? '10px' : '18px',
+        paddingTop: narrow ? '10px' : '16px',
         borderTop: '1px solid ' + cream(0.09)
       },
       cSpecLineRowStyle: { display: 'flex', flexDirection: 'column', gap: '6px', minWidth: 0 },
@@ -8256,7 +8375,7 @@ class Component extends DCLogic {
             fill: bar(Math.min(1, ((e.wl + e.wh) / 2) / 16), 'rgba(242,235,221,0.72)') }
         ];
       })(),
-      cPriceChevStyle: { flex: '0 0 auto', alignSelf: 'center', opacity: 0.45 },
+      cPriceChevStyle: { flex: '0 0 auto', alignSelf: 'center', marginLeft: 'auto', opacity: 0.45 },
       cNumStyle: NUM,
       cSrStyle: { position: 'absolute', width: '1px', height: '1px', margin: '-1px', padding: 0, overflow: 'hidden', clip: 'rect(0 0 0 0)', whiteSpace: 'nowrap', border: 0 },
       cPriceSr: has ? ('Вилка проекта от ' + this.cfgMoney(e.lo) + ' до ' + this.cfgMoney(e.hi) + ' рублей, срок ' + this.cfgWeeks(e.wl, e.wh)) : 'Сборка пока пустая',
@@ -8295,7 +8414,7 @@ class Component extends DCLogic {
     const tileSkin = (on) => ({
       position: 'relative', boxSizing: 'border-box', display: 'flex', flexDirection: 'column',
       alignItems: 'flex-start', gap: narrow ? '7px' : '9px', minWidth: 0,
-      minHeight: narrow ? '150px' : '184px',
+      minHeight: narrow ? '150px' : (wide ? '156px' : '184px'),
       padding: narrow ? '13px 13px 14px' : '16px 16px 17px',
       borderRadius: R, cursor: 'pointer', textAlign: 'left', fontFamily: 'inherit',
       border: '1px solid ' + (on ? cream(0.85) : cream(0.1)),
@@ -8373,13 +8492,17 @@ class Component extends DCLogic {
       cDirs: tiles,
       cTilesStyle: {
         display: 'grid', gap: narrow ? '8px' : '10px', minWidth: 0,
-        maxHeight: narrow ? 'clamp(220px, 34vh, 330px)' : (mid ? 'clamp(260px, 40vh, 420px)' : 'none'),
-        overflowY: wide ? 'visible' : 'auto', overscrollBehavior: 'contain', scrollbarWidth: 'none',
-        padding: wide ? 0 : '2px 2px 10px', margin: wide ? 0 : '-2px -2px 0',
-        WebkitMaskImage: wide ? 'none' : 'linear-gradient(180deg, #000 0, #000 88%, transparent 100%)',
-        maskImage: wide ? 'none' : 'linear-gradient(180deg, #000 0, #000 88%, transparent 100%)',
-        // семь плиток: на большом экране это два ряда, а не три
-        gridTemplateColumns: narrow ? 'repeat(2, minmax(0, 1fr))' : (mid ? 'repeat(3, minmax(0, 1fr))' : 'repeat(4, minmax(0, 1fr))')
+        // Семь плиток в два столбца — это четыре ряда, то есть полтора экрана.
+        // Крыло держит высоту, список едет внутри: ровно так устроен любой
+        // нормальный конфигуратор, и ровно так весь прибор влезает в экран.
+        maxHeight: narrow ? 'clamp(220px, 34vh, 330px)' : (mid ? 'clamp(260px, 40vh, 420px)' : 'clamp(260px, 42vh, 430px)'),
+        overflowY: 'auto', overscrollBehavior: 'contain', scrollbarWidth: 'none',
+        padding: '2px 2px 10px', margin: '-2px -2px 0',
+        WebkitMaskImage: 'linear-gradient(180deg, #000 0, #000 88%, transparent 100%)',
+        maskImage: 'linear-gradient(180deg, #000 0, #000 88%, transparent 100%)',
+        // Крыло вдвое уже целой полосы: четыре плитки в ряд рвали заголовки
+        // на три строки. Две колонки — та же семёрка, но читаемая.
+        gridTemplateColumns: narrow ? 'repeat(2, minmax(0, 1fr))' : (mid ? 'repeat(3, minmax(0, 1fr))' : 'repeat(2, minmax(0, 1fr))')
       },
       cComboStyle: {
         display: 'flex', alignItems: 'flex-start', gap: '10px', boxSizing: 'border-box',
@@ -8573,7 +8696,14 @@ class Component extends DCLogic {
       // прячется за краем; на узком это лента с прилипанием, как в приложении
       cOptRowStyle: wide ? {
         display: 'grid', gap: '10px', minWidth: 0,
-        gridTemplateColumns: 'repeat(auto-fill, minmax(196px, 1fr))'
+        gridTemplateColumns: 'repeat(auto-fill, minmax(196px, 1fr))',
+        // настроек у «сайта» девять, у «под ключ» — больше: без потолка
+        // крыло вырастало на полтора экрана и прибор переставал быть прибором
+        maxHeight: 'clamp(260px, 42vh, 430px)', overflowY: 'auto',
+        overscrollBehavior: 'contain', scrollbarWidth: 'none',
+        padding: '2px 2px 10px', margin: '-2px -2px 0',
+        WebkitMaskImage: 'linear-gradient(180deg, #000 0, #000 88%, transparent 100%)',
+        maskImage: 'linear-gradient(180deg, #000 0, #000 88%, transparent 100%)'
       } : {
         display: 'flex', gap: narrow ? '8px' : '10px', minWidth: 0,
         overflowX: 'auto', overflowY: 'hidden', scrollSnapType: 'x proximity',
@@ -8613,7 +8743,7 @@ class Component extends DCLogic {
           asImg(ico(icoKey, 'rgba(242,235,221,0.5)'))),
         textStyle: { display: 'flex', flexDirection: 'column', gap: '2px', flex: '1 1 auto', minWidth: 0 },
         capStyle: { fontSize: narrow ? '14.5px' : '15.5px', fontWeight: 600, letterSpacing: '-0.02em' },
-        noteStyle: { fontSize: '12px', fontWeight: 450, color: cream(0.52), textWrap: 'pretty' },
+        noteStyle: { display: narrow ? 'none' : 'block', fontSize: '12px', fontWeight: 450, color: cream(0.52), textWrap: 'pretty' },
         valStyle: { flex: '0 0 auto', fontSize: '13px', fontWeight: 600, letterSpacing: '-0.015em', color: cream(0.52), whiteSpace: 'nowrap', maxWidth: narrow ? '96px' : 'none', overflow: 'hidden', textOverflow: 'ellipsis' },
         chevStyle: { flex: '0 0 auto', color: cream(0.52), transform: open ? 'rotate(90deg)' : 'rotate(0deg)', transition: 'transform 420ms ' + EZ },
         bodyStyle: {
@@ -8993,6 +9123,7 @@ class Component extends DCLogic {
     // ─── экран «отправлено» ──────────────────────────────────────────
     const sent = {
       cSentStyle: {
+        gridColumn: '1 / -1', order: 3,
         position: st.sent ? 'relative' : 'absolute', inset: st.sent ? 'auto' : '0',
         display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '10px',
         padding: narrow ? '10px 4px' : '16px 6px',
@@ -10326,112 +10457,172 @@ class Component extends DCLogic {
       goEntry: this._gen || (this._gen = (e) => this.goEntry(e)),
       tgWrite: this._gtg || (this._gtg = () => this.tgWrite()),
       verdictCtaText: cnt >= 3 ? 'Показать, с чего это чинят' : 'Посмотреть, что с этим делают',
-      // якорь перед ценами: человек должен увидеть масштаб раньше, чем первую цифру (Законы 50–55)
-      scaleWrapStyle: {
-        display: 'flex', flexDirection: 'column', gap: narrow ? '18px' : '22px',
-        marginTop: 'clamp(30px, 4vh, 52px)'
+      // ─── ПРИБОР ЦЕНЫ ──────────────────────────────────────────────────
+      // Ползунок по сути был верный, но выглядел как чертёж: волосяная
+      // линия, точка и подписи мелким шрифтом. Никто не понимал, что его
+      // вообще можно тянуть и что при этом меняется.
+      // Стало железо: панель со шкалой, тяжёлая ручка с насечкой, засечки
+      // на рельсе и крупная цифра, которая докручивается прямо под пальцем.
+      // Чем выше уровень, тем ярче светится панель под ручкой и тем
+      // длиннее список того, что уже входит.
+      deskStyle: {
+        position: 'relative', overflow: 'hidden', boxSizing: 'border-box',
+        marginTop: 'clamp(28px, 4vh, 48px)',
+        padding: narrow ? '22px 18px 20px' : 'clamp(26px, 2.6vw, 40px)',
+        borderRadius: narrow ? '26px' : '32px',
+        border: '1px solid rgba(242,235,221,' + (0.1 + pickIdx * 0.042).toFixed(3) + ')',
+        background: 'linear-gradient(168deg, #181818 0%, #111111 52%, #0b0b0b 100%)',
+        boxShadow: 'inset 0 1px 0 rgba(242,235,221,0.08), 0 28px 60px rgba(0,0,0,0.5)',
+        transition: 'border-color 620ms ' + EZ
       },
-      scaleHeadStyle: {
-        display: 'flex', alignItems: 'baseline', flexWrap: 'wrap', gap: narrow ? '8px' : '16px'
+      // Свет живёт под ручкой и едет вместе с ней: градиент не
+      // интерполируется, поэтому двигаем и гасим сам блик, а не фон.
+      deskGlowStyle: {
+        position: 'absolute', top: '-46%', height: '192%', width: '68%',
+        left: (pickIdx / 3 * 100).toFixed(1) + '%',
+        transform: 'translateX(-50%)', pointerEvents: 'none',
+        background: 'radial-gradient(closest-side, rgba(242,235,221,0.5) 0%, rgba(242,235,221,0.17) 44%, rgba(242,235,221,0) 78%)',
+        opacity: (0.11 + pickIdx * 0.083).toFixed(3),
+        transition: 'left 640ms ' + EZ + ', opacity 640ms ' + EZ
       },
-      scaleCapStyle: {
-        flex: '0 0 auto', fontSize: '11px', fontWeight: 700, letterSpacing: '0.18em',
-        textTransform: 'uppercase', color: 'rgba(242,235,221,0.52)'
+      deskTopStyle: {
+        position: 'relative', display: 'flex', flexWrap: 'wrap',
+        alignItems: 'flex-end', justifyContent: 'space-between',
+        gap: narrow ? '16px' : 'clamp(18px, 2vw, 34px)'
       },
-      scaleNoteStyle: {
-        fontSize: narrow ? '13px' : '14px', lineHeight: 1.5, fontWeight: 500,
-        color: 'rgba(242,235,221,0.52)', textWrap: 'pretty'
+      deskReadStyle: {
+        display: 'flex', flexDirection: 'column', gap: '2px',
+        minWidth: 0, flex: '1 1 260px'
       },
-      // два полюса вилки: слева — экономия, справа — уровень лидеров
-      poleRowStyle: {
-        display: 'grid', alignItems: 'stretch',
-        gridTemplateColumns: narrow ? 'minmax(0, 1fr)' : 'minmax(0, 1fr) auto minmax(0, 1fr)',
-        gap: narrow ? '10px' : 'clamp(12px, 1.4vw, 20px)', marginTop: narrow ? '2px' : '4px'
+      deskCapStyle: {
+        fontSize: '10.5px', fontWeight: 700, letterSpacing: '0.2em',
+        textTransform: 'uppercase', color: 'rgba(242,235,221,0.5)'
       },
-      poleLowStyle: {
-        display: 'flex', flexDirection: 'column', gap: '8px', minWidth: 0, boxSizing: 'border-box',
-        padding: narrow ? '18px' : 'clamp(20px, 1.8vw, 26px)',
-        borderRadius: narrow ? '20px' : '24px',
-        border: '1px dashed rgba(242,235,221,0.18)', background: 'rgba(242,235,221,0.015)'
+      deskSumStyle: {
+        display: 'flex', alignItems: 'baseline', gap: narrow ? '6px' : '9px',
+        marginTop: '8px', minWidth: 0
       },
-      poleHighStyle: {
-        display: 'flex', flexDirection: 'column', gap: '8px', minWidth: 0, boxSizing: 'border-box',
-        padding: narrow ? '18px' : 'clamp(20px, 1.8vw, 26px)',
-        borderRadius: narrow ? '20px' : '24px',
-        border: '1px solid rgba(242,235,221,0.3)',
-        background: 'linear-gradient(158deg, rgba(242,235,221,0.09), rgba(242,235,221,0.02) 68%)',
-        boxShadow: 'inset 0 1px 0 rgba(242,235,221,0.12)'
+      forkFrom: 'от',
+      deskFromStyle: {
+        display: pickIdx === 0 ? 'none' : 'block', flex: '0 0 auto',
+        fontSize: narrow ? '15px' : 'clamp(16px, 1.4vw, 21px)', fontWeight: 500,
+        color: 'rgba(242,235,221,0.5)'
       },
-      poleArrowStyle: {
-        display: narrow ? 'none' : 'flex', alignItems: 'center', justifyContent: 'center',
-        alignSelf: 'center', flex: '0 0 auto', width: '38px', height: '38px', borderRadius: '999px',
-        border: '1px solid rgba(242,235,221,0.16)', color: 'rgba(242,235,221,0.55)'
+      // Цифра — главный предмет на панели: крупная, моноширинная по
+      // цифрам, чтобы при пересчёте не прыгала ширина.
+      deskNumStyle: {
+        minWidth: 0, whiteSpace: 'nowrap',
+        fontSize: narrow ? 'clamp(30px, 9.4vw, 44px)' : 'clamp(44px, 5.6vw, 82px)',
+        lineHeight: 0.92, letterSpacing: '-0.05em', fontWeight: 600, color: CREAM,
+        fontVariantNumeric: 'tabular-nums', fontFeatureSettings: '"tnum" 1',
+        textShadow: '0 0 ' + (10 + pickIdx * 9) + 'px rgba(242,235,221,' + (0.06 + pickIdx * 0.05).toFixed(3) + ')',
+        transition: 'text-shadow 620ms ' + EZ
       },
-      poleCapStyle: {
-        fontSize: '10.5px', fontWeight: 700, letterSpacing: '0.18em',
-        textTransform: 'uppercase', color: 'rgba(242,235,221,0.52)'
+      deskCurStyle: {
+        flex: '0 0 auto',
+        fontSize: narrow ? '22px' : 'clamp(24px, 2.4vw, 38px)', fontWeight: 500,
+        letterSpacing: '-0.03em', color: 'rgba(242,235,221,0.6)'
       },
-      poleTitleStyle: {
-        fontSize: narrow ? '19px' : 'clamp(20px, 1.8vw, 26px)', lineHeight: 1.1,
-        letterSpacing: '-0.03em', fontWeight: 600, color: CREAM, textWrap: 'balance'
+      forkBase: this.FORKBASE[pickIdx],
+      deskBaseStyle: {
+        marginTop: '9px', fontSize: '12px', fontWeight: 600, letterSpacing: '-0.01em',
+        color: 'rgba(242,235,221,0.42)'
       },
-      poleTextStyle: {
-        fontSize: narrow ? '13.5px' : '14.5px', lineHeight: 1.5, fontWeight: 500,
-        color: 'rgba(242,235,221,0.58)', textWrap: 'pretty'
+      deskNameStyle: {
+        marginTop: narrow ? '14px' : '18px',
+        fontSize: narrow ? '17px' : 'clamp(18px, 1.7vw, 24px)', lineHeight: 1.12,
+        letterSpacing: '-0.03em', fontWeight: 600, color: 'rgba(242,235,221,0.95)',
+        textWrap: 'balance'
       },
-      // ─── вилка бюджета ──────────────────────────────────────────────
-      // Тянешь ползунок — видно, что на эти деньги уже входит, а что
-      // открывается уровнем выше. Чем выше бюджет, тем длиннее зажжённая
-      // часть лестницы: «дешевле — меньше, дороже — ближе к верху».
-      onPick: this._opk || (this._opk = (e) => {
-        const v = Math.max(0, Math.min(3, parseInt((e && e.target && e.target.value) || 0, 10) || 0));
-        if (v !== this.state.pick) {
-          this.setState({ pick: v });
-          this.track('pricing_fork', { level: this.TIERS[v].k });
-        }
-      }),
-      pickVal: String(pickIdx),
-      forkRailStyle: {
-        position: 'relative', height: '28px', marginTop: narrow ? '4px' : '8px',
-        display: 'flex', alignItems: 'center'
+      deskTermStyle: {
+        marginTop: '5px', fontSize: narrow ? '13px' : '14px', fontWeight: 500,
+        color: 'rgba(242,235,221,0.5)'
       },
-      forkTrackStyle: {
-        position: 'absolute', left: 0, right: 0, top: '13px', height: '2px', borderRadius: '999px',
-        background: 'rgba(242,235,221,0.14)'
+      deskSideStyle: {
+        display: 'flex', flexDirection: 'column',
+        alignItems: narrow ? 'flex-start' : 'flex-end',
+        textAlign: narrow ? 'left' : 'right',
+        gap: '12px', flex: '1 1 240px', minWidth: 0
       },
-      forkFillStyle: {
-        position: 'absolute', left: 0, top: '13px', height: '2px', borderRadius: '999px',
-        width: 'calc(' + (pickIdx / 3 * 100).toFixed(2) + '% )',
-        background: 'linear-gradient(90deg, rgba(242,235,221,0.45), ' + CREAM + ')',
-        transition: 'width 520ms ' + EZ
+      // Подсказка не объясняет словами «это ползунок» — она показывает
+      // стрелки, которые сами толкаются влево-вправо.
+      deskHintStyle: {
+        display: 'inline-flex', alignItems: 'center', gap: '8px', flex: '0 0 auto',
+        maxWidth: '100%', boxSizing: 'border-box',
+        padding: '6px 14px 6px 6px', borderRadius: 'var(--r-pill)',
+        border: '1px solid rgba(242,235,221,0.14)', background: 'rgba(242,235,221,0.045)',
+        fontSize: narrow ? '11.5px' : '12px', fontWeight: 600, letterSpacing: '-0.01em',
+        lineHeight: 1.2, color: 'rgba(242,235,221,0.74)'
       },
-      forkKnobStyle: {
-        position: 'absolute', top: '14px', left: (pickIdx / 3 * 100).toFixed(2) + '%',
-        width: '15px', height: '15px', marginLeft: '-7.5px', marginTop: '-7.5px',
-        borderRadius: '999px', background: CREAM, pointerEvents: 'none',
-        boxShadow: '0 0 0 6px rgba(242,235,221,0.12), 0 8px 22px rgba(0,0,0,0.5)',
-        transition: 'left 520ms ' + EZ
+      deskHintIcoStyle: {
+        flex: '0 0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center',
+        width: '22px', height: '22px', borderRadius: 'var(--r-pill)',
+        background: 'rgba(242,235,221,0.1)', color: CREAM,
+        animation: 'lb-desk-nudge 2.8s ease-in-out infinite'
       },
-      forkInputStyle: {
-        position: 'absolute', left: '-8px', right: '-8px', top: 0, height: '28px',
-        width: 'calc(100% + 16px)', margin: 0, opacity: 0, cursor: 'grab',
-        WebkitAppearance: 'none', appearance: 'none', background: 'transparent'
+      deskCutStyle: {
+        maxWidth: '40ch', fontSize: narrow ? '13px' : '13.5px', lineHeight: 1.5,
+        fontWeight: 500, color: 'rgba(242,235,221,0.54)', textWrap: 'pretty'
       },
-      forkRailTicksStyle: { position: 'relative', height: '0' },
-      forkStopsStyle: {
-        position: 'relative', height: narrow ? '38px' : '44px', marginTop: '12px'
+      // ─── рельс ───────────────────────────────────────────────────────
+      // Ручка 46 px, поэтому дорожка везде отступает на 23 px: так центр
+      // ручки ходит ровно от первой засечки до последней и ничего не
+      // вылезает за край панели.
+      railRef: this._rlR || (this._rlR = (el) => { if (el) this.railEl = el; }),
+      railWrapStyle: {
+        position: 'relative', height: narrow ? '46px' : '54px',
+        marginTop: narrow ? '22px' : 'clamp(24px, 2.6vw, 34px)', touchAction: 'pan-y'
       },
-      // Засечки на самой шкале: без них деления существуют только в голове
-      // у того, кто писал проценты.
-      forkTicks: [0, 1, 2, 3].map((i) => ({
+      railTrackStyle: {
+        position: 'absolute', left: '23px', right: '23px', top: '50%',
+        height: narrow ? '8px' : '10px', marginTop: narrow ? '-4px' : '-5px',
+        borderRadius: '999px', background: 'rgba(0,0,0,0.55)',
+        boxShadow: 'inset 0 2px 3px rgba(0,0,0,0.9), inset 0 -1px 0 rgba(242,235,221,0.07)'
+      },
+      railTicks: [0, 1, 2, 3].map((i) => ({
         style: {
-          position: 'absolute', top: '13px', left: (i / 3 * 100).toFixed(4) + '%',
-          width: '2px', height: '8px', marginLeft: '-1px', marginTop: '-3px',
-          borderRadius: '2px',
-          background: i <= pickIdx ? 'rgba(242,235,221,0.8)' : 'rgba(242,235,221,0.22)',
-          transition: 'background 380ms ease'
+          position: 'absolute', top: '50%',
+          left: 'calc(23px + (100% - 46px) * ' + (i / 3).toFixed(4) + ')',
+          width: '2px', height: narrow ? '18px' : '22px',
+          marginLeft: '-1px', marginTop: narrow ? '-9px' : '-11px',
+          borderRadius: '2px', pointerEvents: 'none',
+          background: i <= pickIdx ? 'rgba(242,235,221,0.46)' : 'rgba(242,235,221,0.15)',
+          transition: 'background 440ms ease'
         }
       })),
+      railFillStyle: {
+        position: 'absolute', left: '23px', top: '50%',
+        width: 'calc((100% - 46px) * ' + (pickIdx / 3).toFixed(4) + ')',
+        height: narrow ? '8px' : '10px', marginTop: narrow ? '-4px' : '-5px',
+        borderRadius: '999px', pointerEvents: 'none',
+        background: 'linear-gradient(90deg, rgba(242,235,221,0.3), ' + CREAM + ')',
+        boxShadow: '0 0 20px rgba(242,235,221,0.3)',
+        transition: 'width 560ms ' + EZ
+      },
+      railKnobStyle: {
+        position: 'absolute', top: '50%',
+        left: 'calc((100% - 46px) * ' + (pickIdx / 3).toFixed(4) + ')',
+        width: '46px', height: narrow ? '30px' : '34px',
+        marginTop: narrow ? '-15px' : '-17px',
+        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '3px',
+        borderRadius: '12px', pointerEvents: 'none',
+        background: 'linear-gradient(180deg, #fdf9ef 0%, ' + CREAM + ' 46%, #cec5b0 100%)',
+        boxShadow: '0 2px 0 rgba(0,0,0,0.4), 0 12px 26px rgba(0,0,0,0.62), 0 0 0 6px rgba(242,235,221,0.07)',
+        transition: 'left 560ms ' + EZ
+      },
+      railKnobLineStyle: {
+        width: '2px', height: narrow ? '12px' : '14px', borderRadius: '2px',
+        background: 'rgba(10,10,10,0.28)'
+      },
+      forkInputStyle: {
+        position: 'absolute', left: 0, top: 0, width: '100%', height: '100%',
+        margin: 0, opacity: 0, cursor: 'grab',
+        WebkitAppearance: 'none', appearance: 'none', background: 'transparent'
+      },
+      forkStopsStyle: {
+        position: 'relative', height: narrow ? '40px' : '46px',
+        marginTop: narrow ? '6px' : '8px'
+      },
       forkStops: this.FORK.map((t, i) => {
         const on = i === pickIdx;
         const below = i <= pickIdx;
@@ -10441,64 +10632,62 @@ class Component extends DCLogic {
           pick: () => { if (i !== this.state.pick) { this.setState({ pick: i }); this.track('pricing_fork', { level: t.k }); } },
           wrap: {
             position: 'absolute', top: 0,
-            left: (i / 3 * 100).toFixed(4) + '%',
-            // крайние подписи прижимаем к краям, иначе они вылезают за шкалу
-            transform: i === 0 ? 'none' : (i === 3 ? 'translateX(-100%)' : 'translateX(-50%)'),
+            left: 'calc(23px + (100% - 46px) * ' + (i / 3).toFixed(4) + ')',
+            // крайние подписи прижимаем к своим засечкам, иначе они уезжают за панель
+            transform: i === 0 ? 'translateX(-23px)' : (i === 3 ? 'translateX(calc(-100% + 23px))' : 'translateX(-50%)'),
             display: 'flex', flexDirection: 'column',
             alignItems: i === 0 ? 'flex-start' : (i === 3 ? 'flex-end' : 'center'),
-            gap: '3px', padding: '2px 0',
+            gap: '5px', padding: '2px 0',
             background: 'none', border: 'none', cursor: 'pointer',
             textAlign: i === 0 ? 'left' : (i === 3 ? 'right' : 'center'),
             font: 'inherit', color: 'inherit', whiteSpace: 'nowrap'
           },
+          dot: {
+            width: on ? '9px' : '6px', height: on ? '9px' : '6px', borderRadius: '999px',
+            background: below ? CREAM : 'rgba(242,235,221,0.2)',
+            boxShadow: on ? '0 0 0 5px rgba(242,235,221,0.12)' : 'none',
+            transition: 'width 400ms ' + EZ + ', height 400ms ' + EZ
+              + ', background 400ms ease, box-shadow 400ms ease'
+          },
           val: {
             fontSize: narrow ? '12px' : 'clamp(13px, 1.1vw, 15px)', fontWeight: 600,
             letterSpacing: '-0.02em', lineHeight: 1.2, whiteSpace: 'nowrap',
-            color: on ? CREAM : (below ? 'rgba(242,235,221,0.72)' : 'rgba(242,235,221,0.52)'),
-            transition: 'color 380ms ease'
+            color: on ? CREAM : (below ? 'rgba(242,235,221,0.68)' : 'rgba(242,235,221,0.44)'),
+            transition: 'color 400ms ease'
           },
           nameStyle: {
             display: narrow ? 'none' : 'block',
             fontSize: '11.5px', lineHeight: 1.3, fontWeight: 500,
             overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '100%',
-            color: on ? 'rgba(242,235,221,0.62)' : 'rgba(242,235,221,0.26)',
-            transition: 'color 380ms ease'
+            color: on ? 'rgba(242,235,221,0.6)' : 'rgba(242,235,221,0.24)',
+            transition: 'color 400ms ease'
           }
         };
       }),
-      forkPanelStyle: {
-        display: 'grid', gridTemplateColumns: narrow ? 'minmax(0, 1fr)' : 'minmax(0, 0.9fr) minmax(0, 2fr)',
-        gap: narrow ? '18px' : 'clamp(20px, 2.4vw, 38px)',
-        marginTop: narrow ? '20px' : '26px', padding: narrow ? '20px' : 'clamp(22px, 2vw, 30px)',
-        borderRadius: narrow ? '22px' : '26px',
-        border: '1px solid rgba(242,235,221,0.12)',
-        background: 'linear-gradient(168deg, #171717 0%, #101010 60%, #0c0c0c 100%)'
-      },
-      forkSumStyle: { display: 'flex', flexDirection: 'column', gap: '8px', minWidth: 0 },
-      forkSumCapStyle: {
-        fontSize: '11px', fontWeight: 700, letterSpacing: '0.18em',
-        textTransform: 'uppercase', color: 'rgba(242,235,221,0.52)'
-      },
-      forkSumPriceStyle: {
-        fontSize: narrow ? '22px' : 'clamp(23px, 2.1vw, 30px)', fontWeight: 600,
-        letterSpacing: '-0.035em', lineHeight: 1.08, color: CREAM, textWrap: 'balance'
-      },
-      forkSumTermStyle: { fontSize: '13px', fontWeight: 500, color: 'rgba(242,235,221,0.52)' },
       forkCap: this.FORK[pickIdx].cap,
       forkName: this.FORK[pickIdx].name,
-      forkTerm: this.FORK[pickIdx].term,
+      forkTerm: 'срок — ' + this.FORK[pickIdx].term,
       forkCut: this.FORK[pickIdx].cut,
-      forkCutStyle: {
-        marginTop: '6px', fontSize: narrow ? '13px' : '13.5px', lineHeight: 1.5, fontWeight: 500,
-        color: 'rgba(242,235,221,0.52)', textWrap: 'pretty'
-      },
       // Шестнадцать строк с галочками читались как договор. Те же
       // шестнадцать пунктов фишками занимают вдвое меньше места и
       // сравниваются глазом: видно, сколько зажглось и сколько осталось.
-      forkListStyle: {
-        display: 'flex', flexWrap: 'wrap', alignContent: 'flex-start',
-        gap: narrow ? '7px' : '8px', minWidth: 0
+      deskListStyle: {
+        position: 'relative', display: 'flex', flexWrap: 'wrap', alignContent: 'flex-start',
+        gap: narrow ? '7px' : '8px', minWidth: 0,
+        marginTop: narrow ? '20px' : '28px', paddingTop: narrow ? '18px' : '24px',
+        borderTop: '1px solid rgba(242,235,221,0.08)'
       },
+      // Тянешь ручку — видно, что на эти деньги уже входит, а что
+      // открывается уровнем выше. Работает и мышью, и пальцем, и
+      // стрелками с клавиатуры: под кнопками живёт обычный range.
+      onPick: this._opk || (this._opk = (e) => {
+        const v = Math.max(0, Math.min(3, parseInt((e && e.target && e.target.value) || 0, 10) || 0));
+        if (v !== this.state.pick) {
+          this.setState({ pick: v });
+          this.track('pricing_fork', { level: this.TIERS[v].k });
+        }
+      }),
+      pickVal: String(pickIdx),
       // На телефоне шестнадцать фишек — это три с половиной экрана прокрутки
       // ради одного ответа «что я получу на этом уровне». Поэтому там
       // показываем только то, что уже входит, а остальное сворачиваем
@@ -11304,6 +11493,9 @@ class Component extends DCLogic {
       } : {
         position: 'relative', display: 'flex', minWidth: 0, minHeight: 0,
         flexDirection: 'row', justifyContent: 'center',
+        // Закрытый лист отзывов стоит уехавшим на 101 % вниз — без этой
+        // обрезки он на десктопе ложился поверх блока цен.
+        overflow: 'hidden',
         // высота считается от окна за вычетом шапки и заголовка секции:
         // раньше телефон свешивался за нижний край на ноутбуках 900px
         flex: '0 0 auto', height: 'min(88vh, 1040px)', minHeight: '560px'
