@@ -4831,17 +4831,30 @@ class Component extends DCLogic {
       if (n.style.opacity === '1') { q.splice(i, 1); continue; }
       nodes.push(n);
     }
+    // Сначала читаем всю геометрию, потом пишем все стили. Раньше это шло
+    // вперемешку в одном цикле: каждая запись сбрасывала раскладку, и
+    // следующий getBoundingClientRect заставлял браузер пересчитать её
+    // заново — по два десятка принудительных раскладок за проход. Это и
+    // была половина всех чтений геометрии на странице.
+    const show = [];
     for (const n of nodes) {
       const r = n.getBoundingClientRect();
       if (r.top > vh * 0.86) continue;
       // завеса действует только пока сцена реально стоит на экране
       if (veil > 0 && r.top < veil && r.bottom > 0) continue;
+      show.push(n);
+    }
+    for (const n of show) {
       n.__shown = 1;
       { const sec = n.closest && n.closest('section[id]'); if (sec) sec.__seen = 1; }
       n.style.transitionDelay = (n.dataset.rd || 0) + 'ms';
       n.style.opacity = '1';
       n.style.transform = 'none';
       n.style.filter = 'none';
+      // Слой под появление больше не нужен: держать его вечно — значит
+      // платить памятью и растром за то, что уже отыграло.
+      const off = () => { if (n.style.opacity === '1') n.style.willChange = 'auto'; };
+      setTimeout(off, 1100 + (parseFloat(n.dataset.rd) || 0));
       if (this.io) this.io.unobserve(n);
       const qi = q.indexOf(n);
       if (qi >= 0) q.splice(qi, 1);
@@ -4849,10 +4862,14 @@ class Component extends DCLogic {
     // строки текста досматриваем только пока есть что досматривать
     if (!this.wActive || !this.wActive.size) return;
     const wl = this.rootEl.querySelectorAll('[data-words]');
+    const done = [];
     for (const el of wl) {
       if (el.__wdone || !el.__wu) continue;
       const r = el.getBoundingClientRect();
       if (r.bottom > vh * 0.5) continue;
+      done.push(el);
+    }
+    for (const el of done) {
       el.__wdone = 1; el.__p = 1;
       this.wActive.delete(el);
       if (this.wIo) this.wIo.unobserve(el);
@@ -5215,7 +5232,15 @@ class Component extends DCLogic {
     const prev = this.decW || 0;
     const need = Math.max(cw, ch / this.srcA) * (this.mob ? 1.09 : 1.03);
     this.decW = Math.max(560, Math.min(this.srcW, Math.round(need)));
-    const bytes = this.decW * Math.round(this.decW * this.srcA) * 4;
+    // Уменьшать кадр прямо при декодировании стоит дорого: качественный
+    // ресемплер внутри createImageBitmap — это и есть все длинные кадры на
+    // первом экране. Замеряно: выключаешь уменьшение — кадров длиннее 32 мс
+    // ноль, p90 падает с 46 до 19 мс, а экономия была 1645 против 1916 по
+    // ширине, то есть четверть пикселей. Платить за это рывками незачем.
+    // Уменьшаем только когда экономия настоящая — больше трети пикселей;
+    // иначе берём кадр как есть, а бюджет памяти сам ужмёт кольцо.
+    this.bmW = this.decW <= this.srcW * 0.8 ? this.decW : this.srcW;
+    const bytes = this.bmW * Math.round(this.bmW * this.srcA) * 4;
     const mem = navigator.deviceMemory || 0;
     const budget = (this.lowData ? 150
       : this.mob ? (mem && mem <= 4 ? 200 : 280)
@@ -5232,8 +5257,12 @@ class Component extends DCLogic {
     let an = 0;
     for (let i = 0; i < this.T; i++) if (A[i]) an++;
     this.anch = A; this.anchCount = an;
-    // живое окно вокруг текущего кадра — всё, что осталось от бюджета
-    this.ring = Math.max(6, Math.min(this.T, this.ringCap - an - 2));
+    // Живое окно вокруг текущего кадра — всё, что осталось от бюджета.
+    // Окно двустороннее: вперёд на ring, назад ещё на треть от него
+    // (см. pickBm). Раньше здесь стоял сам остаток бюджета, как будто окно
+    // одностороннее, — и в памяти оседало вдвое больше кадров, чем
+    // заложено: 80 штук при расчётных 53, то есть 660 МБ вместо 440.
+    this.ring = Math.max(6, Math.min(this.T, Math.floor((this.ringCap - an - 2) / 1.34)));
     if (prev && (this.decW > prev * 1.2 || this.decW * 1.2 < prev)) this.dropBm();
   }
 
@@ -5372,7 +5401,7 @@ class Component extends DCLogic {
       done();
     };
     if (window.createImageBitmap) {
-      const w = this.decW;
+      const w = this.bmW || this.decW;
       const p = w < this.srcW
         ? createImageBitmap(b, { resizeWidth: w, resizeQuality: 'high' }).catch(() => createImageBitmap(b))
         : createImageBitmap(b);
@@ -9217,12 +9246,21 @@ class Component extends DCLogic {
         bottom: (BARH + 10) + 'px',
         pointerEvents: dockShow ? 'auto' : 'none'
       },
-      cSpecScrimStyle: {
-        position: 'fixed', left: 0, right: 0, top: 0, bottom: 0,
-        background: 'rgba(5,5,5,0.62)', backdropFilter: 'blur(3px)', WebkitBackdropFilter: 'blur(3px)',
-        opacity: specOn && dockShow ? 1 : 0, pointerEvents: specOn && dockShow ? 'auto' : 'none',
-        transition: 'opacity 360ms ease'
-      },
+      cSpecScrimStyle: (() => {
+        const vis = specOn && dockShow;
+        return {
+          position: 'fixed', left: 0, right: 0, top: 0, bottom: 0,
+          background: 'rgba(5,5,5,0.62)',
+          // Слой во весь экран. Прозрачный, но пока на нём висит
+          // backdrop-filter, браузер держит под ним отдельный слой и
+          // размывает его каждый кадр — на любой машине, не только слабой.
+          backdropFilter: vis ? 'blur(3px)' : 'none',
+          WebkitBackdropFilter: vis ? 'blur(3px)' : 'none',
+          visibility: vis ? 'visible' : 'hidden',
+          opacity: vis ? 1 : 0, pointerEvents: vis ? 'auto' : 'none',
+          transition: 'opacity 360ms ease, visibility 0ms linear ' + (vis ? '0ms' : '360ms')
+        };
+      })(),
       cSpecSheetStyle: {
         position: 'relative', boxSizing: 'border-box', maxWidth: 'var(--maxw)', margin: '0 auto',
         padding: '0 var(--gut)',
@@ -9283,7 +9321,8 @@ class Component extends DCLogic {
         borderRadius: narrow ? '20px' : '24px',
         backgroundColor: 'rgba(10,10,10,0.92)',
         boxShadow: '0 18px 48px rgba(0,0,0,0.55)',
-        backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)',
+        backdropFilter: dockShow ? 'blur(14px)' : 'none',
+        WebkitBackdropFilter: dockShow ? 'blur(14px)' : 'none',
         transform: dockShow ? 'translateY(0)' : 'translateY(120%)',
         opacity: dockShow ? 1 : 0,
         transition: 'transform 620ms ' + EZ + ', opacity 300ms ease'
@@ -10105,7 +10144,8 @@ class Component extends DCLogic {
         padding: '20px 22px 20px 20px', borderRadius: '20px',
         border: '1px solid rgba(242,235,221,0.11)', backgroundColor: 'rgba(22,22,22,0.9)',
         backgroundImage: 'linear-gradient(180deg, rgba(242,235,221,0.05), rgba(242,235,221,0) 60%)',
-        backdropFilter: 'blur(14px)', WebkitBackdropFilter: 'blur(14px)',
+        backdropFilter: st.mHelp ? 'blur(14px)' : 'none',
+        WebkitBackdropFilter: st.mHelp ? 'blur(14px)' : 'none',
         boxShadow: 'inset 0 1px 0 rgba(242,235,221,0.1), 0 26px 49px rgba(0,0,0,0.58)',
         opacity: st.mHelp ? 1 : 0, pointerEvents: st.mHelp ? 'auto' : 'none',
         transform: st.mHelp ? 'translateY(0) scale(1)' : 'translateY(12px) scale(0.97)',
