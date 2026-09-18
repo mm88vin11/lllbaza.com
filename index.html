@@ -1122,7 +1122,7 @@
                     </div>
                     <div style="position: absolute; inset: 0; z-index: 1;">
                       <sc-if value="{{ f.hasVideo }}" hint-placeholder-val="{{ false }}">
-                        <video sc-camel-src="{{ f.video }}" sc-camel-poster="{{ f.poster }}" sc-camel-auto-play="{{ true }}" muted loop
+                        <video data-fvi="{{ f.idx }}" sc-camel-src="{{ f.video }}" sc-camel-poster="{{ f.poster }}" muted loop
                                sc-camel-plays-inline="{{ true }}" preload="auto"
                                aria-hidden="true" style="{{ fVideoStyle }}"></video>
                       </sc-if>
@@ -3141,6 +3141,24 @@ class Component extends DCLogic {
 
     if (Math.abs(v.scrollTop - this.fPos) < 0.4) return;
     v.scrollTop = this.fPos;
+  }
+
+  // Играет ровно одна карточка — та, что на экране. Соседние уже
+  // загружены и декодированы, но стоят на паузе: два лишних декодера на
+  // телефоне — это и есть «лента подлагивает».
+  fVidTick() {
+    const v = this.fViewEl;
+    if (!v) return;
+    const cur = this.state.fi || 0;
+    const els = v.querySelectorAll('video[data-fvi]');
+    for (let i = 0; i < els.length; i++) {
+      const el = els[i];
+      if (+el.getAttribute('data-fvi') === cur) {
+        if (el.paused) { const pr = el.play(); if (pr && pr.catch) pr.catch(() => {}); }
+      } else if (!el.paused) {
+        el.pause();
+      }
+    }
   }
 
   fSetup() {
@@ -5585,6 +5603,7 @@ class Component extends DCLogic {
     this.forkTick(dt);
     try { this.stageVis(); } catch (e) {}
     try { this.fDrive(dt); } catch (e) {}
+    if (this.tickN % 12 === 3 || this.fViLast !== this.state.fi) { this.fViLast = this.state.fi; try { this.fVidTick(); } catch (e) {} }
     this.stgTick(dt);
     try { this.dsvTick(); } catch (e) {}
     if (this.navMorph > 0) { this.navMorph -= dt; this.paintNav(); }
@@ -12077,6 +12096,11 @@ class Component extends DCLogic {
       }),
       feed: this.FEEDD.map((it, i) => {
         const on = i === fi;
+        // Раньше видео существовало только у активной карточки: на каждом
+        // перелистывании браузер создавал элемент заново, грузил и
+        // декодировал первый кадр — и вот эта пауза и читалась как рывок.
+        // Теперь кадр соседей готов заранее, а играет всё равно один.
+        const near = Math.abs(i - fi) <= 1;
         const lk = !!fLikes[i];
         const rc = fRvN(i);
         const q = fQuo[i];
@@ -12098,7 +12122,8 @@ class Component extends DCLogic {
           },
           video: it.video ? this.rsrc(it.video) : '',
           poster: it.poster ? this.rsrc(it.poster) : '',
-          hasVideo: !!it.video && on,
+          idx: String(i),
+          hasVideo: !!it.video && near,
           noVideo: !it.video,
           hint: {
             position: 'absolute', zIndex: 4, left: '50%', top: '38%',
