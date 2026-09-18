@@ -1909,6 +1909,13 @@
        поездки в такси — цифра видна всегда, подробности по тапу.
        Стоит рядом с остальными фиксированными слоями страницы, чтобы не
        зависеть от контекста наложения внутри секции. -->
+  <!-- ── РАСПАД ЛЕНТЫ ─────────────────────────────────────────────────
+       Между блоком с ноутбуком и ценами был обрыв: кадр просто уезжал.
+       Теперь карточка рассыпается — пыль берёт цвета с живого кадра и
+       уносится вверх, а под ней уже стоит следующий блок. Холст висит
+       в координатах окна, поэтому не зависит от вёрстки секции. -->
+  <canvas ref="{{ dsvRef }}" aria-hidden="true" style="{{ dsvStyle }}"></canvas>
+
   <div style="{{ cDockStyle }}">
     <div style="{{ cSpecScrimStyle }}" onClick="{{ cCloseSpec }}"></div>
 
@@ -5579,6 +5586,7 @@ class Component extends DCLogic {
     try { this.stageVis(); } catch (e) {}
     try { this.fDrive(dt); } catch (e) {}
     this.stgTick(dt);
+    try { this.dsvTick(); } catch (e) {}
     if (this.navMorph > 0) { this.navMorph -= dt; this.paintNav(); }
     if (this.tickN % 10 === 2) this.spy();
     if (this.tickN % 14 === 6) this.sweepReveals();
@@ -7795,6 +7803,196 @@ class Component extends DCLogic {
   // наклонялся. Резкий сброс и был тем «дёргается, когда убираешь мышку».
   stgLeave() { this.stgTx = 0; this.stgTy = 0; }
 
+  // ——— РАСПАД ЛЕНТЫ НА АТОМЫ ——————————————————————————————————————————
+  // На стыке ленты и цен был обрыв: кадр просто уезжал вверх. Теперь он
+  // расстаётся — карточка рассыпается пылью, пыль уносит вверх и вбок, а
+  // под ней уже стоит следующий блок.
+  //
+  // Цвета берём с живого кадра: один раз, в момент начала распада, кадр
+  // сжимается в сетку 34×58, и каждая ячейка становится частицей своего
+  // цвета. Поэтому это не абстрактные точки, а именно та карточка, которая
+  // только что играла.
+  //
+  // Всё считается от прокрутки, а не от таймера: остановился на середине —
+  // распад замер; поехал назад — собрался обратно.
+  // Плотность сетки: на слабой машине пыль крупнее, но кадр не проседает.
+  dsvGrid() {
+    return (this.slow || this.lowPower || this.coarse) ? [26, 44] : [44, 76];
+  }
+
+  // Карточек в ленте семь, и все они живут в DOM одновременно: шесть
+  // стоят за краем экрана. Брать «первое попавшееся видео» нельзя —
+  // рассыплется кадр, которого никто не видел. Берём тот, у которого
+  // сейчас больше всего пикселей в окне.
+  dsvSrc() {
+    const sh = this.fShellEl;
+    if (!sh) return null;
+    const vw = window.innerWidth || 1, vh = window.innerHeight || 1;
+    let best = null, bestA = 0;
+    for (const el of sh.querySelectorAll('video, img')) {
+      const b = el.getBoundingClientRect();
+      const w = Math.min(b.right, vw) - Math.max(b.left, 0);
+      const h = Math.min(b.bottom, vh) - Math.max(b.top, 0);
+      if (w < 40 || h < 40) continue;
+      const a = w * h;
+      if (a > bestA) { bestA = a; best = el; }
+    }
+    return bestA > 9000 ? best : null;
+  }
+
+  // Откуда взять цвета. Обычно — прямо с проигрываемого кадра. Если
+  // браузер ещё не декодировал видео (или не умеет этот кодек), берём
+  // его же постер: он уже лежит в кэше и выглядит так же. Не вышло и
+  // это — распад всё равно состоится, просто пыль будет ровной.
+  dsvPaint(el) {
+    if (!el) return null;
+    if (el.tagName !== 'VIDEO') return el.naturalWidth ? el : null;
+    if (el.videoWidth) return el;
+    const ps = el.getAttribute('poster');
+    if (!ps) return null;
+    let im = el.__pimg;
+    if (!im) { im = el.__pimg = new Image(); im.src = ps; }
+    return im.naturalWidth ? im : null;
+  }
+
+  dsvSeed() {
+    const g = this.dsvGrid(), NX = g[0], NY = g[1];
+    const el = this.dsvSrc();
+    // Ничего видимого нет — не сеем: на следующем кадре попробуем снова.
+    if (!el) return null;
+    const box = el.getBoundingClientRect();
+    if (box.width < 8 || box.height < 8) return null;
+    let data = null;
+    const paint = this.dsvPaint(el);
+    if (paint) {
+      try {
+        const off = this.dsvBuf || (this.dsvBuf = document.createElement('canvas'));
+        off.width = NX; off.height = NY;
+        const oc = off.getContext('2d', { willReadFrequently: true });
+        oc.drawImage(paint, 0, 0, NX, NY);
+        data = oc.getImageData(0, 0, NX, NY).data;
+      } catch (e) { data = null; }
+    }
+    const cw = box.width / NX, ch = box.height / NY;
+    const pts = [];
+    for (let j = 0; j < NY; j++) {
+      for (let i = 0; i < NX; i++) {
+        const o = (j * NX + i) * 4;
+        const r = data ? data[o] : 150, gg = data ? data[o + 1] : 146, b = data ? data[o + 2] : 134;
+        // Почти чёрные ячейки прореживаем: на них всё равно нечего смотреть,
+        // а каждая снятая частица — это кадр, который никто не ждёт.
+        if (r + gg + b < 74 && Math.random() < 0.58) continue;
+        const a = Math.random() * Math.PI * 2;
+        pts.push({
+          x: box.left + (i + 0.5) * cw,
+          y: box.top + (j + 0.5) * ch,
+          // вверх и врозь: как искры от костра, а не как падающий снег
+          vx: Math.cos(a) * 26 + (i / NX - 0.5) * 80,
+          vy: -58 - Math.random() * 120,
+          w: Math.max(1.4, cw * 0.92), h: Math.max(1.4, ch * 0.92),
+          c: 'rgb(' + (r & 248) + ',' + (gg & 248) + ',' + (b & 248) + ')',
+          // нижний край уходит первым: распад идёт навстречу новому блоку
+          t0: (1 - j / NY) * 0.46 + Math.random() * 0.2,
+          sp: 0.55 + Math.random() * 0.5
+        });
+      }
+    }
+    // Одинаковый цвет — подряд: тогда fillStyle меняется двести раз
+    // за кадр, а не две тысячи.
+    pts.sort((a, b) => (a.c < b.c ? -1 : (a.c > b.c ? 1 : 0)));
+    return { pts: pts, box: box, y0: window.scrollY || 0 };
+  }
+
+  dsvClear() {
+    const sh = this.fShellEl;
+    if (sh && sh.__dsv) {
+      sh.style.opacity = '';
+      sh.style.transform = '';
+      sh.__o = null; sh.__dsv = 0;
+    }
+    if (this.dsvCtx && this.dsvW) this.dsvCtx.clearRect(0, 0, this.dsvW, this.dsvH);
+    this.dsvSet = null;
+    this.dsvDrawn = 0;
+  }
+
+  dsvTick() {
+    const sh = this.fShellEl, cv = this.dsvEl;
+    if (!sh || !cv) return;
+    const vh = window.innerHeight || 1;
+    const r = sh.getBoundingClientRect();
+    // Окно распада — ровно стык: низ ленты с 78 % экрана до 14 %.
+    let p = (vh * 0.78 - r.bottom) / (vh * 0.64);
+    p = Math.max(0, Math.min(1, p));
+    if (r.bottom <= -40) p = 1;
+    this.dsvP = p;
+    if (p <= 0.002) { if (this.dsvSet || this.dsvDrawn) this.dsvClear(); return; }
+
+    if (!this.dsvSet) {
+      this.dsvSet = this.dsvSeed();
+      if (!this.dsvSet) return;
+    }
+    // Лента гаснет и чуть поднимается — обе величины композитные,
+    // поэтому браузер не перерисовывает под ними ни пикселя.
+    const o = (1 - p * p).toFixed(3);
+    if (sh.__o !== o) { sh.__o = o; sh.style.opacity = o; }
+    sh.style.transform = 'translate3d(0,' + (-p * 30).toFixed(1) + 'px,0)';
+    sh.__dsv = 1;
+
+    if (p >= 0.999 || this.still) {
+      if (this.dsvDrawn && this.dsvCtx) { this.dsvCtx.clearRect(0, 0, this.dsvW, this.dsvH); this.dsvDrawn = 0; }
+      return;
+    }
+
+    // Точки запомнены на своей прокрутке: разницу компенсируем сдвигом,
+    // иначе пыль «прилипает» к странице и уезжает вместе с ней.
+    const dy = (this.dsvSet.y0 - (window.scrollY || 0));
+    const B = this.dsvSet.box;
+    // Холст ровно по облаку пыли, а не во весь экран: очистка каждого
+    // кадра — единственная неизбежная плата, и платить за пустоту незачем.
+    const PAD = 250;
+    const L = Math.max(0, Math.floor(B.left - PAD));
+    const T = Math.max(0, Math.floor(B.top + dy - PAD));
+    const RR = Math.min(window.innerWidth, Math.ceil(B.right + PAD));
+    const BB = Math.min(vh, Math.ceil(B.top + dy + B.height + 60));
+    const bw = Math.max(1, RR - L), bh = Math.max(1, BB - T);
+    const dpr = Math.min(1.6, window.devicePixelRatio || 1);
+    const w = Math.round(bw * dpr), h = Math.round(bh * dpr);
+    if (cv.width !== w || cv.height !== h) {
+      cv.width = w; cv.height = h;
+      cv.style.width = bw + 'px'; cv.style.height = bh + 'px';
+      this.dsvCtx = null;
+    }
+    const mv = 'translate3d(' + L + 'px,' + T + 'px,0)';
+    if (cv.__mv !== mv) { cv.__mv = mv; cv.style.transform = mv; }
+    if (!this.dsvCtx) this.dsvCtx = cv.getContext('2d');
+    const ctx = this.dsvCtx;
+    this.dsvW = w; this.dsvH = h;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.clearRect(0, 0, bw, bh);
+
+    const pts = this.dsvSet.pts;
+    let cur = '';
+    for (let n = 0; n < pts.length; n++) {
+      const q = pts[n];
+      let k = (p - q.t0) / 0.44;
+      if (k <= 0) continue;
+      if (k > 1) k = 1;
+      const e = k * k;
+      const al = 1 - k;
+      if (al <= 0.02) continue;
+      if (q.c !== cur) { cur = q.c; ctx.fillStyle = cur; }
+      ctx.globalAlpha = al;
+      const sz = 1 - k * 0.45;
+      ctx.fillRect(
+        q.x + q.vx * e * q.sp - L,
+        q.y + dy + q.vy * e * q.sp - T,
+        q.w * sz, q.h * sz
+      );
+    }
+    ctx.globalAlpha = 1;
+    this.dsvDrawn = 1;
+  }
+
   stgTick(dt) {
     if (!this.stgCtx) return;
     // за пределами экрана сцену не считаем, но один кадр рисуем сразу после
@@ -9928,6 +10126,15 @@ class Component extends DCLogic {
         overflow: 'hidden', clip: 'rect(0 0 0 0)', clipPath: 'inset(50%)', whiteSpace: 'nowrap', border: 0
       },
       headRef: this._hdRef || (this._hdRef = (el) => { if (el) this.headEl = el; }),
+      // ── РАСПАД ЛЕНТЫ НА АТОМЫ ──────────────────────────────────────
+      // Холст стоит в координатах окна и по умолчанию не рисует ничего:
+      // ни памяти, ни кадров он не ест, пока стык не подошёл.
+      dsvRef: this._dsvR || (this._dsvR = (el) => { if (el) this.dsvEl = el; }),
+      dsvStyle: {
+        position: 'fixed', left: 0, top: 0, width: '1px', height: '1px',
+        transformOrigin: '0 0', willChange: 'transform',
+        zIndex: 5, pointerEvents: 'none', display: 'block'
+      },
       metricsBarRef: this._mbRef || (this._mbRef = (el) => { if (el) this.metricsBarEl = el; }),
       blurRef: this._bRef || (this._bRef = (el) => { if (el) this.blurEl = el; }),
       phoneRef: this._phRef || (this._phRef = (el) => { if (el) this.phoneEl = el; }),
